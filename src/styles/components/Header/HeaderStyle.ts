@@ -109,20 +109,9 @@ export const SearchInput = styled.input`
   }
 `
 
-export const UserProfile = styled.div`
+export const ProfileContainer = styled.div`
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  border: 0.1px solid #000;
-  border-radius: 50%;
-  img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
+  display: inline-block;
 `
 
 export const ProfileDropdown = styled.div`
