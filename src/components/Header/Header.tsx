@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import * as S from '@styles/components/Header/HeaderStyle'
 import Logo from '@components/Common/Logo'
+import ProfileImage from '@components/Common/ProfileImage.tsx'
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -80,13 +81,8 @@ const Header: React.FC = () => {
               style={{ paddingLeft: '36px' }}
             />
           </S.SearchBox>
-          <S.UserProfile ref={dropdownRef}>
-            <img
-              src="/user_default_profile.png"
-              alt="User Profile"
-              onClick={toggleDropdown}
-              style={{ cursor: 'pointer' }}
-            />
+          <S.ProfileContainer ref={dropdownRef}>
+            <ProfileImage onClick={toggleDropdown} />
             {isDropdownOpen && (
               <S.ProfileDropdown>
                 <S.ProfileDropdownTail />
@@ -109,7 +105,7 @@ const Header: React.FC = () => {
                 </S.DropdownMenu>
               </S.ProfileDropdown>
             )}
-          </S.UserProfile>
+          </S.ProfileContainer>
         </S.NavigationRightSection>
       </S.NavigationContainer>
     </S.HeaderContainer>
