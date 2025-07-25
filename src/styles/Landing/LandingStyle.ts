@@ -4,7 +4,11 @@ export const LandingContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: linear-gradient(
     to right,
     #f5dd97ff 0%,
@@ -14,14 +18,18 @@ export const LandingContainer = styled.div`
   );
   position: relative;
   overflow: hidden;
-  padding: 20px;
+`
+
+export const LogoContainer = styled.div`
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  height: 20%;
 `
 
 export const Logo = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 40px;
-  margin-bottom: 40px;
   z-index: 10;
 
   img {
@@ -40,7 +48,7 @@ export const ContentContainer = styled.div`
 
   width: 100%;
   max-width: 1200px;
-  height: calc(100% - 140px);
+  height: 80%;
 `
 
 export const PhotoCardsContainer = styled.div`
@@ -51,14 +59,24 @@ export const PhotoCardsContainer = styled.div`
 
 export const PhotoCard1 = styled.p`
   width: 250px;
-  height: 810px;
+  height: 600px;
+  img {
+    width: auto;
+    height: 700px;
+    object-fit: cover;
+  }
 `
 
 export const PhotoCard2 = styled.p`
   width: 250px;
-  height: 810px;
+  height: 600px;
   rotate: 10deg;
   margin-left: -50px;
+  img {
+    width: auto;
+    height: 700px;
+    object-fit: cover;
+  }
 `
 
 export const StartButton = styled.button`
@@ -67,7 +85,7 @@ export const StartButton = styled.button`
   height: 75px;
   font-size: 20px;
   position: relative;
-  transform: translateX(100%) translateY(-50%);
+  transform: translateX(100%) translateY(-200%);
   text-align: center;
   color: black;
   border: none;
@@ -79,6 +97,7 @@ export const StartButton = styled.button`
     margin: 0 10px;
     width: 24px;
     height: auto;
+    transform: translateY(10%);
   }
 
   &:hover {
