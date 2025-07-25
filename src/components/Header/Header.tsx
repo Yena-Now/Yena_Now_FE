@@ -1,21 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  HeaderContainer,
-  LogoContainer,
-  MenuLink,
-  NavigationContainer,
-  NavigationLeftSection,
-  NavigationRightSection,
-  ProfileDropdown,
-  ProfileDropdownTail,
-  SearchBox,
-  SearchIcon,
-  SearchInput,
-  UserProfile,
-} from '@styles/components/Header/HeaderStyle'
+import * as S from '@styles/components/Header/HeaderStyle'
+import Logo from '@components/Common/Logo'
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -51,23 +37,19 @@ const Header: React.FC = () => {
   }, [])
 
   return (
-    <HeaderContainer>
-      <LogoContainer>
-        <Link to="/">
-          <img src="/header_logo.png" alt="Logo" />
-        </Link>
-      </LogoContainer>
-      <NavigationContainer>
-        <NavigationLeftSection>
+    <S.HeaderContainer>
+      <Logo />
+      <S.NavigationContainer>
+        <S.NavigationLeftSection>
           <Link to="/film">
             <div>N컷 촬영</div>
           </Link>
           <Link to="/gallery">갤러리</Link>
           <Link to="/daily-moment">어제의 순간</Link>
-        </NavigationLeftSection>
-        <NavigationRightSection>
-          <SearchBox>
-            <SearchIcon>
+        </S.NavigationLeftSection>
+        <S.NavigationRightSection>
+          <S.SearchBox>
+            <S.SearchIcon>
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                 <circle
                   cx="9"
@@ -86,8 +68,8 @@ const Header: React.FC = () => {
                   strokeLinecap="round"
                 />
               </svg>
-            </SearchIcon>
-            <SearchInput
+            </S.SearchIcon>
+            <S.SearchInput
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
@@ -95,8 +77,8 @@ const Header: React.FC = () => {
               placeholder="사용자 검색"
               style={{ paddingLeft: '36px' }}
             />
-          </SearchBox>
-          <UserProfile ref={dropdownRef}>
+          </S.SearchBox>
+          <S.UserProfile ref={dropdownRef}>
             <img
               src="/user_default_profile.png"
               alt="User Profile"
@@ -104,31 +86,31 @@ const Header: React.FC = () => {
               style={{ cursor: 'pointer' }}
             />
             {isDropdownOpen && (
-              <ProfileDropdown>
-                <ProfileDropdownTail />
-                <DropdownMenu>
-                  <DropdownMenuItem>
-                    <MenuLink as={Link} to="/profile">
+              <S.ProfileDropdown>
+                <S.ProfileDropdownTail />
+                <S.DropdownMenu>
+                  <S.DropdownMenuItem>
+                    <S.MenuLink as={Link} to="/profile">
                       내 프로필
-                    </MenuLink>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <MenuLink as={Link} to="/profile/edit">
+                    </S.MenuLink>
+                  </S.DropdownMenuItem>
+                  <S.DropdownMenuItem>
+                    <S.MenuLink as={Link} to="/profile/edit">
                       내 프로필 편집
-                    </MenuLink>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <MenuLink as={Link} to="/logout">
+                    </S.MenuLink>
+                  </S.DropdownMenuItem>
+                  <S.DropdownMenuItem>
+                    <S.MenuLink as={Link} to="/logout">
                       로그아웃
-                    </MenuLink>
-                  </DropdownMenuItem>
-                </DropdownMenu>
-              </ProfileDropdown>
+                    </S.MenuLink>
+                  </S.DropdownMenuItem>
+                </S.DropdownMenu>
+              </S.ProfileDropdown>
             )}
-          </UserProfile>
-        </NavigationRightSection>
-      </NavigationContainer>
-    </HeaderContainer>
+          </S.UserProfile>
+        </S.NavigationRightSection>
+      </S.NavigationContainer>
+    </S.HeaderContainer>
   )
 }
 

@@ -13,30 +13,6 @@ export const HeaderContainer = styled.header`
   }
 `
 
-export const LogoContainer = styled.div`
-  width: 100%;
-  height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-
-  img {
-    max-height: 80px;
-    max-width: 100%;
-    object-fit: contain;
-    margin: 0 auto;
-    display: block;
-  }
-
-  @media (max-width: 768px) {
-    height: 60px;
-    img {
-      max-height: 50px;
-    }
-  }
-`
-
 export const NavigationContainer = styled.nav`
   display: flex;
   justify-content: space-between;
