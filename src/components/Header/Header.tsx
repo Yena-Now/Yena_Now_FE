@@ -38,7 +38,9 @@ const Header: React.FC = () => {
 
   return (
     <S.HeaderContainer>
-      <Logo />
+      <Link to="/">
+        <Logo />
+      </Link>
       <S.NavigationContainer>
         <S.NavigationLeftSection>
           <Link to="/film">
