@@ -15,7 +15,7 @@ import {
   SearchIcon,
   SearchInput,
   UserProfile,
-} from '@styles/Header/HeaderStyle'
+} from '@styles/components/Header/HeaderStyle'
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')

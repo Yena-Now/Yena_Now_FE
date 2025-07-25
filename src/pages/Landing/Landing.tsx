@@ -6,13 +6,13 @@ import {
   PhotoCard2,
   PhotoCardsContainer,
   StartButton,
-} from '@styles/Landing/LandingStyle'
+} from '@styles/pages/Landing/LandingStyle'
 import React from 'react'
 
 import logoImage from '/header_logo.png'
 import landingImage from '@assets/Landing/landing_photo.png'
 import photo from '@assets/Landing/photo.svg'
-import { LogoContainer } from '@styles/Header/HeaderStyle'
+import { LogoContainer } from '@styles/components/Header/HeaderStyle'
 import { Link } from 'react-router-dom'
 
 const Landing: React.FC = () => {

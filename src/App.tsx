@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import Header from '@components/Header'
+import Header from '@components/Header/Header'
 import GlobalStyle from '@styles/GlobalStyle'
-import Landing from '@pages/Landing'
+import Landing from '@pages/Landing/Landing'
 import { useState, useEffect } from 'react'
 
 function App() {
