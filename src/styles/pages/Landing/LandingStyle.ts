@@ -20,24 +20,6 @@ export const LandingContainer = styled.div`
   overflow: hidden;
 `
 
-export const LogoContainer = styled.div`
-  display: flex;
-  width: 100%;
-  max-width: 1200px;
-  height: 20%;
-`
-
-export const Logo = styled.div`
-  display: flex;
-  justify-content: center;
-  z-index: 10;
-
-  img {
-    width: 120px;
-    height: auto;
-  }
-`
-
 export const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
