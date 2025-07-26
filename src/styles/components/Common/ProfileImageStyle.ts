@@ -10,9 +10,9 @@ export const ProfileImageWrapper = styled.div`
   border-radius: 50%;
 `;
 
-export const ProfileImage = styled.img`
-  width: 40px;
-  height: 40px;
+export const ProfileImage = styled.img<{ height: string, width: string }>`
+  width: ${({ width }) => width};
+  height: ${({ height }) => height};
   object-fit: cover;
   border-radius: 50%;
 `;
