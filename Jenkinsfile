@@ -18,7 +18,6 @@ pipeline {
             steps {
                 echo '2. React 빌드'
                 sh '''
-                    npm install -g yarn
                     yarn install --frozen-lockfile
                     yarn build
                 '''
