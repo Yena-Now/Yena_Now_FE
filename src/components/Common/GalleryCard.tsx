@@ -1,25 +1,43 @@
 import type { NCut } from '@/types/NCutList'
-import { GoHeartFill  } from "react-icons/go";
+import { GoHeartFill } from 'react-icons/go'
+import { FaRotate } from 'react-icons/fa6'
+import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/Common/GalleryCardStyle'
 
-const GalleryCard:React.FC<NCut> = ({userUuid, profileUrl, nickname, ncut_uuid, thumbnailUrl, likeCount, isRelay}) => {
+const GalleryCard: React.FC<NCut> = ({
+  userUuid,
+  profileUrl,
+  nickname,
+  ncut_uuid,
+  thumbnailUrl,
+  likeCount,
+  isRelay,
+}) => {
   return (
     <>
-    <S.Conainter>
+      <S.Conainter>
         <S.PhotoWrapper>
-            <S.Photo src={thumbnailUrl} alt="" />
+          <S.RelayIcon>
+            {isRelay && <FaRotate style={{ color: 'white' }} />}
+          </S.RelayIcon>
+          <S.Photo src={thumbnailUrl} alt="" />
         </S.PhotoWrapper>
         <S.InfoWrapper>
-            <S.Box>
-                <S.ProfileImage src={profileUrl} /> 
-                <S.UserName>{nickname}</S.UserName> 
-            </S.Box>
-            <S.Box>
-                <GoHeartFill size={12} />
-                <S.likeText>{likeCount}</S.likeText>
-            </S.Box>
+          <S.Box>
+            <ProfileImage
+              src={profileUrl}
+              alt={nickname}
+              height="25px"
+              width="25px"
+            />
+            <S.UserName>{nickname}</S.UserName>
+          </S.Box>
+          <S.Box>
+            <GoHeartFill size={12} />
+            <S.likeText>{likeCount}</S.likeText>
+          </S.Box>
         </S.InfoWrapper>
-    </S.Conainter>
+      </S.Conainter>
     </>
   )
 }
