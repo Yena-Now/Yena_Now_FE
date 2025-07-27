@@ -3,6 +3,9 @@ import Header from '@components/Header/Header'
 import GlobalStyle from '@styles/GlobalStyle'
 import Landing from '@pages/Landing/Landing'
 import { useState, useEffect } from 'react'
+import Login from '@pages/Auth/Login.tsx'
+import Signup from '@pages/Auth/Signup.tsx'
+import SignupMore from '@pages/Auth/SignupMore.tsx'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -35,6 +38,24 @@ function App() {
               path="/"
               element={
                 isLoggedIn ? <Navigate to="/gallery" replace /> : <Landing />
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                isLoggedIn ? <Navigate to="/gallery" replace /> : <Login />
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                isLoggedIn ? <Navigate to="/gallery" replace /> : <Signup />
+              }
+            />
+            <Route
+              path="/signup/more"
+              element={
+                isLoggedIn ? <Navigate to="/gallery" replace /> : <SignupMore />
               }
             />
           </Routes>
