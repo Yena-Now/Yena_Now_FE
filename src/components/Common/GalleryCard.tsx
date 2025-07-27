@@ -1,6 +1,7 @@
 import type { NCut } from '@/types/NCutList'
 import { GoHeartFill } from 'react-icons/go'
 import { FaRotate } from 'react-icons/fa6'
+import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/Common/GalleryCardStyle'
 
 const GalleryCard: React.FC<NCut> = ({
@@ -23,7 +24,12 @@ const GalleryCard: React.FC<NCut> = ({
         </S.PhotoWrapper>
         <S.InfoWrapper>
           <S.Box>
-            <S.ProfileImage src={profileUrl} />
+            <ProfileImage
+              src={profileUrl}
+              alt={nickname}
+              height="25px"
+              width="25px"
+            />
             <S.UserName>{nickname}</S.UserName>
           </S.Box>
           <S.Box>
