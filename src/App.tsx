@@ -44,6 +44,24 @@ function App() {
                 isLoggedIn ? <Navigate to="/gallery" replace /> : <Landing />
               }
             />
+            <Route
+              path="/login"
+              element={
+                isLoggedIn ? <Navigate to="/gallery" replace /> : <Login />
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                isLoggedIn ? <Navigate to="/gallery" replace /> : <Signup />
+              }
+            />
+            <Route
+              path="/signup/more"
+              element={
+                isLoggedIn ? <Navigate to="/gallery" replace /> : <SignupMore />
+              }
+            />
           </Routes>
         </main>
       </div>
