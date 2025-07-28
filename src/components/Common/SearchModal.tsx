@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import * as S from '@styles/components/Common/SearchModalStyle'
 import ProfileImage from './ProfileImage'
 import type { UserSearchModalProps, User } from '@/types/UserSearchModal'
+import { IoClose } from 'react-icons/io5'
 
 const USERS_PER_PAGE = 10
 
@@ -100,7 +101,9 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
   return (
     <S.Backdrop onClick={onClose}>
       <S.Modal onClick={(e) => e.stopPropagation()}>
-        <S.CloseButton onClick={onClose}>×</S.CloseButton>
+        <S.CloseButton onClick={onClose}>
+          <IoClose size={25} />
+        </S.CloseButton>
 
         <S.SearchInput
           ref={inputRef}
