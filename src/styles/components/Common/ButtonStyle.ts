@@ -58,17 +58,17 @@ const variantStyles = {
 const sizeStyles = {
   sm: css`
     width: 100px;
-    height: 40px;
+    height: 30px;
     font-size: 12px;
   `,
   md: css`
     width: 200px;
-    height: 50px;
+    height: 40px;
     font-size: 14px;
   `,
   lg: css`
     width: 400px;
-    height: 60px;
+    height: 50px;
     font-size: 16px;
   `,
 }
