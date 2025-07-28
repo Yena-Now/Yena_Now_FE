@@ -57,13 +57,9 @@ const Signup: React.FC = () => {
   return (
     <S.Layout>
       <S.SignupContainer>
-        <div
-        style={{
-          position: 'relative',
-          transform: 'translateY(-74%)',
-        }}>
-        <Logo />
-        </div>
+        <S.LogoWrapper>
+          <Logo />
+        </S.LogoWrapper>
         <form
           onSubmit={handleSubmit}
           style={{

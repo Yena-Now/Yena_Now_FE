@@ -7,13 +7,22 @@ export const Form = styled.form`
   align-items: center;
   margin-top: 1rem;
 `
+
+export const InputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+`
+
 export const InputGroup = styled.div`
   width: 28vw;
   height: 60px;
   margin-bottom: 1rem;
   border: none;
   border-radius: 0.5rem;
-  padding: 0 14px;
+  padding-left: 14px;
   font-size: 1rem;
   background: #fff;
   outline: none;
@@ -35,7 +44,7 @@ export const Label = styled.label`
   display: flex;
   align-items: center;
   justify-content: center;
-  border-right: 2px solid #000 ;
+  border-right: 2px solid #000;
 `
 
 export const Input = styled.input`
@@ -44,6 +53,14 @@ export const Input = styled.input`
   border-radius: 8px;
   font-size: 16px;
   flex: 1;
+  margin-left: 8px;
+`
+
+export const NicknameVerifyButtonWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
   margin-left: 8px;
 `
 
@@ -88,8 +105,14 @@ export const Select = styled.select`
   }
 `
 
+export const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+`
+
 export const Button = styled.button`
-  margin-top: 14px;
+  position: relative;
   background: #222;
   color: #fff;
   font-weight: 500;
@@ -99,5 +122,4 @@ export const Button = styled.button`
   font-size: 17px;
   cursor: pointer;
   width: 20%;
-  transform: translateX(140%);
 `

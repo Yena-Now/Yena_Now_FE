@@ -20,6 +20,15 @@ export const SignupContainer = styled.div`
   flex-direction: column;
 `
 
+export const LogoWrapper = styled.div`
+  position: absolute;
+  top: 10%;
+  left: calc(50% - 75px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
 export const Input = styled.input`
   width: 28vw;
   height: 60px;
