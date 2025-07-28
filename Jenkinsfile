@@ -7,6 +7,13 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                echo '0. 이전 빌드 내용 삭제'
+                deleteDir()  // 이전 빌드 산출물 및 작업공간 삭제
+            }
+        }
+
         stage('Checkout') {
             steps {
                 echo '1. GitLab에서 소스 코드 가져오기'
