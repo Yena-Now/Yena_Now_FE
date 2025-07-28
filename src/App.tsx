@@ -3,6 +3,9 @@ import Header from '@components/Header/Header'
 import GlobalStyle from '@styles/GlobalStyle'
 import Landing from '@pages/Landing/Landing'
 import { useState, useEffect } from 'react'
+import Login from '@pages/Auth/Login'
+import Signup from '@pages/Auth/Signup'
+import SignupMore from '@pages/Auth/SignupMore'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 
 function App() {

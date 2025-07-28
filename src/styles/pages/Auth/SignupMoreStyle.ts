@@ -1,50 +1,41 @@
 import styled from 'styled-components'
 
-export const ProfileImageButton = styled.button`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 160px;
-  height: 40px;
-  font-size: 16px;
-  background: none;
-  border: none;
-  &:hover {
-    cursor: pointer;
-  }
-`
-
 export const Form = styled.form`
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 1rem;
 `
 export const InputGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #fff;
-  border-radius: 20px;
+  width: 28vw;
+  height: 60px;
+  margin-bottom: 1rem;
   border: none;
-  width: 100%;
-  height: 50px;
-  margin-top: 20px;
-  box-sizing: border-box;
+  border-radius: 0.5rem;
+  padding: 0 14px;
+  font-size: 1rem;
+  background: #fff;
+  outline: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: content-box;
 `
 
 export const Label = styled.label`
   font-size: 14px;
   font-weight: 500;
   margin-left: 8px;
+  height: 50%;
   width: 100px;
   padding-right: 12px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-right: 2px solid #000;
+  border-right: 2px solid #000 ;
 `
 
 export const Input = styled.input`
@@ -53,6 +44,7 @@ export const Input = styled.input`
   border-radius: 8px;
   font-size: 16px;
   flex: 1;
+  margin-left: 8px;
 `
 
 export const NicknameVerifyButton = styled.button`
@@ -81,6 +73,7 @@ export const GenderGroup = styled.div`
 `
 
 export const Select = styled.select`
+  margin-left: 8px;
   padding: 10px 12px;
   border: none;
   border-radius: 8px;
@@ -106,5 +99,5 @@ export const Button = styled.button`
   font-size: 17px;
   cursor: pointer;
   width: 20%;
-  transform: translateX(200%);
+  transform: translateX(140%);
 `

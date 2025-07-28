@@ -117,8 +117,8 @@ const SignupMore: React.FC = () => {
         <Logo />
         <ProfileImage
           src={formData.profileUrl}
-          width="160px"
-          height="160px"
+          width="140px"
+          height="140px"
           alt="프로필 이미지"
           onClick={() => fileInputRef.current?.click()}
         />
