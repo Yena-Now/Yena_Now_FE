@@ -52,7 +52,7 @@ pipeline {
                             docker load -i /tmp/fe-image.tar && \
                             docker stop ${DOCKER_IMAGE_NAME} || true && \
                             docker rm ${DOCKER_IMAGE_NAME} || true && \
-                            docker run -d --name ${DOCKER_IMAGE_NAME} -p 80:80 \
+                            docker run -d --name ${DOCKER_IMAGE_NAME} -p 81:80 \
                                 ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}
                         '
                         rm -f fe-image.tar

@@ -7,7 +7,6 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install -g yarn
 RUN yarn install --frozen-lockfile
 
 # Copy source code
