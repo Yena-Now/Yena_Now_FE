@@ -2,11 +2,10 @@ import React, { useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import * as S from '@styles/pages/Auth/AuthGlobalStyle'
 import * as S2 from '@styles/pages/Auth/SignupMoreStyle'
-import Logo from '@components/Common/Logo.tsx'
+import Logo from '@components/Common/Logo'
 
 import defaultProfileImage from '/user_default_profile.png'
 import ProfileImage from '@components/Common/ProfileImage'
-import { IoShareOutline } from 'react-icons/io5'
 
 const SignupMore: React.FC = () => {
   const location = useLocation()
@@ -16,7 +15,16 @@ const SignupMore: React.FC = () => {
     password: string
   }
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    email: string
+    password: string
+    nickname: string
+    profileImage: string
+    name: string | null
+    gender: string | null
+    birthDate: string | null
+    phoneNumber: string | null
+  }>({
     email,
     password,
     nickname: '',
@@ -25,6 +33,12 @@ const SignupMore: React.FC = () => {
     gender: null,
     birthDate: null,
     phoneNumber: null,
+  })
+
+  const [formBirth, setFormBirth] = useState({
+    birthYear: null,
+    birthMonth: null,
+    birthDay: null,
   })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,12 +55,32 @@ const SignupMore: React.FC = () => {
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  const handleBirthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormBirth({ ...formBirth, [e.target.name]: e.target.value })
+  }
+
+  const combineDate = (year: string, month: string, day: string) => {
+    return `${year}${month.padStart(2, '0')}${day.padStart(2, '0')}`
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setFormData((prev) => ({
+      ...prev,
+      birthDate: combineDate(
+        formBirth.birthYear || '',
+        formBirth.birthMonth || '',
+        formBirth.birthDay || '',
+      ),
+    }))
+    console.log('회원가입 정보:', formData)
+    alert('회원가입 정보가 제출되었습니다.')
   }
 
   const verifyNickname = async (nickname: string) => {
@@ -81,19 +115,9 @@ const SignupMore: React.FC = () => {
           style={{ display: 'none' }}
           onChange={handleFileChange}
         />
-        <S2.ProfileImageButton onClick={() => fileInputRef.current?.click()}>
-          프로필 업로드 &nbsp; <IoShareOutline />
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            onChange={handleFileChange}
-          />
-        </S2.ProfileImageButton>
         <S2.Form onSubmit={handleSubmit}>
-          <S2.Label htmlFor="nickname">닉네임</S2.Label>
           <S2.InputGroup>
+            <S2.Label htmlFor="nickname">닉네임</S2.Label>
             <S2.Input
               type="text"
               id="nickname"
@@ -117,56 +141,109 @@ const SignupMore: React.FC = () => {
               중복 확인
             </S2.NicknameVerifyButton>
           </S2.InputGroup>
-          <S2.Label htmlFor="name">이름</S2.Label>
-          <S2.Input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name || ''}
-            onChange={handleChange}
-          />
-          <S2.Label>성별</S2.Label>
-          <S2.GenderGroup>
-            <label>
-              <input
-                type="radio"
-                id="gender-male"
-                name="gender"
-                value="male"
-                checked={formData.gender === 'male'}
-                onChange={handleChange}
-              />
-              남성
-            </label>
-            <label>
-              <input
-                type="radio"
-                id="gender-female"
-                name="gender"
-                value="female"
-                checked={formData.gender === 'female'}
-                onChange={handleChange}
-              />
-              여성
-            </label>
-          </S2.GenderGroup>
-          <S2.Label htmlFor="birthDate">생년월일</S2.Label>
-          <S2.Input
-            type="date"
-            id="birthDate"
-            name="birthDate"
-            value={formData.birthDate || ''}
-            onChange={handleChange}
-          />
-          <S2.Label htmlFor="phoneNumber">전화번호</S2.Label>
-          <S2.Input
-            type="tel"
-            id="phoneNumber"
-            name="phoneNumber"
-            value={formData.phoneNumber || ''}
-            onChange={handleChange}
-          />
-          <S2.Button type="submit">회원가입</S2.Button>
+          <S2.InputGroup>
+            <S2.Label htmlFor="name">이름</S2.Label>
+            <S2.Input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name || ''}
+              onChange={handleChange}
+            />
+          </S2.InputGroup>
+          <S2.InputGroup>
+            <S2.Label>성별</S2.Label>
+            <S2.GenderGroup>
+              <label>
+                <input
+                  type="radio"
+                  id="gender-male"
+                  name="gender"
+                  value="male"
+                  checked={formData.gender === 'male'}
+                  onChange={handleChange}
+                />
+                남성
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  id="gender-female"
+                  name="gender"
+                  value="female"
+                  checked={formData.gender === 'female'}
+                  onChange={handleChange}
+                />
+                여성
+              </label>
+            </S2.GenderGroup>
+          </S2.InputGroup>
+          <S2.InputGroup>
+            <S2.Label htmlFor="birthDate">생년월일</S2.Label>
+            <S2.Select
+              name="birthYear"
+              value={formBirth.birthYear || ''}
+              onChange={handleBirthChange}
+            >
+              <option value="" disabled>
+                YYYY
+              </option>
+              {Array.from(
+                { length: new Date().getFullYear() - 1900 + 1 },
+                (_, i) => new Date().getFullYear() - i,
+              ).map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </S2.Select>
+
+            <span>/</span>
+
+            <S2.Select
+              name="birthMonth"
+              value={formBirth.birthMonth || ''}
+              onChange={handleBirthChange}
+            >
+              <option value="" disabled>
+                MM
+              </option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                <option key={month} value={month}>
+                  {month}
+                </option>
+              ))}
+            </S2.Select>
+            <span>/</span>
+
+            <S2.Select
+              name="birthDay"
+              value={formBirth.birthDay || ''}
+              onChange={handleBirthChange}
+            >
+              <option value="" disabled>
+                DD
+              </option>
+              {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                <option key={day} value={day}>
+                  {day}
+                </option>
+              ))}
+            </S2.Select>
+          </S2.InputGroup>
+          <S2.InputGroup>
+            <S2.Label htmlFor="phoneNumber">전화번호</S2.Label>
+            <S2.Input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              pattern="^\d{11}$"
+              placeholder="01012345678"
+              value={formData.phoneNumber || ''}
+              onChange={handleChange}
+            />
+          </S2.InputGroup>
+          <S2.Button type="submit">확인</S2.Button>
         </S2.Form>
       </S.SignupContainer>
     </S.Layout>

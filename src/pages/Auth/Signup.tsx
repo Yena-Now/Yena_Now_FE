@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as S from '@styles/pages/Auth/AuthGlobalStyle'
-import Logo from '@components/Common/Logo.tsx'
+import Logo from '@components/Common/Logo'
 
 const Signup: React.FC = () => {
   const [form, setForm] = useState({
@@ -59,7 +59,15 @@ const Signup: React.FC = () => {
     <S.Layout>
       <S.SignupContainer>
         <Logo />
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
           <S.Input
             type="email"
             name="email"

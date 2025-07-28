@@ -10,13 +10,16 @@ export const Layout = styled.div`
 export const SignupContainer = styled.div`
   background: #fff0c3;
   width: 40vw;
+  max-width: 40vw;
+  min-height: 80vh;
+  max-height: 90vh;
   border-radius: 32px;
   padding: 3rem;
   box-sizing: border-box;
   display: flex;
   justify-content: center;
-  flex-direction: column;
   align-items: center;
+  flex-direction: column;
 `
 
 export const Input = styled.input`
