@@ -10,7 +10,7 @@ pipeline {
         stage('Clean Workspace') {
             steps {
                 echo '0. 이전 빌드 내용 삭제'
-                deleteDir()  // 이전 빌드 산출물 및 작업공간 삭제
+                deleteDir()
             }
         }
 
@@ -39,9 +39,6 @@ pipeline {
         }
 
         stage('Deploy to Production') {
-            when {
-                branch 'master'
-            }
             steps {
                 echo '4. master 브랜치 → 배포 시작'
                 sshagent(credentials: ['server-ssh-key']) {
