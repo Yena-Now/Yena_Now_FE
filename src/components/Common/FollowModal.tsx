@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import type { UserListItemProps, UserListProps } from '@/types/UserList'
 import { IoIosClose } from 'react-icons/io'
 import ProfileImage from '@components/Common/ProfileImage'
-import * as S from '@styles/components/Common/FollowModalStyle.ts'
+import * as S from '@styles/components/Common/FollowModalStyle'
 
 const UserListItem: React.FC<
   UserListItemProps & { toggleFollow: () => void }

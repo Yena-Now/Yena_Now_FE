@@ -5,10 +5,10 @@ import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/Common/GalleryCardStyle'
 
 const GalleryCard: React.FC<NCut> = ({
-  userUuid,
+  // userUuid,
   profileUrl,
   nickname,
-  ncut_uuid,
+  // ncut_uuid,
   thumbnailUrl,
   likeCount,
   isRelay,

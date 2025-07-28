@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import * as S from '@styles/components/Header/HeaderStyle'
 import Logo from '@components/Common/Logo'
-import ProfileImage from '@components/Common/ProfileImage.tsx'
+import ProfileImage from '@components/Common/ProfileImage'
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
