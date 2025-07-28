@@ -5,6 +5,7 @@ const variantStyles = {
   dark: css`
     background-color: #4d4d4d;
     color: #fff;
+    border-radius: 15px;
 
     &:hover {
       filter: brightness(90%);
@@ -13,6 +14,7 @@ const variantStyles = {
   lightGray: css`
     background-color: #dddddd;
     color: #444444;
+    border-radius: 15px;
 
     &:hover {
       filter: brightness(95%);
@@ -45,6 +47,7 @@ const variantStyles = {
   yellow: css`
     background-color: #f2c94c;
     color: #444444;
+    border-radius: 20px;
 
     &:hover {
       filter: brightness(95%);
@@ -79,7 +82,6 @@ export const StyledButton = styled.button<ButtonProps>`
   align-items: center;
   justify-content: center;
   user-select: none;
-  border-radius: 30px;
 
   &:active {
     transform: scale(0.97);
