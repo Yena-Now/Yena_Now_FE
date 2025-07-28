@@ -1,14 +1,17 @@
 import React, { useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import * as S from '@styles/pages/Auth/AuthGlobalStyle'
 import * as S2 from '@styles/pages/Auth/SignupMoreStyle'
 import Logo from '@components/Common/Logo'
 
 import defaultProfileImage from '/user_default_profile.png'
 import ProfileImage from '@components/Common/ProfileImage'
+import { authAPI } from '@/api/auth'
 
 const SignupMore: React.FC = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { email, password } = location.state as {
     email: string
@@ -19,26 +22,26 @@ const SignupMore: React.FC = () => {
     email: string
     password: string
     nickname: string
-    profileImage: string
+    profileUrl: string
     name: string | null
     gender: string | null
-    birthDate: string | null
+    birthdate: string | null
     phoneNumber: string | null
   }>({
     email,
     password,
     nickname: '',
-    profileImage: defaultProfileImage as string,
+    profileUrl: defaultProfileImage as string,
     name: null,
     gender: null,
-    birthDate: null,
+    birthdate: null,
     phoneNumber: null,
   })
 
   const [formBirth, setFormBirth] = useState({
-    birthYear: null,
-    birthMonth: null,
-    birthDay: null,
+    birthYear: '',
+    birthMonth: '',
+    birthDay: '',
   })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,7 +51,7 @@ const SignupMore: React.FC = () => {
       reader.onloadend = () => {
         setFormData((prev) => ({
           ...prev,
-          profileImage: reader.result as string,
+          profileUrl: reader.result as string,
         }))
       }
       reader.readAsDataURL(file)
@@ -66,21 +69,32 @@ const SignupMore: React.FC = () => {
   }
 
   const combineDate = (year: string, month: string, day: string) => {
-    return `${year}${month.padStart(2, '0')}${day.padStart(2, '0')}`
+    const date = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    return date === '--' ? null : date
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setFormData((prev) => ({
-      ...prev,
-      birthDate: combineDate(
-        formBirth.birthYear || '',
-        formBirth.birthMonth || '',
-        formBirth.birthDay || '',
-      ),
-    }))
-    console.log('회원가입 정보:', formData)
-    alert('회원가입 정보가 제출되었습니다.')
+    const birthDate = combineDate(
+      formBirth.birthYear || '',
+      formBirth.birthMonth || '',
+      formBirth.birthDay || '',
+    )
+    const submitData = {
+      ...formData,
+      birthdate: birthDate,
+    }
+    const result = await authAPI.signup(submitData)
+    if (result.userUuid) {
+      navigate('/login')
+      return { success: true, message: '회원가입이 완료되었습니다.' }
+    } else {
+      alert(result.message || '회원가입에 실패했습니다.')
+      return {
+        success: false,
+        message: result.message || '회원가입에 실패했습니다.',
+      }
+    }
   }
 
   const verifyNickname = async (nickname: string) => {
@@ -102,7 +116,7 @@ const SignupMore: React.FC = () => {
       <S.SignupContainer>
         <Logo />
         <ProfileImage
-          src={formData.profileImage}
+          src={formData.profileUrl}
           width="160px"
           height="160px"
           alt="프로필 이미지"
