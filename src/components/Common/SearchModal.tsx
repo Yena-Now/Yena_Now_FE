@@ -122,7 +122,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
                 />
                 <S.UserInfo>
                   <S.Nickname>{user.nickname}</S.Nickname>
-                  <S.Name>{user.name}</S.Name>
+                  {user.name && <S.Name>{user.name}</S.Name>}
                 </S.UserInfo>
               </S.UserItem>
               {idx < displayedUsers.length - 1 && <S.Divider />}
