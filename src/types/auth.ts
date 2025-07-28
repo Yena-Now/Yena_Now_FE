@@ -19,3 +19,15 @@ export interface NicknameVerificationResponse {
   isAvailable: boolean
   message: string
 }
+
+export interface LoginRequest {
+  email: string
+  password: string
+}
+
+export interface LoginResponse {
+  accessToken: string
+  userUuid: string
+  nickname: string
+  profileUrl: string
+}
