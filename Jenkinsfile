@@ -18,7 +18,6 @@ pipeline {
             steps {
                 echo '1. GitLab에서 소스 코드 가져오기'
                 checkout scm
-                echo "현재 Branch: ${env.BRANCH_NAME}"
             }
         }
 
@@ -40,9 +39,6 @@ pipeline {
         }
 
         stage('Deploy to Production') {
-            when {
-                branch 'master'
-            }
             steps {
                 echo '4. master 브랜치 → 배포 시작'
                 sshagent(credentials: ['server-ssh-key']) {
