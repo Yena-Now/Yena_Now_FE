@@ -3,6 +3,10 @@ import Header from '@components/Header/Header'
 import GlobalStyle from '@styles/GlobalStyle'
 import Landing from '@pages/Landing/Landing'
 import { useState, useEffect } from 'react'
+import Login from '@pages/Auth/Login'
+import Signup from '@pages/Auth/Signup'
+import SignupMore from '@pages/Auth/SignupMore'
+import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -26,6 +30,12 @@ function App() {
     <>
       <GlobalStyle />
       <div>
+        <StyledToastContainer
+          position="top-center"
+          autoClose={3000}
+          hideProgressBar={true}
+          pauseOnFocusLoss={false}
+        />
         {isLoggedIn && !window.location.pathname.startsWith('/film/') && (
           <Header />
         )}
@@ -35,6 +45,24 @@ function App() {
               path="/"
               element={
                 isLoggedIn ? <Navigate to="/gallery" replace /> : <Landing />
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                isLoggedIn ? <Navigate to="/gallery" replace /> : <Login />
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                isLoggedIn ? <Navigate to="/gallery" replace /> : <Signup />
+              }
+            />
+            <Route
+              path="/signup/more"
+              element={
+                isLoggedIn ? <Navigate to="/gallery" replace /> : <SignupMore />
               }
             />
           </Routes>
