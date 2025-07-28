@@ -3,6 +3,7 @@ import Header from '@components/Header/Header'
 import GlobalStyle from '@styles/GlobalStyle'
 import Landing from '@pages/Landing/Landing'
 import { useState, useEffect } from 'react'
+import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -26,6 +27,12 @@ function App() {
     <>
       <GlobalStyle />
       <div>
+        <StyledToastContainer
+          position="top-center"
+          autoClose={3000}
+          hideProgressBar={true}
+          pauseOnFocusLoss={false}
+        />
         {isLoggedIn && !window.location.pathname.startsWith('/film/') && (
           <Header />
         )}
