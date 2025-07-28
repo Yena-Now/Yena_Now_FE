@@ -6,13 +6,14 @@ export interface SignupRequest {
   gender?: string | null
   birthdate?: string | null
   phoneNumber?: string | null
-  profileUrl?: string | null
+  profileUrl: string
 }
 
 export interface SignupResponse {
-  success: boolean
-  message: string
-  userUuid?: string
+  accessToken: string
+  userUuid: string
+  nickname: string
+  profileUrl: string
 }
 
 export interface NicknameVerificationResponse {

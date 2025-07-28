@@ -8,18 +8,25 @@ export const Layout = styled.div`
 `
 
 export const SignupContainer = styled.div`
+  position: fixed;
   background: #fff0c3;
-  width: 40vw;
-  max-width: 40vw;
-  min-height: 80vh;
-  max-height: 90vh;
+  width: 42vw;
+  height: 80vh;
   border-radius: 32px;
   padding: 3rem;
-  box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+`
+
+export const LogoWrapper = styled.div`
+  position: absolute;
+  top: 10%;
+  left: calc(50% - 75px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `
 
 export const Input = styled.input`
@@ -36,6 +43,7 @@ export const Input = styled.input`
 `
 
 export const EmailVerifyContainer = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   margin-bottom: 2rem;
@@ -55,7 +63,7 @@ export const EmailVerifyInput = styled.input`
   box-sizing: content-box;
 `
 
-export const EmailVerifyButton = styled.button`
+export const EmailVerifyButton = styled.button<{ disabled?: boolean | false }>`
   width: 7vw;
   height: 60px;
   background: #575551;

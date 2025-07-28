@@ -34,12 +34,11 @@ const Signup: React.FC = () => {
       return
     }
     setEmailVerified(true)
-    alert(`이메일 인증 요청: ${form.email}`)
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    alert('회원가입 요청!')
+    // alert('회원가입 요청!')
     navigate('/signup/more', {
       state: { email: form.email, password: form.password },
     })
@@ -58,14 +57,16 @@ const Signup: React.FC = () => {
   return (
     <S.Layout>
       <S.SignupContainer>
-        <Logo />
+        <S.LogoWrapper>
+          <Logo />
+        </S.LogoWrapper>
         <form
           onSubmit={handleSubmit}
           style={{
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
             alignItems: 'center',
+            width: '100%',
           }}
         >
           <S.Input
@@ -82,29 +83,28 @@ const Signup: React.FC = () => {
           >
             이메일 인증
           </S.Button>
-          {emailVerified && (
-            <S.EmailVerifyContainer>
-              <S.EmailVerifyInput
-                type="text"
-                name="emailVerificationCode"
-                value={emailVerificationCode}
-                onChange={handleEmailVerificationCodeChange}
-                placeholder="인증 코드"
-              />
-              <S.EmailVerifyButton
-                type="button"
-                onClick={() => {
-                  if (emailVerificationCode === '123456') {
-                    alert('이메일 인증 성공!')
-                  } else {
-                    alert('인증 코드가 올바르지 않습니다.')
-                  }
-                }}
-              >
-                확인
-              </S.EmailVerifyButton>
-            </S.EmailVerifyContainer>
-          )}
+          <S.EmailVerifyContainer>
+            <S.EmailVerifyInput
+              type="text"
+              name="emailVerificationCode"
+              value={emailVerificationCode}
+              onChange={handleEmailVerificationCodeChange}
+              placeholder="인증 코드"
+            />
+            <S.EmailVerifyButton
+              type="button"
+              onClick={() => {
+                if (emailVerificationCode === '123456') {
+                  alert('이메일 인증 성공!')
+                } else {
+                  alert('인증 코드가 올바르지 않습니다.')
+                }
+              }}
+              disabled={!emailVerified}
+            >
+              확인
+            </S.EmailVerifyButton>
+          </S.EmailVerifyContainer>
 
           <S.Input
             type="password"
