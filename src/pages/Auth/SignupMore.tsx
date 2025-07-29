@@ -7,8 +7,10 @@ import Logo from '@components/Common/Logo'
 import defaultProfileImage from '/user_default_profile.png'
 import ProfileImage from '@components/Common/ProfileImage'
 import { authAPI } from '@/api/auth'
+import { useToast } from '@hooks/useToast'
 
 const SignupMore: React.FC = () => {
+  const { success, error } = useToast()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -86,10 +88,15 @@ const SignupMore: React.FC = () => {
     }
     const result = await authAPI.signup(submitData)
     if (result.userUuid) {
-      await authAPI.login(submitData.email, submitData.password)
+      const response = await authAPI.login({
+        email: submitData.email,
+        password: submitData.password,
+      })
+      console.log(response)
+      navigate('/gallery')
       return
     } else {
-      alert('회원가입에 실패했습니다.')
+      error('회원가입에 실패했습니다.')
       return {
         success: false,
         message: '회원가입에 실패했습니다.',
@@ -101,8 +108,8 @@ const SignupMore: React.FC = () => {
     try {
       const response = await authAPI.verifyNickname({ nickname })
       return !response.isDuplicated
-    } catch (error) {
-      console.error('닉네임 중복 확인 오류:', error)
+    } catch {
+      error('닉네임 중복 확인 오류')
       return false
     }
   }
@@ -112,9 +119,9 @@ const SignupMore: React.FC = () => {
     const isAvailable = await verifyNickname(formData.nickname)
     setIsNicknameValid(isAvailable)
     if (isAvailable) {
-      alert('사용 가능한 닉네임입니다.')
+      success('사용 가능한 닉네임입니다.')
     } else {
-      alert('이미 사용 중인 닉네임입니다.')
+      error('이미 사용 중인 닉네임입니다.')
     }
   }
 

@@ -8,16 +8,16 @@ export const Divider = styled.div`
   width: 100%;
   color: rgba(0, 0, 0, 0.35);
   font-size: 14px;
-  margin: 15px 0px;
+  margin: 15px 0;
   &:before,
   &:after {
     content: '';
     flex-grow: 1;
     background: rgba(0, 0, 0, 0.2);
     height: 1px;
-    font-size: 0px;
-    line-height: 0px;
-    margin: 0px 24px;
+    font-size: 0;
+    line-height: 0;
+    margin: 0 24px;
   }
 `
 

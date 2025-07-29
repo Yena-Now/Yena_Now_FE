@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import * as S from '@styles/pages/Auth/AuthGlobalStyle'
 import Logo from '@components/Common/Logo'
 import { authAPI } from '@/api/auth'
+import { useToast } from '@hooks/useToast'
 
 const Signup: React.FC = () => {
   const [form, setForm] = useState({
@@ -13,6 +14,8 @@ const Signup: React.FC = () => {
   const [emailVerified, setEmailVerified] = useState(false)
   const [emailVerificationCode, setEmailVerificationCode] = useState('')
   const [emailCodeVerified, setEmailCodeVerified] = useState(false)
+
+  const {success, error, info} = useToast()
 
   const navigate = useNavigate()
 
@@ -37,31 +40,30 @@ const Signup: React.FC = () => {
         setEmailCodeVerified(true)
       }
       return response.verified
-    } catch (error) {
-      console.error('이메일 인증 코드 검증 실패:', error)
+    } catch {
+      error('이메일 인증 코드 검증 실패')
       throw new Error('이메일 인증 코드 검증에 실패했습니다.')
     }
   }
 
   const handleEmailVerifyCode = async () => {
     if (!emailVerified) {
-      alert('이메일 인증을 먼저 완료해주세요.')
+      info('이메일 인증을 먼저 완료해주세요.')
       return
     }
     if (!isValidEmail(form.email)) {
-      alert('유효한 이메일 주소를 입력해주세요.')
+      error('유효한 이메일 주소를 입력해주세요.')
       return
     }
     try {
       const isVerified = await verifyEmailCode(form.email, emailVerificationCode)
       if (isVerified) {
-        alert('이메일 인증 성공!')
+        success('이메일 인증 성공!')
       } else {
-        alert('인증 코드가 올바르지 않습니다.')
+        error('인증 코드가 올바르지 않습니다.')
       }
-    } catch (error) {
-      console.error('이메일 인증 코드 검증 실패:', error)
-      alert('이메일 인증 코드 검증에 실패했습니다. 다시 시도해주세요.')
+    } catch{
+      error('이메일 인증 코드 검증 실패')
     }
   }
 
@@ -70,14 +72,13 @@ const Signup: React.FC = () => {
     try {
       const response = await authAPI.sendEmailVerification({ email: form.email })
       if (response.status === 204) {
-        alert('인증 코드가 이메일로 전송되었습니다.')
+        info('인증 코드가 이메일로 전송되었습니다.')
         setEmailVerified(true)
       } else if (response.status === 401) {
-        alert('이미 인증된 이메일입니다.')
+        error('이미 인증된 이메일입니다.')
       }
-    } catch (error) {
-      console.error('이메일 인증 요청 실패:', error)
-      alert('이메일 인증 요청에 실패했습니다. 다시 시도해주세요.')
+    } catch{
+      error('이메일 인증 요청에 실패했습니다. 다시 시도해주세요.')
     }
   }
 

@@ -8,7 +8,6 @@ import type {
   NicknameVerificationResponse,
   SignupRequest,
   SignupResponse,
-  NicknameVerificationResponse,
   LoginRequest,
   LoginResponse,
 } from '@/types/auth'
@@ -69,12 +68,15 @@ export const authAPI = {
 
   login: async (loginData: LoginRequest): Promise<LoginResponse> => {
     const response = await apiClient.post('/auth/login', loginData)
+    localStorage.setItem('accessToken', response.data.accessToken)
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`
     return response.data
   },
 
   logout: async () => {
     const response = await apiClient.post('/auth/logout')
     localStorage.removeItem('accessToken')
+    delete apiClient.defaults.headers.common['Authorization']
     return response.data
   },
 }
