@@ -80,6 +80,7 @@ export const authAPI = {
     const response = await apiClient.post('/auth/logout')
     localStorage.removeItem('accessToken')
     delete apiClient.defaults.headers.common['Authorization']
+    window.dispatchEvent(new Event('authChange'))
     return response.data
   },
 }
