@@ -16,7 +16,23 @@ export interface SignupResponse {
   profileUrl: string
 }
 
+export interface EmailVerificationRequest {
+  email: string
+}
+
+export interface EmailVerifyRequest {
+  email: string
+  code: string
+}
+
+export interface EmailVerifyResponse {
+  verified: boolean
+}
+
+export interface NicknameVerificationRequest {
+  nickname: string
+}
+
 export interface NicknameVerificationResponse {
-  isAvailable: boolean
-  message: string
+  isDuplicated: boolean
 }

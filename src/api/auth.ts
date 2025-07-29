@@ -1,16 +1,46 @@
 import apiClient from './client'
+import type { AxiosResponse } from 'axios'
 import type {
+  EmailVerificationRequest,
+  EmailVerifyRequest,
+  EmailVerifyResponse,
+  NicknameVerificationRequest,
+  NicknameVerificationResponse,
   SignupRequest,
   SignupResponse,
-  NicknameVerificationResponse,
 } from '@/types/auth'
 
 export const authAPI = {
+  sendEmailVerification: async (
+    email: EmailVerificationRequest,
+  ): Promise<AxiosResponse<object>> => {
+    const response = await apiClient.post('/users/verification-email', email, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    console.log(response)
+    return response
+  },
+
+  verifyEmail: async (
+    req: EmailVerifyRequest,
+  ): Promise<EmailVerifyResponse> => {
+    const response = await apiClient.post('/users/verify-email', req, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    return response.data
+  },
+
   verifyNickname: async (
-    nickname: string,
+    nickname: NicknameVerificationRequest,
   ): Promise<NicknameVerificationResponse> => {
-    const response = await apiClient.get('/nickname/verify', {
-      params: { nickname },
+    const response = await apiClient.post('/users/nickname', nickname, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
     return response.data
   },
