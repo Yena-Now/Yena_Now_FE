@@ -69,7 +69,10 @@ export const authAPI = {
   login: async (loginData: LoginRequest): Promise<LoginResponse> => {
     const response = await apiClient.post('/auth/login', loginData)
     localStorage.setItem('accessToken', response.data.accessToken)
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`
+    apiClient.defaults.headers.common['Authorization'] =
+      `Bearer ${response.data.accessToken}`
+
+    window.dispatchEvent(new Event('authChange'))
     return response.data
   },
 
