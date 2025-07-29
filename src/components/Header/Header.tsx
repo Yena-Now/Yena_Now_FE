@@ -1,13 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import * as S from '@styles/components/Header/HeaderStyle'
 import Logo from '@components/Common/Logo'
 import ProfileImage from '@components/Common/ProfileImage'
+import { authAPI } from '@/api/auth'
+import { useToast } from '@/hooks/useToast'
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const { error } = useToast()
+  const navigate = useNavigate()
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -17,6 +21,15 @@ const Header: React.FC = () => {
     if (e.key === 'Enter') {
       //   handleSearchSubmit();
       setSearchQuery('')
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout()
+      navigate('/login')
+    } catch {
+      error('로그아웃에 실패했습니다. 다시 시도해주세요.')
     }
   }
 
@@ -98,9 +111,7 @@ const Header: React.FC = () => {
                     </S.MenuLink>
                   </S.DropdownMenuItem>
                   <S.DropdownMenuItem>
-                    <S.MenuLink as={Link} to="/logout">
-                      로그아웃
-                    </S.MenuLink>
+                    <S.MenuLink onClick={handleLogout}>로그아웃</S.MenuLink>
                   </S.DropdownMenuItem>
                 </S.DropdownMenu>
               </S.ProfileDropdown>
