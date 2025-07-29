@@ -5,7 +5,7 @@ export const Divider = styled.div`
   flex-basis: 100%;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 75%;
   color: rgba(0, 0, 0, 0.35);
   font-size: 14px;
   margin: 15px 0px;
@@ -24,7 +24,7 @@ export const Divider = styled.div`
 export const OptionSection = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 95%;
+  width: 65%;
   margin-bottom: 16px;
 `
 
