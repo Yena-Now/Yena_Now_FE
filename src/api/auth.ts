@@ -8,6 +8,9 @@ import type {
   NicknameVerificationResponse,
   SignupRequest,
   SignupResponse,
+  NicknameVerificationResponse,
+  LoginRequest,
+  LoginResponse,
 } from '@/types/auth'
 
 export const authAPI = {
@@ -64,16 +67,8 @@ export const authAPI = {
     return response.data
   },
 
-  login: async (email: string, password: string) => {
-    const response = await apiClient.post(
-      '/auth/login',
-      { email, password },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    )
+  login: async (loginData: LoginRequest): Promise<LoginResponse> => {
+    const response = await apiClient.post('/auth/login', loginData)
     return response.data
   },
 

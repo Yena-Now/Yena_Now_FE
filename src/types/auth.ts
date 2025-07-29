@@ -36,3 +36,15 @@ export interface NicknameVerificationRequest {
 export interface NicknameVerificationResponse {
   isDuplicated: boolean
 }
+
+export interface LoginRequest {
+  email: string
+  password: string
+}
+
+export interface LoginResponse {
+  accessToken: string
+  userUuid: string
+  nickname: string
+  profileUrl: string
+}
