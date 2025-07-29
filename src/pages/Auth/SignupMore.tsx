@@ -86,42 +86,53 @@ const SignupMore: React.FC = () => {
     }
     const result = await authAPI.signup(submitData)
     if (result.userUuid) {
-      navigate('/login')
-      return { success: true, message: '회원가입이 완료되었습니다.' }
+      await authAPI.login(submitData.email, submitData.password)
+      return
     } else {
-      alert(result.message || '회원가입에 실패했습니다.')
+      alert('회원가입에 실패했습니다.')
       return {
         success: false,
-        message: result.message || '회원가입에 실패했습니다.',
+        message: '회원가입에 실패했습니다.',
       }
     }
   }
 
   const verifyNickname = async (nickname: string) => {
     try {
-      const response = await fetch(`/api/nickname/verify?nickname=${nickname}`)
-      if (!response.ok) {
-        throw new Error('닉네임 중복 확인 실패')
-      }
-      const data = await response.json()
-      return data.isAvailable
+      const response = await authAPI.verifyNickname({ nickname })
+      return !response.isDuplicated
     } catch (error) {
       console.error('닉네임 중복 확인 오류:', error)
       return false
     }
   }
 
+  const [isNicknameValid, setIsNicknameValid] = useState<boolean>(false)
+  const handleNicknameVerify = async () => {
+    const isAvailable = await verifyNickname(formData.nickname)
+    setIsNicknameValid(isAvailable)
+    if (isAvailable) {
+      alert('사용 가능한 닉네임입니다.')
+    } else {
+      alert('이미 사용 중인 닉네임입니다.')
+    }
+  }
+
   return (
     <S.Layout>
       <S.SignupContainer>
-        <Logo />
-        <ProfileImage
-          src={formData.profileUrl}
-          width="160px"
-          height="160px"
-          alt="프로필 이미지"
-          onClick={() => fileInputRef.current?.click()}
-        />
+        <S.LogoWrapper>
+          <Logo />
+        </S.LogoWrapper>
+        <S2.ProfileImageWrapper>
+          <ProfileImage
+            src={formData.profileUrl}
+            width="140px"
+            height="140px"
+            alt="프로필 이미지"
+            onClick={() => fileInputRef.current?.click()}
+          />
+        </S2.ProfileImageWrapper>
         <input
           type="file"
           accept="image/*"
@@ -130,134 +141,135 @@ const SignupMore: React.FC = () => {
           onChange={handleFileChange}
         />
         <S2.Form onSubmit={handleSubmit}>
-          <S2.InputGroup>
-            <S2.Label htmlFor="nickname">닉네임</S2.Label>
-            <S2.Input
-              type="text"
-              id="nickname"
-              name="nickname"
-              value={formData.nickname}
-              onChange={handleChange}
-              required
-            />
-            <S2.NicknameVerifyButton
-              type="button"
-              onClick={async () => {
-                const isAvailable = await verifyNickname(formData.nickname)
-                if (isAvailable) {
-                  alert('사용 가능한 닉네임입니다.')
-                } else {
-                  alert('이미 사용 중인 닉네임입니다.')
-                }
-              }}
-              disabled={!formData.nickname}
-            >
-              중복 확인
-            </S2.NicknameVerifyButton>
-          </S2.InputGroup>
-          <S2.InputGroup>
-            <S2.Label htmlFor="name">이름</S2.Label>
-            <S2.Input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name || ''}
-              onChange={handleChange}
-            />
-          </S2.InputGroup>
-          <S2.InputGroup>
-            <S2.Label>성별</S2.Label>
-            <S2.GenderGroup>
-              <label>
-                <input
-                  type="radio"
-                  id="gender-male"
-                  name="gender"
-                  value="male"
-                  checked={formData.gender === 'male'}
-                  onChange={handleChange}
-                />
-                남성
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  id="gender-female"
-                  name="gender"
-                  value="female"
-                  checked={formData.gender === 'female'}
-                  onChange={handleChange}
-                />
-                여성
-              </label>
-            </S2.GenderGroup>
-          </S2.InputGroup>
-          <S2.InputGroup>
-            <S2.Label htmlFor="birthDate">생년월일</S2.Label>
-            <S2.Select
-              name="birthYear"
-              value={formBirth.birthYear || ''}
-              onChange={handleBirthChange}
-            >
-              <option value="" disabled>
-                YYYY
-              </option>
-              {Array.from(
-                { length: new Date().getFullYear() - 1900 + 1 },
-                (_, i) => new Date().getFullYear() - i,
-              ).map((year) => (
-                <option key={year} value={year}>
-                  {year}
+          <S2.InputContainer>
+            <S2.NicknameWrapper>
+              <S2.Label htmlFor="nickname">닉네임</S2.Label>
+              <S2.Input
+                type="text"
+                id="nickname"
+                name="nickname"
+                placeholder="닉네임"
+                value={formData.nickname}
+                onChange={handleChange}
+              />
+              <S2.NicknameVerifyButtonWrapper>
+                <S2.NicknameVerifyButton
+                  type="button"
+                  onClick={handleNicknameVerify}
+                  disabled={!formData.nickname}
+                >
+                  중복 확인
+                </S2.NicknameVerifyButton>
+              </S2.NicknameVerifyButtonWrapper>
+            </S2.NicknameWrapper>
+            <S2.InputGroup>
+              <S2.Label htmlFor="name">이름</S2.Label>
+              <S2.Input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name || ''}
+                onChange={handleChange}
+              />
+            </S2.InputGroup>
+            <S2.InputGroup>
+              <S2.Label>성별</S2.Label>
+              <S2.GenderGroup>
+                <label>
+                  <input
+                    type="radio"
+                    id="gender-male"
+                    name="gender"
+                    value="male"
+                    checked={formData.gender === 'male'}
+                    onChange={handleChange}
+                  />
+                  남성
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    id="gender-female"
+                    name="gender"
+                    value="female"
+                    checked={formData.gender === 'female'}
+                    onChange={handleChange}
+                  />
+                  여성
+                </label>
+              </S2.GenderGroup>
+            </S2.InputGroup>
+            <S2.InputGroup>
+              <S2.Label htmlFor="birthDate">생년월일</S2.Label>
+              <S2.Select
+                name="birthYear"
+                value={formBirth.birthYear || ''}
+                onChange={handleBirthChange}
+              >
+                <option value="" disabled>
+                  YYYY
                 </option>
-              ))}
-            </S2.Select>
+                {Array.from(
+                  { length: new Date().getFullYear() - 1900 + 1 },
+                  (_, i) => new Date().getFullYear() - i,
+                ).map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </S2.Select>
 
-            <span>/</span>
+              <span>/</span>
 
-            <S2.Select
-              name="birthMonth"
-              value={formBirth.birthMonth || ''}
-              onChange={handleBirthChange}
-            >
-              <option value="" disabled>
-                MM
-              </option>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                <option key={month} value={month}>
-                  {month}
+              <S2.Select
+                name="birthMonth"
+                value={formBirth.birthMonth || ''}
+                onChange={handleBirthChange}
+              >
+                <option value="" disabled>
+                  MM
                 </option>
-              ))}
-            </S2.Select>
-            <span>/</span>
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </S2.Select>
+              <span>/</span>
 
-            <S2.Select
-              name="birthDay"
-              value={formBirth.birthDay || ''}
-              onChange={handleBirthChange}
-            >
-              <option value="" disabled>
-                DD
-              </option>
-              {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                <option key={day} value={day}>
-                  {day}
+              <S2.Select
+                name="birthDay"
+                value={formBirth.birthDay || ''}
+                onChange={handleBirthChange}
+              >
+                <option value="" disabled>
+                  DD
                 </option>
-              ))}
-            </S2.Select>
-          </S2.InputGroup>
-          <S2.InputGroup>
-            <S2.Label htmlFor="phoneNumber">전화번호</S2.Label>
-            <S2.Input
-              type="tel"
-              id="phoneNumber"
-              name="phoneNumber"
-              pattern="^\d{11}$"
-              placeholder="01012345678"
-              value={formData.phoneNumber || ''}
-              onChange={handleChange}
-            />
-          </S2.InputGroup>
-          <S2.Button type="submit">확인</S2.Button>
+                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                  <option key={day} value={day}>
+                    {day}
+                  </option>
+                ))}
+              </S2.Select>
+            </S2.InputGroup>
+            <S2.InputGroup>
+              <S2.Label htmlFor="phoneNumber">전화번호</S2.Label>
+              <S2.Input
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                pattern="^\d{11}$"
+                placeholder="01012345678"
+                value={formData.phoneNumber || ''}
+                onChange={handleChange}
+              />
+            </S2.InputGroup>
+            <S2.ButtonWrapper>
+              <S2.Button type="submit" disabled={!isNicknameValid}>
+                확인
+              </S2.Button>
+            </S2.ButtonWrapper>
+          </S2.InputContainer>
         </S2.Form>
       </S.SignupContainer>
     </S.Layout>

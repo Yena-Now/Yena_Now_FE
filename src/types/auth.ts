@@ -6,18 +6,35 @@ export interface SignupRequest {
   gender?: string | null
   birthdate?: string | null
   phoneNumber?: string | null
-  profileUrl?: string | null
+  profileUrl: string
 }
 
 export interface SignupResponse {
-  success: boolean
-  message: string
-  userUuid?: string
+  accessToken: string
+  userUuid: string
+  nickname: string
+  profileUrl: string
+}
+
+export interface EmailVerificationRequest {
+  email: string
+}
+
+export interface EmailVerifyRequest {
+  email: string
+  code: string
+}
+
+export interface EmailVerifyResponse {
+  verified: boolean
+}
+
+export interface NicknameVerificationRequest {
+  nickname: string
 }
 
 export interface NicknameVerificationResponse {
-  isAvailable: boolean
-  message: string
+  isDuplicated: boolean
 }
 
 export interface LoginRequest {

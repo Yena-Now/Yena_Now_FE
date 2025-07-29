@@ -6,6 +6,9 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
+# Copy .env
+COPY .env.production ./
+
 # Install dependencies
 RUN yarn install --frozen-lockfile
 
