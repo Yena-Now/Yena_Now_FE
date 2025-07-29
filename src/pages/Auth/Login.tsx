@@ -12,7 +12,7 @@ const Login: React.FC = () => {
 
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  const [autoLogin, setAutoLogin] = useState<boolean>(false)
+  // const [autoLogin, setAutoLogin] = useState<boolean>(false)
 
   const handleSubmit = async () => {
     if (email === '' && password === '') {
@@ -63,7 +63,7 @@ const Login: React.FC = () => {
             <S.CheckBox
               type="checkbox"
               id="autoLogin"
-              onChange={() => setAutoLogin((prev) => !prev)}
+              // onChange={() => setAutoLogin((prev) => !prev)}
             />
             <S.Text htmlFor="autoLogin">자동 로그인</S.Text>
           </S.AutoLoginBox>
