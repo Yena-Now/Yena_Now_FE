@@ -20,6 +20,25 @@ function App() {
     }
 
     checkAuthStatus()
+
+    const handleStorageChange = () => {
+      const token = localStorage.getItem('accessToken')
+      setIsLoggedIn(!!token)
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    const handleCustomStorageChange = () => {
+      const token = localStorage.getItem('accessToken')
+      setIsLoggedIn(!!token)
+    }
+
+    window.addEventListener('authChange', handleCustomStorageChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('authChange', handleCustomStorageChange)
+    }
   }, [])
 
   if (isLoading) {
@@ -63,6 +82,16 @@ function App() {
               path="/signup/more"
               element={
                 isLoggedIn ? <Navigate to="/gallery" replace /> : <SignupMore />
+              }
+            />
+            <Route
+              path="/gallery"
+              element={
+                isLoggedIn ? (
+                  <div>Gallery Page</div>
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
           </Routes>
