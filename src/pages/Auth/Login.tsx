@@ -67,7 +67,7 @@ const Login: React.FC = () => {
             />
             <S.Text htmlFor="autoLogin">자동 로그인</S.Text>
           </S.AutoLoginBox>
-          <Link to="#">
+          <Link to="/reset-password">
             <S.PasswordButton>비밀번호 재설정</S.PasswordButton>
           </Link>
         </S.OptionSection>
