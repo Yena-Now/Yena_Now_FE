@@ -69,6 +69,8 @@ export const authAPI = {
   login: async (loginData: LoginRequest): Promise<LoginResponse> => {
     const response = await apiClient.post('/auth/login', loginData)
     localStorage.setItem('accessToken', response.data.accessToken)
+    localStorage.setItem('nickname', response.data.nickname)
+    localStorage.setItem('profileUrl', response.data.profileUrl)
     apiClient.defaults.headers.common['Authorization'] =
       `Bearer ${response.data.accessToken}`
 
