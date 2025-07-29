@@ -83,4 +83,35 @@ export const authAPI = {
     window.dispatchEvent(new Event('authChange'))
     return response.data
   },
+
+  sendResetEmailVerification: async (
+    email: EmailVerificationRequest,
+  ): Promise<AxiosResponse<object>> => {
+    return await apiClient.post('/auth/verification-email', email, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  },
+
+  verifyResetEmail: async (
+    req: EmailVerifyRequest,
+  ): Promise<EmailVerifyResponse> => {
+    const response = await apiClient.post('/auth/verify-email', req, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    return response.data
+  },
+
+  requestPasswordReset: async (
+    email: EmailVerificationRequest,
+  ): Promise<AxiosResponse<object>> => {
+    return await apiClient.post('/auth/password', email, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  },
 }

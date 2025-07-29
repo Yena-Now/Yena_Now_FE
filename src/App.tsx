@@ -7,6 +7,7 @@ import Login from '@pages/Auth/Login'
 import Signup from '@pages/Auth/Signup'
 import SignupMore from '@pages/Auth/SignupMore'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
+import ResetPassword from '@pages/Auth/ResetPassword'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -91,6 +92,16 @@ function App() {
                   <div>Gallery Page</div>
                 ) : (
                   <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                isLoggedIn ? (
+                  <Navigate to="/gallery" replace />
+                ) : (
+                  <ResetPassword />
                 )
               }
             />
