@@ -86,8 +86,8 @@ const SignupMore: React.FC = () => {
     }
     const result = await authAPI.signup(submitData)
     if (result.userUuid) {
-      navigate('/login')
-      return { success: true, message: '회원가입이 완료되었습니다.' }
+      await authAPI.login(submitData.email, submitData.password)
+      return
     } else {
       alert('회원가입에 실패했습니다.')
       return {
@@ -99,12 +99,22 @@ const SignupMore: React.FC = () => {
 
   const verifyNickname = async (nickname: string) => {
     try {
-      const response = await fetch(`/api/nickname/verify?nickname=${nickname}`)
-      const data = await response.json()
-      return data.isAvailable
+      const response = await authAPI.verifyNickname({ nickname })
+      return !response.isDuplicated
     } catch (error) {
       console.error('닉네임 중복 확인 오류:', error)
       return false
+    }
+  }
+
+  const [isNicknameValid, setIsNicknameValid] = useState<boolean>(false)
+  const handleNicknameVerify = async () => {
+    const isAvailable = await verifyNickname(formData.nickname)
+    setIsNicknameValid(isAvailable)
+    if (isAvailable) {
+      alert('사용 가능한 닉네임입니다.')
+    } else {
+      alert('이미 사용 중인 닉네임입니다.')
     }
   }
 
@@ -141,19 +151,11 @@ const SignupMore: React.FC = () => {
                 placeholder="닉네임"
                 value={formData.nickname}
                 onChange={handleChange}
-                required
               />
               <S2.NicknameVerifyButtonWrapper>
                 <S2.NicknameVerifyButton
                   type="button"
-                  onClick={async () => {
-                    const isAvailable = await verifyNickname(formData.nickname)
-                    if (isAvailable) {
-                      alert('사용 가능한 닉네임입니다.')
-                    } else {
-                      alert('이미 사용 중인 닉네임입니다.')
-                    }
-                  }}
+                  onClick={handleNicknameVerify}
                   disabled={!formData.nickname}
                 >
                   중복 확인
@@ -263,7 +265,9 @@ const SignupMore: React.FC = () => {
               />
             </S2.InputGroup>
             <S2.ButtonWrapper>
-              <S2.Button type="submit">확인</S2.Button>
+              <S2.Button type="submit" disabled={!isNicknameValid}>
+                확인
+              </S2.Button>
             </S2.ButtonWrapper>
           </S2.InputContainer>
         </S2.Form>
