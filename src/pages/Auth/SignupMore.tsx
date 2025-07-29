@@ -114,13 +114,15 @@ const SignupMore: React.FC = () => {
         <S.LogoWrapper>
           <Logo />
         </S.LogoWrapper>
-        <ProfileImage
-          src={formData.profileUrl}
-          width="140px"
-          height="140px"
-          alt="프로필 이미지"
-          onClick={() => fileInputRef.current?.click()}
-        />
+        <S2.ProfileImageWrapper>
+          <ProfileImage
+            src={formData.profileUrl}
+            width="140px"
+            height="140px"
+            alt="프로필 이미지"
+            onClick={() => fileInputRef.current?.click()}
+          />
+        </S2.ProfileImageWrapper>
         <input
           type="file"
           accept="image/*"
@@ -130,12 +132,13 @@ const SignupMore: React.FC = () => {
         />
         <S2.Form onSubmit={handleSubmit}>
           <S2.InputContainer>
-            <S2.InputGroup>
+            <S2.NicknameWrapper>
               <S2.Label htmlFor="nickname">닉네임</S2.Label>
               <S2.Input
                 type="text"
                 id="nickname"
                 name="nickname"
+                placeholder="닉네임"
                 value={formData.nickname}
                 onChange={handleChange}
                 required
@@ -156,7 +159,7 @@ const SignupMore: React.FC = () => {
                   중복 확인
                 </S2.NicknameVerifyButton>
               </S2.NicknameVerifyButtonWrapper>
-            </S2.InputGroup>
+            </S2.NicknameWrapper>
             <S2.InputGroup>
               <S2.Label htmlFor="name">이름</S2.Label>
               <S2.Input
