@@ -25,7 +25,7 @@ pipeline {
         stage('Prepare .env') {
             steps {
                 echo '2. .env 파일 세팅'
-                sh 'cp "$FE_ENV_FILE" .env'
+                sh 'cp "$FE_ENV_FILE" .env.production'
             }
         }
 
