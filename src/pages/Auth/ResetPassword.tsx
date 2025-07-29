@@ -79,7 +79,7 @@ const ResetPassword: React.FC = () => {
       await authAPI.requestPasswordReset({ email })
       success('임시 비밀번호를 이메일로 전송했습니다.')
     } catch {
-      error('임시 비밀번호 발급에에 실패했습니다.')
+      error('임시 비밀번호 발급에 실패했습니다.')
     }
   }
 
