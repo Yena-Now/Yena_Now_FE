@@ -77,9 +77,9 @@ const ResetPassword: React.FC = () => {
     }
     try {
       await authAPI.requestPasswordReset({ email })
-      success('비밀번호 재설정 이메일을 전송했습니다.')
+      success('임시 비밀번호를 이메일로 전송했습니다.')
     } catch {
-      error('비밀번호 재설정 요청에 실패했습니다.')
+      error('임시 비밀번호 발급에에 실패했습니다.')
     }
   }
 
@@ -124,7 +124,7 @@ const ResetPassword: React.FC = () => {
           }}
         >
           <div style={{ position: 'absolute', bottom: 0, width: '100%' }}>
-            {!emailCodeVerified && (
+            {emailCodeVerified && (
               <S.Button onClick={handleResetPassword}>
                 임시 비밀번호 발급
               </S.Button>
