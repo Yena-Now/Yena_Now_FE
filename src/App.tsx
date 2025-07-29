@@ -8,6 +8,7 @@ import Signup from '@pages/Auth/Signup'
 import SignupMore from '@pages/Auth/SignupMore'
 import KakaoCallback from '@pages/Auth/KakaoCallback'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
+import ResetPassword from '@pages/Auth/ResetPassword'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -96,6 +97,16 @@ function App() {
               }
             />
             <Route path="/auth/callback/kakao" element={<KakaoCallback />} />
+            <Route
+              path="/reset-password"
+              element={
+                isLoggedIn ? (
+                  <Navigate to="/gallery" replace />
+                ) : (
+                  <ResetPassword />
+                )
+              }
+            />
           </Routes>
         </main>
       </div>
