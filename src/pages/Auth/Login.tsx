@@ -30,12 +30,12 @@ const Login: React.FC = () => {
       password,
     }
 
-    const response = await authAPI.login(submitData)
-
-    if (response) {
-      navigate('/gallery') // 로그인 성공시
-      return
-    } else {
+    try {
+      const response = await authAPI.login(submitData)
+      console.log('로그인 성공', response)
+      navigate('/gallery')
+    } catch (err) {
+      console.log(err)
       error('로그인에 실패했습니다.')
     }
   }
@@ -52,18 +52,12 @@ const Login: React.FC = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
         <T.Input
-          type="email"
-          name="email"
+          type="password"
+          name="password"
           placeholder="비밀번호"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <T.Button type="button" onClick={handleSubmit}>
-          로그인
-        </T.Button>
-        <Link to="/signup">
-          <T.Button type="button">회원가입</T.Button>
-        </Link>
         <S.OptionSection>
           <S.AutoLoginBox>
             <S.CheckBox
@@ -77,6 +71,12 @@ const Login: React.FC = () => {
             <S.PasswordButton>비밀번호 재설정</S.PasswordButton>
           </Link>
         </S.OptionSection>
+        <T.Button type="button" onClick={handleSubmit}>
+          로그인
+        </T.Button>
+        <Link to="/signup">
+          <T.Button type="button">회원가입</T.Button>
+        </Link>
         <S.Divider>또는</S.Divider>
         <T.Button type="button">구글로그인넣기</T.Button>
         <T.Button type="button">카카오로그인넣기</T.Button>

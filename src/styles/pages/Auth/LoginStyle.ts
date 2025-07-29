@@ -25,6 +25,7 @@ export const OptionSection = styled.div`
   display: flex;
   justify-content: space-between;
   width: 95%;
+  margin-bottom: 16px;
 `
 
 export const AutoLoginBox = styled.div`
