@@ -74,9 +74,9 @@ const Login: React.FC = () => {
         <T.Button type="button" onClick={handleSubmit}>
           로그인
         </T.Button>
-        <Link to="/signup">
-          <T.Button type="button">회원가입</T.Button>
-        </Link>
+        <T.Button type="button" onClick={() => navigate('/signup')}>
+          회원가입
+        </T.Button>
         <S.Divider>또는</S.Divider>
         <T.Button type="button">구글로그인넣기</T.Button>
         <T.Button type="button">카카오로그인넣기</T.Button>
