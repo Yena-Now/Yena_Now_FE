@@ -1,16 +1,48 @@
 import apiClient from './client'
+import type { AxiosResponse } from 'axios'
 import type {
+  EmailVerificationRequest,
+  EmailVerifyRequest,
+  EmailVerifyResponse,
+  NicknameVerificationRequest,
+  NicknameVerificationResponse,
   SignupRequest,
   SignupResponse,
-  NicknameVerificationResponse,
+  LoginRequest,
+  LoginResponse,
 } from '@/types/auth'
 
 export const authAPI = {
+  sendEmailVerification: async (
+    email: EmailVerificationRequest,
+  ): Promise<AxiosResponse<object>> => {
+    const response = await apiClient.post('/users/verification-email', email, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    console.log(response)
+    return response
+  },
+
+  verifyEmail: async (
+    req: EmailVerifyRequest,
+  ): Promise<EmailVerifyResponse> => {
+    const response = await apiClient.post('/users/verify-email', req, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    return response.data
+  },
+
   verifyNickname: async (
-    nickname: string,
+    nickname: NicknameVerificationRequest,
   ): Promise<NicknameVerificationResponse> => {
-    const response = await apiClient.get('/nickname/verify', {
-      params: { nickname },
+    const response = await apiClient.post('/users/nickname', nickname, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
     return response.data
   },
@@ -34,22 +66,17 @@ export const authAPI = {
     return response.data
   },
 
-  login: async (email: string, password: string) => {
-    const response = await apiClient.post(
-      '/auth/login',
-      { email, password },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    )
+  login: async (loginData: LoginRequest): Promise<LoginResponse> => {
+    const response = await apiClient.post('/auth/login', loginData)
+    localStorage.setItem('accessToken', response.data.accessToken)
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`
     return response.data
   },
 
   logout: async () => {
     const response = await apiClient.post('/auth/logout')
     localStorage.removeItem('accessToken')
+    delete apiClient.defaults.headers.common['Authorization']
     return response.data
   },
 }

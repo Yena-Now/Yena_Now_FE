@@ -7,8 +7,10 @@ import Logo from '@components/Common/Logo'
 import defaultProfileImage from '/user_default_profile.png'
 import ProfileImage from '@components/Common/ProfileImage'
 import { authAPI } from '@/api/auth'
+import { useToast } from '@hooks/useToast'
 
 const SignupMore: React.FC = () => {
+  const { success, error } = useToast()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -86,10 +88,15 @@ const SignupMore: React.FC = () => {
     }
     const result = await authAPI.signup(submitData)
     if (result.userUuid) {
-      navigate('/login')
-      return { success: true, message: '회원가입이 완료되었습니다.' }
+      const response = await authAPI.login({
+        email: submitData.email,
+        password: submitData.password,
+      })
+      console.log(response)
+      navigate('/gallery')
+      return
     } else {
-      alert('회원가입에 실패했습니다.')
+      error('회원가입에 실패했습니다.')
       return {
         success: false,
         message: '회원가입에 실패했습니다.',
@@ -99,12 +106,22 @@ const SignupMore: React.FC = () => {
 
   const verifyNickname = async (nickname: string) => {
     try {
-      const response = await fetch(`/api/nickname/verify?nickname=${nickname}`)
-      const data = await response.json()
-      return data.isAvailable
-    } catch (error) {
-      console.error('닉네임 중복 확인 오류:', error)
+      const response = await authAPI.verifyNickname({ nickname })
+      return !response.isDuplicated
+    } catch {
+      error('닉네임 중복 확인 오류')
       return false
+    }
+  }
+
+  const [isNicknameValid, setIsNicknameValid] = useState<boolean>(false)
+  const handleNicknameVerify = async () => {
+    const isAvailable = await verifyNickname(formData.nickname)
+    setIsNicknameValid(isAvailable)
+    if (isAvailable) {
+      success('사용 가능한 닉네임입니다.')
+    } else {
+      error('이미 사용 중인 닉네임입니다.')
     }
   }
 
@@ -114,13 +131,15 @@ const SignupMore: React.FC = () => {
         <S.LogoWrapper>
           <Logo />
         </S.LogoWrapper>
-        <ProfileImage
-          src={formData.profileUrl}
-          width="140px"
-          height="140px"
-          alt="프로필 이미지"
-          onClick={() => fileInputRef.current?.click()}
-        />
+        <S2.ProfileImageWrapper>
+          <ProfileImage
+            src={formData.profileUrl}
+            width="140px"
+            height="140px"
+            alt="프로필 이미지"
+            onClick={() => fileInputRef.current?.click()}
+          />
+        </S2.ProfileImageWrapper>
         <input
           type="file"
           accept="image/*"
@@ -130,33 +149,26 @@ const SignupMore: React.FC = () => {
         />
         <S2.Form onSubmit={handleSubmit}>
           <S2.InputContainer>
-            <S2.InputGroup>
+            <S2.NicknameWrapper>
               <S2.Label htmlFor="nickname">닉네임</S2.Label>
               <S2.Input
                 type="text"
                 id="nickname"
                 name="nickname"
+                placeholder="닉네임"
                 value={formData.nickname}
                 onChange={handleChange}
-                required
               />
               <S2.NicknameVerifyButtonWrapper>
                 <S2.NicknameVerifyButton
                   type="button"
-                  onClick={async () => {
-                    const isAvailable = await verifyNickname(formData.nickname)
-                    if (isAvailable) {
-                      alert('사용 가능한 닉네임입니다.')
-                    } else {
-                      alert('이미 사용 중인 닉네임입니다.')
-                    }
-                  }}
+                  onClick={handleNicknameVerify}
                   disabled={!formData.nickname}
                 >
                   중복 확인
                 </S2.NicknameVerifyButton>
               </S2.NicknameVerifyButtonWrapper>
-            </S2.InputGroup>
+            </S2.NicknameWrapper>
             <S2.InputGroup>
               <S2.Label htmlFor="name">이름</S2.Label>
               <S2.Input
@@ -260,7 +272,9 @@ const SignupMore: React.FC = () => {
               />
             </S2.InputGroup>
             <S2.ButtonWrapper>
-              <S2.Button type="submit">확인</S2.Button>
+              <S2.Button type="submit" disabled={!isNicknameValid}>
+                확인
+              </S2.Button>
             </S2.ButtonWrapper>
           </S2.InputContainer>
         </S2.Form>

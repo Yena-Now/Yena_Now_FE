@@ -4,7 +4,6 @@ export const LandingContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
