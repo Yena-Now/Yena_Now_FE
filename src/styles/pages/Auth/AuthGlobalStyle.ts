@@ -175,3 +175,11 @@ export const Button = styled.button<{ disabled?: boolean | false }>`
     font-size: 0.85rem;
   }
 `
+
+export const AuthLogin = styled.img`
+  width: 50%;
+
+  @media (max-width: 768px) {
+    width: 60%;
+  }
+`

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import Login from '@pages/Auth/Login'
 import Signup from '@pages/Auth/Signup'
 import SignupMore from '@pages/Auth/SignupMore'
+import KakaoCallback from '@pages/Auth/KakaoCallback'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 
 function App() {
@@ -94,6 +95,7 @@ function App() {
                 )
               }
             />
+            <Route path="/auth/callback/kakao" element={<KakaoCallback />} />
           </Routes>
         </main>
       </div>
