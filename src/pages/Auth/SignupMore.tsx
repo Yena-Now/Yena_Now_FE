@@ -86,8 +86,8 @@ const SignupMore: React.FC = () => {
     }
     const result = await authAPI.signup(submitData)
     if (result.userUuid) {
-      navigate('/login')
-      return { success: true, message: '회원가입이 완료되었습니다.' }
+      await authAPI.login(submitData.email, submitData.password)
+      return
     } else {
       alert('회원가입에 실패했습니다.')
       return {
