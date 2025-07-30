@@ -6,6 +6,8 @@ import { useToast } from '@/hooks/useToast'
 import * as S from '@styles/pages/Auth/LoginStyle'
 import * as T from '@styles/pages/Auth/AuthGlobalStyle'
 
+import kakaoLogin from '@assets/Auth/kakao_login.png'
+
 const Login: React.FC = () => {
   const { error } = useToast()
   const navigate = useNavigate()
@@ -35,6 +37,11 @@ const Login: React.FC = () => {
       setIsLoginAvailble(true)
     }
   }, [email, password])
+
+  const handleKakaoLogin = () => {
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL
+    window.location.href = `${BASE_URL}/oauth2/authorization/kakao`
+  }
 
   return (
     <T.Layout>
@@ -71,7 +78,12 @@ const Login: React.FC = () => {
         </T.Button>
         <S.Divider>또는</S.Divider>
         <T.Button type="button">구글로그인넣기</T.Button>
-        <T.Button type="button">카카오로그인넣기</T.Button>
+        <T.AuthLogin
+          src={kakaoLogin}
+          alt="카카오 로그인"
+          onClick={handleKakaoLogin}
+        />
+        {/*<T.Button type="button" onClick={handleKakaoLogin}></T.Button>*/}
       </T.SignupContainer>
     </T.Layout>
   )
