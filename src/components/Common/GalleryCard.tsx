@@ -5,6 +5,7 @@ import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/Common/GalleryCardStyle'
 import { useNavigate } from 'react-router-dom'
 import HoverVideoPlayer from 'react-hover-video-player'
+import LoadingSpinner from './LoadingSpinner'
 
 interface NcutForGalleryProps extends NCut {
   onClick: () => void
@@ -40,7 +41,7 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
             <HoverVideoPlayer
               videoSrc={ncutURL}
               pausedOverlay={<S.Photo src={thumbnailUrl} alt="썸네일" />}
-              loadingOverlay={<div>Loading...</div>}
+              loadingOverlay={<LoadingSpinner />}
               muted
               loop
               sizingMode="overlay"
