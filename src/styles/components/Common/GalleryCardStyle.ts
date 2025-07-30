@@ -1,4 +1,5 @@
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
+import { keyframes } from '@emotion/css'
 
 export const Conainter = styled.div`
   width: 400px;
@@ -75,11 +76,11 @@ export const likeText = styled.span`
   padding: 5px 5px 7px 5px;
 `
 
-// export const loadingOverlaySpinnerAnimation = keyframes`
-//   from {
-//     transform: rotate(0deg);
-//   }
-//   to {
-//     transform: rotate(360deg);
-//   }
-// `
+export const loadingOverlaySpinnerAnimation = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`
