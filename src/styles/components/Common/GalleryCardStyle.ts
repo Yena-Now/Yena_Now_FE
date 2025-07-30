@@ -4,6 +4,15 @@ export const Conainter = styled.div`
   width: 400px;
   border: 1px solid rgb(44, 44, 44, 0.2);
   border-radius: 10px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  &:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+  }
 `
 
 export const PhotoWrapper = styled.div`

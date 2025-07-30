@@ -9,6 +9,7 @@ export interface NCut {
   nickname: string
   ncut_uuid: string
   thumbnailUrl: string
+  ncutURL: string
   likeCount: number
   isRelay: boolean
   onClick: () => void
