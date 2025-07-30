@@ -30,7 +30,7 @@ const PublicGallery: React.FC<NCut> = () => {
           <GalleryCard
             key={item.ncut_uuid}
             {...item}
-            onclick={() => handleClick(item)}
+            onClick={() => handleClick(item)}
           />
         ))}
       </S.GalleryList>

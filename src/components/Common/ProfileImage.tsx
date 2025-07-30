@@ -8,7 +8,7 @@ interface ProfileImageProps {
   alt?: string
   height?: string
   width?: string
-  onClick?: () => void
+  onClick?: (() => void) | React.MouseEventHandler<HTMLImageElement>
 }
 
 const ProfileImage: React.FC<ProfileImageProps> = ({
