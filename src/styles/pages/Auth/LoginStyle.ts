@@ -23,7 +23,7 @@ export const Divider = styled.div`
 
 export const OptionSection = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   width: 65%;
   margin-bottom: 16px;
 `

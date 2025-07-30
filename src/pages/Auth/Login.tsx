@@ -12,7 +12,6 @@ const Login: React.FC = () => {
 
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  // const [autoLogin, setAutoLogin] = useState<boolean>(false)
 
   const handleSubmit = async () => {
     if (email === '' && password === '') {
@@ -59,14 +58,6 @@ const Login: React.FC = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
         <S.OptionSection>
-          <S.AutoLoginBox>
-            <S.CheckBox
-              type="checkbox"
-              id="autoLogin"
-              // onChange={() => setAutoLogin((prev) => !prev)}
-            />
-            <S.Text htmlFor="autoLogin">자동 로그인</S.Text>
-          </S.AutoLoginBox>
           <Link to="/reset-password">
             <S.PasswordButton>비밀번호 재설정</S.PasswordButton>
           </Link>
