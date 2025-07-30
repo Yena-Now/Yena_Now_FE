@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import Login from '@pages/Auth/Login'
 import Signup from '@pages/Auth/Signup'
 import SignupMore from '@pages/Auth/SignupMore'
+import SocialCallback from '@pages/Auth/SocialCallback'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import ResetPassword from '@pages/Auth/ResetPassword'
 
@@ -95,6 +96,7 @@ function App() {
                 )
               }
             />
+            <Route path="/auth/callback" element={<SocialCallback />} />
             <Route
               path="/reset-password"
               element={
