@@ -38,7 +38,6 @@ const GalleryCard: React.FC<NCut> = ({
               height="25px"
               width="25px"
               onClick={handleProfileClick}
-              style={{ cursor: 'pointer' }}
             />
             <S.UserName>{nickname}</S.UserName>
           </S.Box>

@@ -2487,6 +2487,11 @@ react-dom@^19.1.0:
   dependencies:
     scheduler "^0.26.0"
 
+react-hover-video-player@^10.0.2:
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/react-hover-video-player/-/react-hover-video-player-10.0.2.tgz#89b97f6ad3c841bad2d688f4767fbb903ffb89d8"
+  integrity sha512-Mnl3mICQgaTLwefD24o/h7easvBQAbeTtg2qm7k9JzuY0X8cVYAsq0/feh+k9EElnQz0AQiGOIdApgb4p8nxlg==
+
 react-icons@^5.5.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-5.5.0.tgz#8aa25d3543ff84231685d3331164c00299cdfaf2"

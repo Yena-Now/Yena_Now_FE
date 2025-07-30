@@ -21,6 +21,7 @@
     "openvidu-browser": "^2.31.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hover-video-player": "^10.0.2",
     "react-icons": "^5.5.0",
     "react-query": "^3.39.3",
     "react-router-dom": "^7.7.0",
