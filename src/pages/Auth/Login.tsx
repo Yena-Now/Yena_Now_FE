@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Logo from '@components/Common/Logo'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '@/api/auth'
@@ -12,18 +12,9 @@ const Login: React.FC = () => {
 
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [isLoginAvailable, setIsLoginAvailble] = useState<boolean>(false)
 
   const handleSubmit = async () => {
-    if (email === '' && password === '') {
-      error('이메일, 비밀번호를 입력해 주세요')
-    }
-    if (email && password === '') {
-      error('비밀번호를 입력해 주세요')
-    }
-    if (password && email === '') {
-      error('이메일을 입력해 주세요')
-    }
-
     const submitData = {
       email,
       password,
@@ -38,6 +29,12 @@ const Login: React.FC = () => {
       error('로그인에 실패했습니다.')
     }
   }
+
+  useEffect(() => {
+    if (email !== '' && password !== '') {
+      setIsLoginAvailble(true)
+    }
+  }, [email, password])
 
   return (
     <T.Layout>
@@ -62,7 +59,11 @@ const Login: React.FC = () => {
             <S.PasswordButton>비밀번호 재설정</S.PasswordButton>
           </Link>
         </S.OptionSection>
-        <T.Button type="button" onClick={handleSubmit}>
+        <T.Button
+          type="button"
+          onClick={handleSubmit}
+          disabled={!isLoginAvailable}
+        >
           로그인
         </T.Button>
         <T.Button type="button" onClick={() => navigate('/signup')}>
