@@ -5,7 +5,6 @@ import GalleryCard from '@components/Common/GalleryCard'
 import type { NCut, NCutList } from '@/types/NCutList'
 import { dummyNCutList } from './DummyNcutList'
 import * as S from '@styles/pages/Gallery/PublicGalleryStyles'
-import HoverVideoPlayer from 'react-hover-video-player'
 
 const PublicGallery: React.FC<NCut> = () => {
   const navigate = useNavigate()

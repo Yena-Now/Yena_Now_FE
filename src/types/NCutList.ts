@@ -12,5 +12,4 @@ export interface NCut {
   ncutURL: string
   likeCount: number
   isRelay: boolean
-  onClick: () => void
 }
