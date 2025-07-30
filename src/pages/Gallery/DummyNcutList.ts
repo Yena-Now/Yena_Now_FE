@@ -1,46 +1,37 @@
 import type { NCutList } from '@/types/NCutList'
 
 export const dummyNCutList: NCutList = {
-  totalPage: 1,
+  totalPage: 2,
   ncuts: [
     {
       userUuid: 'user-1',
       profileUrl: 'https://randomuser.me/api/portraits/women/1.jpg',
       nickname: '예나',
       ncut_uuid: 'ncut-001',
-      thumbnailUrl: 'https://placekitten.com/300/400', // 사진 썸네일
-      ncutURL: 'https://placekitten.com/800/1000', // 실제 사진
+      thumbnailUrl: 'https://placekitten.com/300/400',
+      ncutURL: 'https://placekitten.com/800/1000',
       likeCount: 24,
       isRelay: false,
-      onClick: () => {
-        console.log('Clicked 예나')
-      },
     },
     {
       userUuid: 'user-2',
       profileUrl: 'https://randomuser.me/api/portraits/men/2.jpg',
       nickname: '민수',
       ncut_uuid: 'ncut-002',
-      thumbnailUrl: 'https://sample-videos.com/img/Sample-jpg-image-500kb.jpg', // 사진 썸네일
+      thumbnailUrl: 'https://sample-videos.com/img/Sample-jpg-image-500kb.jpg',
       ncutURL: 'https://sample-videos.com/img/Sample-jpg-image-1mb.jpg',
       likeCount: 53,
       isRelay: false,
-      onClick: () => {
-        console.log('Clicked 민수')
-      },
     },
     {
       userUuid: 'user-3',
       profileUrl: 'https://randomuser.me/api/portraits/women/3.jpg',
       nickname: '수지',
       ncut_uuid: 'ncut-003',
-      thumbnailUrl: 'https://img.youtube.com/vi/ScMzIvxBSi4/mqdefault.jpg', // 영상 썸네일 (YouTube)
-      ncutURL: 'https://www.w3schools.com/html/mov_bbb.mp4', // 영상 URL
+      thumbnailUrl: 'https://img.youtube.com/vi/ScMzIvxBSi4/mqdefault.jpg',
+      ncutURL: 'https://www.w3schools.com/html/mov_bbb.mp4',
       likeCount: 102,
       isRelay: true,
-      onClick: () => {
-        console.log('Clicked 수지')
-      },
     },
     {
       userUuid: 'user-4',
@@ -48,14 +39,73 @@ export const dummyNCutList: NCutList = {
       nickname: '현우',
       ncut_uuid: 'ncut-004',
       thumbnailUrl:
-        'https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217', // 영상 썸네일
+        'https://peach.blender.org/wp-content/uploads/title_anouncement.jpg',
       ncutURL:
         'https://download.blender.org/durian/trailer/sintel_trailer-480p.mp4',
       likeCount: 77,
       isRelay: true,
-      onClick: () => {
-        console.log('Clicked 현우')
-      },
+    },
+    {
+      userUuid: 'user-5',
+      profileUrl: 'https://randomuser.me/api/portraits/women/5.jpg',
+      nickname: '지아',
+      ncut_uuid: 'ncut-005',
+      thumbnailUrl: 'https://picsum.photos/id/1011/400/300',
+      ncutURL: 'https://picsum.photos/id/1011/800/600',
+      likeCount: 35,
+      isRelay: false,
+    },
+    {
+      userUuid: 'user-6',
+      profileUrl: 'https://randomuser.me/api/portraits/men/6.jpg',
+      nickname: '정우',
+      ncut_uuid: 'ncut-006',
+      thumbnailUrl: 'https://img.youtube.com/vi/tgbNymZ7vqY/mqdefault.jpg',
+      ncutURL: 'https://www.w3schools.com/html/movie.mp4',
+      likeCount: 89,
+      isRelay: true,
+    },
+    {
+      userUuid: 'user-7',
+      profileUrl: 'https://randomuser.me/api/portraits/women/7.jpg',
+      nickname: '보라',
+      ncut_uuid: 'ncut-007',
+      thumbnailUrl: 'https://picsum.photos/id/1035/400/300',
+      ncutURL: 'https://picsum.photos/id/1035/800/600',
+      likeCount: 61,
+      isRelay: false,
+    },
+    {
+      userUuid: 'user-8',
+      profileUrl: 'https://randomuser.me/api/portraits/men/8.jpg',
+      nickname: '태현',
+      ncut_uuid: 'ncut-008',
+      thumbnailUrl:
+        'https://peach.blender.org/wp-content/uploads/bbb-splash.png',
+      ncutURL:
+        'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_640x360.m4v',
+      likeCount: 40,
+      isRelay: true,
+    },
+    {
+      userUuid: 'user-9',
+      profileUrl: 'https://randomuser.me/api/portraits/women/9.jpg',
+      nickname: '세라',
+      ncut_uuid: 'ncut-009',
+      thumbnailUrl: 'https://picsum.photos/id/1043/400/300',
+      ncutURL: 'https://picsum.photos/id/1043/800/600',
+      likeCount: 22,
+      isRelay: false,
+    },
+    {
+      userUuid: 'user-10',
+      profileUrl: 'https://randomuser.me/api/portraits/men/10.jpg',
+      nickname: '한결',
+      ncut_uuid: 'ncut-010',
+      thumbnailUrl: 'https://img.youtube.com/vi/kJQP7kiw5Fk/mqdefault.jpg',
+      ncutURL: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
+      likeCount: 130,
+      isRelay: true,
     },
   ],
 }
