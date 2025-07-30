@@ -9,6 +9,8 @@ import SignupMore from '@pages/Auth/SignupMore'
 import SocialCallback from '@pages/Auth/SocialCallback'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import ResetPassword from '@pages/Auth/ResetPassword'
+import NCutMain from '@pages/NCut/NCutMain'
+import CreateSession from '@pages/NCut/CreateSession'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -57,7 +59,7 @@ function App() {
           hideProgressBar={true}
           pauseOnFocusLoss={false}
         />
-        {isLoggedIn && !window.location.pathname.startsWith('/film/') && (
+        {isLoggedIn && !window.location.pathname.startsWith('/film/room/') && (
           <Header />
         )}
         <main>
@@ -104,6 +106,22 @@ function App() {
                   <Navigate to="/gallery" replace />
                 ) : (
                   <ResetPassword />
+                )
+              }
+            />
+            <Route
+              path="/film"
+              element={
+                isLoggedIn ? <NCutMain /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/film/create"
+              element={
+                isLoggedIn ? (
+                  <CreateSession />
+                ) : (
+                  <Navigate to="/login" replace />
                 )
               }
             />
