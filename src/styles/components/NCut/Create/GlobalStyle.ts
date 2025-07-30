@@ -26,7 +26,7 @@ export const NcutCreateContainer = styled.div`
 export const NCutCreateIcon = styled.div`
   width: 180px;
   height: 180px;
-  background-color: #F9BE08;
+  background-color: #f9be08;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -36,6 +36,7 @@ export const NCutCreateIcon = styled.div`
 `
 
 export const NCutCreateContentContainer = styled.div`
+  position: relative;
   width: 100%;
   max-width: 600px;
   flex-direction: column;
@@ -67,6 +68,22 @@ export const NCutNextButton = styled.button`
   position: absolute;
   bottom: 50px;
   right: 100px;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  border: none;
+  background-color: #f9be08;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+`
+
+export const NCutPrvButton = styled.button`
+  position: absolute;
+  bottom: 50px;
+  left: 100px;
   width: 65px;
   height: 65px;
   border-radius: 50%;

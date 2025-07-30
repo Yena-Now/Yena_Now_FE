@@ -1,4 +1,3 @@
-import { MdOutlineSmokingRooms } from 'react-icons/md'
 import * as G from '@styles/components/NCut/Create/GlobalStyle'
 import * as S from '@styles/components/NCut/Create/FirstStyle'
 import React from 'react'
@@ -31,60 +30,48 @@ function FirstCreateStep({
   }
 
   return (
-    <G.NcutCreateContainer>
-      <G.NCutCreateIcon>
-        <MdOutlineSmokingRooms
-          style={{
-            width: '100px',
-            height: '100px',
-          }}
+    <G.NCutCreateContentContainer>
+      <G.NcutCreateHeader>촬영 부스 생성</G.NcutCreateHeader>
+      <G.NcutCreateDescription>배경을 업로드해주세요.</G.NcutCreateDescription>
+      <S.ImageUploadContainer>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          style={{ display: 'none' }}
+          id="image-upload"
         />
-      </G.NCutCreateIcon>
-      <G.NCutCreateContentContainer>
-        <G.NcutCreateHeader>촬영 부스 생성</G.NcutCreateHeader>
-        <G.NcutCreateDescription>
-          배경을 업로드해주세요.
-        </G.NcutCreateDescription>
-        <S.ImageUploadContainer>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            style={{ display: 'none' }}
-            id="image-upload"
-          />
-          <label
-            htmlFor="image-upload"
-            style={{
-              cursor: 'pointer',
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#F3F0F0',
-              borderRadius: '5%',
-              border: '0.2px solid #000',
-            }}
-          >
-            {isImageUploaded ? (
-              <img
-                src={backgroundImageUrl || ''}
-                alt="배경 이미지 미리보기"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: '5%',
-                }}
-              />
-            ) : (
-              <span>이미지를 업로드해주세요</span>
-            )}
-          </label>
-        </S.ImageUploadContainer>
-      </G.NCutCreateContentContainer>
-    </G.NcutCreateContainer>
+        <label
+          htmlFor="image-upload"
+          style={{
+            cursor: 'pointer',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#F3F0F0',
+            borderRadius: '5%',
+            border: '0.2px solid #000',
+          }}
+        >
+          {isImageUploaded ? (
+            <img
+              src={backgroundImageUrl || ''}
+              alt="배경 이미지 미리보기"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: '5%',
+              }}
+            />
+          ) : (
+            <span>이미지를 업로드해주세요</span>
+          )}
+        </label>
+      </S.ImageUploadContainer>
+    </G.NCutCreateContentContainer>
   )
 }
 
