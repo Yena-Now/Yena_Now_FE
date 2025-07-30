@@ -13,6 +13,10 @@ import NCutMain from '@pages/NCut/NCutMain'
 import CreateSession from '@pages/NCut/CreateSession'
 import ParticipationSession from './pages/NCut/ParticipationSession'
 import Session from '@pages/NCut/Session'
+import PublicGallery from '@pages/Gallery/PublicGallery'
+import FollowingGallery from './pages/Gallery/FollowingGallery'
+import UserGallery from './pages/Gallery/UserGallery'
+import MyGallery from './pages/Gallery/MyGallery'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -140,13 +144,13 @@ function App() {
             <Route
               path="/film/room/:roomCode"
               element={
-                isLoggedIn ? (
-                  <Session />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                isLoggedIn ? <Session /> : <Navigate to="/login" replace />
               }
             />
+            <Route path="/gallery/public" element={<PublicGallery />} />
+            <Route path="/gallery/followings" element={<FollowingGallery />} />
+            <Route path="/gallery/:userUuid" element={<UserGallery />} />
+            <Route path="/gallery/me" element={<MyGallery />} />
           </Routes>
         </main>
       </div>

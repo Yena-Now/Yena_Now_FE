@@ -1,28 +1,28 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '@components/Header/Header'
-import GalleryList from '@components/Gallery/GalleryList'
 import type { NCut } from '@/types/NCutList'
+import GalleryList from '@components/Gallery/GalleryList'
+import * as S from '@styles/pages/Gallery/FollowingGalleryStyle'
 import { dummyNCutList } from './DummyNcutList'
-import * as S from '@styles/pages/Gallery/PublicGalleryStyles'
 
-const PublicGallery: React.FC = () => {
+const FollowingGallery: React.FC = () => {
   const navigate = useNavigate()
 
   const handleClick = (items: NCut) => {
     navigate(`/gallery/${items.ncut_uuid}`)
   }
 
-  const goToFollowingGallery = () => {
-    navigate('/gallery/followings')
+  const goToPublicGallery = () => {
+    navigate('/gallery/public')
   }
 
   return (
     <>
       <Header />
       <S.TitleWrapper>
-        <S.text>공개 갤러리</S.text>
-        <S.FriendText onClick={goToFollowingGallery}>친구 갤러리</S.FriendText>
+        <S.PublicText onClick={goToPublicGallery}>공개 갤러리</S.PublicText>
+        <S.Text>친구 갤러리</S.Text>
       </S.TitleWrapper>
       <S.Divider />
       <GalleryList data={dummyNCutList.ncuts} onItemClick={handleClick} />
@@ -30,4 +30,4 @@ const PublicGallery: React.FC = () => {
   )
 }
 
-export default PublicGallery
+export default FollowingGallery
