@@ -49,6 +49,8 @@ apiClient.interceptors.response.use(
         // 재발급 요청 실패 시 토큰 삭제 및 로그인 페이지로 리다이렉트
         console.log('토큰 재발급 실패', err)
         localStorage.removeItem('accessToken')
+        localStorage.removeItem('nickname')
+        localStorage.removeItem('profileUrl')
         window.location.href = '/login'
       }
     }
