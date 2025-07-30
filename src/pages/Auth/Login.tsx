@@ -3,6 +3,7 @@ import Logo from '@components/Common/Logo'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '@/api/auth'
 import { useToast } from '@/hooks/useToast'
+import { FcGoogle } from 'react-icons/fc'
 import * as S from '@styles/pages/Auth/LoginStyle'
 import * as T from '@styles/pages/Auth/AuthGlobalStyle'
 
@@ -41,6 +42,12 @@ const Login: React.FC = () => {
   const handleKakaoLogin = () => {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL
     window.location.href = `${BASE_URL}/oauth2/authorization/kakao`
+  }
+
+  const handleGoogleLogin = () => {
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL
+    console.log(BASE_URL)
+    window.location.href = `${BASE_URL}/oauth2/authorization/google`
   }
 
   return (
@@ -83,7 +90,10 @@ const Login: React.FC = () => {
           alt="카카오 로그인"
           onClick={handleKakaoLogin}
         />
-        {/*<T.Button type="button" onClick={handleKakaoLogin}></T.Button>*/}
+        <S.GoogleLogin onClick={handleGoogleLogin}>
+          <FcGoogle size={20} />
+          <S.ButtonText>Google 계정으로 로그인</S.ButtonText>
+        </S.GoogleLogin>
       </T.SignupContainer>
     </T.Layout>
   )
