@@ -13,6 +13,7 @@ const GalleryCard: React.FC<NCut> = ({
   thumbnailUrl,
   likeCount,
   isRelay,
+  onClick,
 }) => {
   const navigate = useNavigate()
 
@@ -23,7 +24,7 @@ const GalleryCard: React.FC<NCut> = ({
 
   return (
     <>
-      <S.Conainter>
+      <S.Conainter onClick={onClick}>
         <S.PhotoWrapper>
           <S.RelayIcon>
             {isRelay && <FaRotate style={{ color: 'white' }} />}
