@@ -9,6 +9,10 @@ import SignupMore from '@pages/Auth/SignupMore'
 import SocialCallback from '@pages/Auth/SocialCallback'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import ResetPassword from '@pages/Auth/ResetPassword'
+import PublicGallery from '@pages/Gallery/PublicGallery'
+import FollowingGallery from './pages/Gallery/FollowingGallery'
+import UserGallery from './pages/Gallery/UserGallery'
+import MyGallery from './pages/Gallery/MyGallery'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -107,6 +111,10 @@ function App() {
                 )
               }
             />
+            <Route path="/gallery/public" element={<PublicGallery />} />
+            <Route path="/gallery/followings" element={<FollowingGallery />} />
+            <Route path="/gallery/:userUuid" element={<UserGallery />} />
+            <Route path="/gallery/me" element={<MyGallery />} />
           </Routes>
         </main>
       </div>

@@ -27,6 +27,8 @@ export const PhotoWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+  position: relative;
 
   img,
   video {
