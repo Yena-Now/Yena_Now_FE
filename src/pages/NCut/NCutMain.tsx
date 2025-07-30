@@ -47,7 +47,11 @@ export const NCutMain: React.FC = () => {
             <br />
             친구의 N컷 촬영에 참가하세요.
           </S.Description>
-          <S.Button>
+          <S.Button
+            onClick={() => {
+              navigate('/film/participant')
+            }}
+          >
             부스 <span>참가하기</span>
           </S.Button>
         </S.Card>

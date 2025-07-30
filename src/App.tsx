@@ -11,6 +11,7 @@ import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import ResetPassword from '@pages/Auth/ResetPassword'
 import NCutMain from '@pages/NCut/NCutMain'
 import CreateSession from '@pages/NCut/CreateSession'
+import ParticipationSession from './pages/NCut/ParticipationSession'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -120,6 +121,16 @@ function App() {
               element={
                 isLoggedIn ? (
                   <CreateSession />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/film/participant"
+              element={
+                isLoggedIn ? (
+                  <ParticipationSession />
                 ) : (
                   <Navigate to="/login" replace />
                 )

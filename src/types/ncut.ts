@@ -16,4 +16,8 @@ export interface SessionEnterRequest {
 
 export interface SessionEnterResponse {
   token: string
+  backgroundUrl: string
+  takeCnt: number
+  cutCnt: number
+  timeLimit: number
 }
