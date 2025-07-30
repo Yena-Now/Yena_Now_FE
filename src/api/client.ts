@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { TokenReissueResponse } from '@/types/auth'
+import { useToast } from '@/hooks/useToast'
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -47,6 +48,8 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest)
       } catch (err) {
         // 재발급 요청 실패 시 토큰 삭제 및 로그인 페이지로 리다이렉트
+        const { error } = useToast()
+        error('세션이 만료되었습니다. 다시 로그인 해주세요.')
         console.log('토큰 재발급 실패', err)
         localStorage.removeItem('accessToken')
         localStorage.removeItem('nickname')
