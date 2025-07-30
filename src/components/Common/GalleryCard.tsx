@@ -3,9 +3,10 @@ import { GoHeartFill } from 'react-icons/go'
 import { FaRotate } from 'react-icons/fa6'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/Common/GalleryCardStyle'
+import { useNavigate } from 'react-router-dom'
 
 const GalleryCard: React.FC<NCut> = ({
-  // userUuid,
+  userUuid,
   profileUrl,
   nickname,
   // ncut_uuid,
@@ -13,6 +14,13 @@ const GalleryCard: React.FC<NCut> = ({
   likeCount,
   isRelay,
 }) => {
+  const navigate = useNavigate()
+
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    navigate(`/profile/${userUuid}`)
+  }
+
   return (
     <>
       <S.Conainter>
@@ -29,6 +37,8 @@ const GalleryCard: React.FC<NCut> = ({
               alt={nickname}
               height="25px"
               width="25px"
+              onClick={handleProfileClick}
+              style={{ cursor: 'pointer' }}
             />
             <S.UserName>{nickname}</S.UserName>
           </S.Box>

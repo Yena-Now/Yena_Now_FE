@@ -11,5 +11,5 @@ export interface NCut {
   thumbnailUrl: string
   likeCount: number
   isRelay: boolean
-  onclick: () => void
+  onClick: () => void
 }
