@@ -7,8 +7,9 @@ import Login from '@pages/Auth/Login'
 import Signup from '@pages/Auth/Signup'
 import SignupMore from '@pages/Auth/SignupMore'
 import SocialCallback from '@pages/Auth/SocialCallback'
-import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import ResetPassword from '@pages/Auth/ResetPassword'
+import ProfiileEdit from '@/pages/Auth/ProfiileEdit'
+import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -105,6 +106,12 @@ function App() {
                 ) : (
                   <ResetPassword />
                 )
+              }
+            />
+            <Route
+              path="/profile/edit"
+              element={
+                isLoggedIn ? <ProfiileEdit /> : <Navigate to="/login" replace />
               }
             />
           </Routes>
