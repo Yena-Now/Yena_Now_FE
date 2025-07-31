@@ -48,3 +48,5 @@ export interface LoginResponse {
   nickname: string
   profileUrl: string
 }
+
+export type TokenReissueResponse = Pick<LoginResponse, 'accessToken'>

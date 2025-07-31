@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Logo from '@components/Common/Logo'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '@/api/auth'
 import { useToast } from '@/hooks/useToast'
+import { FcGoogle } from 'react-icons/fc'
+import { RiKakaoTalkFill } from 'react-icons/ri'
 import * as S from '@styles/pages/Auth/LoginStyle'
 import * as T from '@styles/pages/Auth/AuthGlobalStyle'
 
@@ -12,19 +14,9 @@ const Login: React.FC = () => {
 
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  // const [autoLogin, setAutoLogin] = useState<boolean>(false)
+  const [isLoginAvailable, setIsLoginAvailble] = useState<boolean>(false)
 
   const handleSubmit = async () => {
-    if (email === '' && password === '') {
-      error('이메일, 비밀번호를 입력해 주세요')
-    }
-    if (email && password === '') {
-      error('비밀번호를 입력해 주세요')
-    }
-    if (password && email === '') {
-      error('이메일을 입력해 주세요')
-    }
-
     const submitData = {
       email,
       password,
@@ -38,6 +30,23 @@ const Login: React.FC = () => {
       console.log(err)
       error('로그인에 실패했습니다.')
     }
+  }
+
+  useEffect(() => {
+    if (email !== '' && password !== '') {
+      setIsLoginAvailble(true)
+    }
+  }, [email, password])
+
+  const handleKakaoLogin = () => {
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL
+    window.location.href = `${BASE_URL}/oauth2/authorization/kakao`
+  }
+
+  const handleGoogleLogin = () => {
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL
+    console.log(BASE_URL)
+    window.location.href = `${BASE_URL}/oauth2/authorization/google`
   }
 
   return (
@@ -59,27 +68,29 @@ const Login: React.FC = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
         <S.OptionSection>
-          <S.AutoLoginBox>
-            <S.CheckBox
-              type="checkbox"
-              id="autoLogin"
-              // onChange={() => setAutoLogin((prev) => !prev)}
-            />
-            <S.Text htmlFor="autoLogin">자동 로그인</S.Text>
-          </S.AutoLoginBox>
-          <Link to="#">
+          <Link to="/reset-password">
             <S.PasswordButton>비밀번호 재설정</S.PasswordButton>
           </Link>
         </S.OptionSection>
-        <T.Button type="button" onClick={handleSubmit}>
+        <T.Button
+          type="button"
+          onClick={handleSubmit}
+          disabled={!isLoginAvailable}
+        >
           로그인
         </T.Button>
         <T.Button type="button" onClick={() => navigate('/signup')}>
           회원가입
         </T.Button>
         <S.Divider>또는</S.Divider>
-        <T.Button type="button">구글로그인넣기</T.Button>
-        <T.Button type="button">카카오로그인넣기</T.Button>
+        <S.KakaoLogin onClick={handleKakaoLogin}>
+          <RiKakaoTalkFill size={20} style={{ color: 'rgba(0,0,0,0.8)' }} />
+          <S.ButtonText>카카오 계정으로 로그인</S.ButtonText>
+        </S.KakaoLogin>
+        <S.GoogleLogin onClick={handleGoogleLogin}>
+          <FcGoogle size={20} />
+          <S.ButtonText>구글 계정으로 로그인</S.ButtonText>
+        </S.GoogleLogin>
       </T.SignupContainer>
     </T.Layout>
   )

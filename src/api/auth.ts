@@ -69,14 +69,53 @@ export const authAPI = {
   login: async (loginData: LoginRequest): Promise<LoginResponse> => {
     const response = await apiClient.post('/auth/login', loginData)
     localStorage.setItem('accessToken', response.data.accessToken)
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`
+    localStorage.setItem('nickname', response.data.nickname)
+    localStorage.setItem('profileUrl', response.data.profileUrl)
+    apiClient.defaults.headers.common['Authorization'] =
+      `Bearer ${response.data.accessToken}`
+
+    window.dispatchEvent(new Event('authChange'))
     return response.data
   },
 
   logout: async () => {
     const response = await apiClient.post('/auth/logout')
     localStorage.removeItem('accessToken')
+    localStorage.removeItem('nickname')
+    localStorage.removeItem('profileUrl')
     delete apiClient.defaults.headers.common['Authorization']
+    window.dispatchEvent(new Event('authChange'))
     return response.data
+  },
+
+  sendResetEmailVerification: async (
+    email: EmailVerificationRequest,
+  ): Promise<AxiosResponse<object>> => {
+    return await apiClient.post('/auth/verification-email', email, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  },
+
+  verifyResetEmail: async (
+    req: EmailVerifyRequest,
+  ): Promise<EmailVerifyResponse> => {
+    const response = await apiClient.post('/auth/verify-email', req, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    return response.data
+  },
+
+  requestPasswordReset: async (
+    email: EmailVerificationRequest,
+  ): Promise<AxiosResponse<object>> => {
+    return await apiClient.post('/auth/password', email, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   },
 }

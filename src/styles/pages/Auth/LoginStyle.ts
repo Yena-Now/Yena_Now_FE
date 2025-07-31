@@ -8,7 +8,7 @@ export const Divider = styled.div`
   width: 75%;
   color: rgba(0, 0, 0, 0.35);
   font-size: 14px;
-  margin: 15px 0;
+  margin-bottom: 24px;
   &:before,
   &:after {
     content: '';
@@ -23,7 +23,7 @@ export const Divider = styled.div`
 
 export const OptionSection = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 65%;
   margin-bottom: 16px;
 `
@@ -52,4 +52,58 @@ export const PasswordButton = styled.button`
   &:hover {
     text-decoration: underline;
   }
+`
+
+export const KakaoLogin = styled.button`
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.75rem auto;
+  padding: 0.75rem 0.5rem;
+  background-color: #fee500;
+  color: #000000;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgb(239, 223, 72);
+  }
+  @media (max-width: 768px) {
+    width: 60%;
+  }
+`
+
+export const GoogleLogin = styled.button`
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.75rem auto;
+  padding: 0.75rem 0.5rem;
+  background-color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #f3f4f6;
+  }
+  @media (max-width: 768px) {
+    width: 60%;
+  }
+`
+
+export const ButtonText = styled.span`
+  color: rgba(0, 0, 0, 0.54);
+  width: 80%;
 `

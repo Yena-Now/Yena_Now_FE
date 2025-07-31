@@ -170,7 +170,7 @@ export const DropdownMenuItem = styled.li`
   }
 `
 
-export const MenuLink = styled.a`
+export const MenuLink = styled.div`
   color: #191919;
   text-decoration: none;
   display: block;
