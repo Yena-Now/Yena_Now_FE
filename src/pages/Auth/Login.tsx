@@ -3,10 +3,10 @@ import Logo from '@components/Common/Logo'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '@/api/auth'
 import { useToast } from '@/hooks/useToast'
+import { FcGoogle } from 'react-icons/fc'
+import { RiKakaoTalkFill } from 'react-icons/ri'
 import * as S from '@styles/pages/Auth/LoginStyle'
 import * as T from '@styles/pages/Auth/AuthGlobalStyle'
-
-import kakaoLogin from '@assets/Auth/kakao_login.png'
 
 const Login: React.FC = () => {
   const { error } = useToast()
@@ -43,6 +43,12 @@ const Login: React.FC = () => {
     window.location.href = `${BASE_URL}/oauth2/authorization/kakao`
   }
 
+  const handleGoogleLogin = () => {
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL
+    console.log(BASE_URL)
+    window.location.href = `${BASE_URL}/oauth2/authorization/google`
+  }
+
   return (
     <T.Layout>
       <T.SignupContainer>
@@ -77,13 +83,14 @@ const Login: React.FC = () => {
           회원가입
         </T.Button>
         <S.Divider>또는</S.Divider>
-        <T.Button type="button">구글로그인넣기</T.Button>
-        <T.AuthLogin
-          src={kakaoLogin}
-          alt="카카오 로그인"
-          onClick={handleKakaoLogin}
-        />
-        {/*<T.Button type="button" onClick={handleKakaoLogin}></T.Button>*/}
+        <S.KakaoLogin onClick={handleKakaoLogin}>
+          <RiKakaoTalkFill size={20} style={{ color: 'rgba(0,0,0,0.8)' }} />
+          <S.ButtonText>카카오 계정으로 로그인</S.ButtonText>
+        </S.KakaoLogin>
+        <S.GoogleLogin onClick={handleGoogleLogin}>
+          <FcGoogle size={20} />
+          <S.ButtonText>구글 계정으로 로그인</S.ButtonText>
+        </S.GoogleLogin>
       </T.SignupContainer>
     </T.Layout>
   )
