@@ -1,4 +1,4 @@
-import apiClient from './client'
+import apiClient from '@api/client'
 import type { AxiosResponse } from 'axios'
 import type {
   EmailVerificationRequest,
