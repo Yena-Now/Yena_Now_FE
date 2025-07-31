@@ -54,13 +54,38 @@ export const PasswordButton = styled.button`
   }
 `
 
+export const KakaoLogin = styled.button`
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.75rem auto;
+  padding: 0.75rem 0.5rem;
+  background-color: #fee500;
+  color: #000000;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgb(239, 223, 72);
+  }
+  @media (max-width: 768px) {
+    width: 60%;
+  }
+`
+
 export const GoogleLogin = styled.button`
   width: 100%;
   max-width: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 1rem auto;
+  margin: 0.75rem auto;
   padding: 0.75rem 0.5rem;
   background-color: white;
   border: none;
