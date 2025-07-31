@@ -18,7 +18,6 @@ const GalleryPage: React.FC = () => {
 
   return (
     <>
-      <Header />
       <GalleryTabMenu currentTab={currentTab} onClickTab={setCurrentTab} />
       <GalleryList data={dummyNCutList.ncuts} onItemClick={handleClick} />
     </>
