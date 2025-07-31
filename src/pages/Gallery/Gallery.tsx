@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Header from '@components/Header/Header'
 import GalleryTabMenu from '@components/Gallery/GalleryTabMenu'
 import GalleryList from '@components/Gallery/GalleryList'
 import type { NCut } from '@/types/NCutList'

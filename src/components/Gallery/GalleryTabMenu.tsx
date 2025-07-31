@@ -8,7 +8,7 @@ type Props = {
 
 const GalleryHeader = ({ currentTab, onClickTab }: Props) => {
   return (
-    <>
+    <S.GalleryTabWrapper>
       <S.GalleryTabMenu>
         <S.GalleryTab
           className={currentTab === 'public' ? 'active' : ''}
@@ -24,7 +24,7 @@ const GalleryHeader = ({ currentTab, onClickTab }: Props) => {
         </S.GalleryTab>
       </S.GalleryTabMenu>
       <S.Divider />
-    </>
+    </S.GalleryTabWrapper>
   )
 }
 
