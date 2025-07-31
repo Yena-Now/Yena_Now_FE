@@ -17,6 +17,7 @@ import PublicGallery from '@pages/Gallery/PublicGallery'
 import FollowingGallery from './pages/Gallery/FollowingGallery'
 import UserGallery from './pages/Gallery/UserGallery'
 import MyGallery from './pages/Gallery/MyGallery'
+import GalleryPage from '@pages/Gallery/Gallery'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -97,11 +98,7 @@ function App() {
             <Route
               path="/gallery"
               element={
-                isLoggedIn ? (
-                  <div>Gallery Page</div>
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                isLoggedIn ? <GalleryPage /> : <Navigate to="/login" replace />
               }
             />
             <Route path="/auth/callback" element={<SocialCallback />} />

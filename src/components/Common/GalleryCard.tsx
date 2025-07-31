@@ -14,7 +14,7 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
   userUuid,
   profileUrl,
   nickname,
-  ncut_uuid,
+  // ncut_uuid,
   thumbnailUrl,
   ncutURL,
   likeCount,
