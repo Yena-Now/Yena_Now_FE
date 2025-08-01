@@ -12,6 +12,7 @@ import ResetPassword from '@pages/Auth/ResetPassword'
 import NCutMain from '@pages/NCut/NCutMain'
 import CreateSession from '@pages/NCut/CreateSession'
 import ParticipationSession from './pages/NCut/ParticipationSession'
+import Session from '@pages/NCut/Session'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -131,6 +132,16 @@ function App() {
               element={
                 isLoggedIn ? (
                   <ParticipationSession />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/film/room/:roomCode"
+              element={
+                isLoggedIn ? (
+                  <Session />
                 ) : (
                   <Navigate to="/login" replace />
                 )
