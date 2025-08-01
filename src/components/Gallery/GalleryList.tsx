@@ -1,0 +1,25 @@
+import React from 'react'
+import GalleryCard from '@components/Common/GalleryCard'
+import type { NCut } from '@/types/NCutList'
+import * as S from '@styles/pages/Gallery/GalleryListStyle'
+
+interface GalleryListProps {
+  data: NCut[]
+  onItemClick?: (item: NCut) => void
+}
+
+const GalleryList: React.FC<GalleryListProps> = ({ data, onItemClick }) => {
+  return (
+    <S.GalleryList>
+      {data.map((item) => (
+        <GalleryCard
+          key={item.ncut_uuid}
+          {...item}
+          onClick={() => onItemClick?.(item)}
+        />
+      ))}
+    </S.GalleryList>
+  )
+}
+
+export default GalleryList

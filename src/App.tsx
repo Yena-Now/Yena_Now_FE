@@ -12,6 +12,7 @@ import ResetPassword from '@pages/Auth/ResetPassword'
 import NCutMain from '@pages/NCut/NCutMain'
 import CreateSession from '@pages/NCut/CreateSession'
 import ParticipationSession from './pages/NCut/ParticipationSession'
+import GalleryPage from '@pages/Gallery/Gallery'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -92,11 +93,7 @@ function App() {
             <Route
               path="/gallery"
               element={
-                isLoggedIn ? (
-                  <div>Gallery Page</div>
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                isLoggedIn ? <GalleryPage /> : <Navigate to="/login" replace />
               }
             />
             <Route path="/auth/callback" element={<SocialCallback />} />
