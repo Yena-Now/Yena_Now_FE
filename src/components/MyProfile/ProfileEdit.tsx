@@ -1,12 +1,14 @@
 import { LuUpload } from 'react-icons/lu'
 import ProfileImage from '@components/Common/ProfileImage'
-import * as S from '@styles/pages/Auth/ProfileEditStyles'
+import * as S from '@styles/components/MyProfile/ProfileEditStyle'
 
-const ProfiileEdit = () => {
+const ProfileEdit: React.FC = () => {
   return (
     <S.Container>
       <S.TitleText>회원 정보 수정</S.TitleText>
-      <ProfileImage width="150" height="150" />
+      <S.ProfileSection>
+        <ProfileImage width="150" height="150" />
+      </S.ProfileSection>
       <S.EditSection>
         <S.ImageEditButton>프로필 사진 수정</S.ImageEditButton>
         <LuUpload />
@@ -67,4 +69,4 @@ const ProfiileEdit = () => {
   )
 }
 
-export default ProfiileEdit
+export default ProfileEdit

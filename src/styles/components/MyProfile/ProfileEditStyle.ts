@@ -1,18 +1,20 @@
 import styled from 'styled-components'
 
 export const Container = styled.div`
-  /* border: 1px solid red; */
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 3rem;
 `
 
 export const Box = styled.div`
   width: 30vw;
-  /* border: 1px solid blue; */
   display: flex;
   justify-content: space-between;
   padding: 20px;
+`
+export const ProfileSection = styled.div`
+  margin-bottom: 2rem;
 `
 export const EditSection = styled.div`
   margin: 10px 0px;

@@ -106,7 +106,7 @@ const Header: React.FC = () => {
                     </S.MenuLink>
                   </S.DropdownMenuItem>
                   <S.DropdownMenuItem>
-                    <S.MenuLink as={Link} to="/profile/edit">
+                    <S.MenuLink as={Link} to="/my-profile">
                       내 프로필 편집
                     </S.MenuLink>
                   </S.DropdownMenuItem>

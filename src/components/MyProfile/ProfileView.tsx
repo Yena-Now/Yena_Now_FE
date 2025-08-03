@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react'
 import { userAPI } from '@api/user'
 import type { UserMeResponse } from '@/types/User'
 import { useToast } from '@/hooks/useToast'
+import { IoIosArrowForward } from 'react-icons/io'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/MyProfile/ProfileViewStyle'
 import * as T from '@styles/components/MyProfile/ProfileEditStyle'
 
-const ProfileView = () => {
+type ProfileViewProps = {
+  handleEdit: () => void
+}
+
+const ProfileView: React.FC<ProfileViewProps> = ({ handleEdit }) => {
   const { error } = useToast()
   const [myInfo, setMyInfo] = useState<UserMeResponse | null>(null)
 
@@ -73,6 +78,11 @@ const ProfileView = () => {
         <S.Title>이메일</S.Title>
         <S.Content>{myInfo?.email}</S.Content>
       </T.Box>
+      <S.EditSection>
+        <S.EditText onClick={handleEdit}>
+          회원정보 수정 <IoIosArrowForward size={12} />
+        </S.EditText>
+      </S.EditSection>
     </T.Container>
   )
 }

@@ -8,7 +8,7 @@ import Signup from '@pages/Auth/Signup'
 import SignupMore from '@pages/Auth/SignupMore'
 import SocialCallback from '@pages/Auth/SocialCallback'
 import ResetPassword from '@pages/Auth/ResetPassword'
-import ProfiileEdit from '@/pages/Auth/ProfiileEdit'
+import MyProfileInfo from './pages/MyProfile/MyProfileInfo'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 
 function App() {
@@ -109,9 +109,13 @@ function App() {
               }
             />
             <Route
-              path="/profile/edit"
+              path="/my-profile"
               element={
-                isLoggedIn ? <ProfiileEdit /> : <Navigate to="/login" replace />
+                isLoggedIn ? (
+                  <MyProfileInfo />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
           </Routes>
