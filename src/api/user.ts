@@ -3,7 +3,7 @@ import type { UserMeInfoEditRequest, UserMeResponse } from '@/types/User'
 
 export const userAPI = {
   editUserMeInfo: async (
-    requestData: UserMeInfoEditRequest,
+    requestData: Partial<UserMeInfoEditRequest>,
   ): Promise<UserMeResponse> => {
     const response = await apiClient.patch('/users/me', requestData)
     return response.data

@@ -19,7 +19,6 @@ const MyProfileInfo: React.FC = () => {
       try {
         const myData = await userAPI.getUserMeInfo()
         setMyInfo(myData)
-        console.log(myData)
       } catch (err) {
         error('내 정보를 불러오는 데 실패했습니다.')
       }

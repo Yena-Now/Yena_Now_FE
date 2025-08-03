@@ -3,7 +3,6 @@ import { IoIosArrowForward } from 'react-icons/io'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/MyProfile/ProfileViewStyle'
 import * as T from '@styles/components/MyProfile/ProfileEditStyle'
-import { DiIe } from 'react-icons/di'
 
 interface ProfileViewProps {
   myInfo: UserMeResponse
