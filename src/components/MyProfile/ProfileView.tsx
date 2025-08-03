@@ -1,33 +1,29 @@
-import { useState, useEffect } from 'react'
-import { userAPI } from '@api/user'
 import type { UserMeResponse } from '@/types/User'
-import { useToast } from '@/hooks/useToast'
 import { IoIosArrowForward } from 'react-icons/io'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/MyProfile/ProfileViewStyle'
 import * as T from '@styles/components/MyProfile/ProfileEditStyle'
+import { DiIe } from 'react-icons/di'
 
-type ProfileViewProps = {
+interface ProfileViewProps {
+  myInfo: UserMeResponse
   handleEdit: () => void
 }
 
-const ProfileView: React.FC<ProfileViewProps> = ({ handleEdit }) => {
-  const { error } = useToast()
-  const [myInfo, setMyInfo] = useState<UserMeResponse | null>(null)
+const ProfileView: React.FC<ProfileViewProps> = ({ myInfo, handleEdit }) => {
+  const formatPhoneNumber = (phone: string) => {
+    if (!phone) return ''
 
-  useEffect(() => {
-    const fetchMyInfo = async () => {
-      try {
-        const myData = await userAPI.getUserMeInfo()
-        setMyInfo(myData)
-        console.log(myData)
-      } catch (err) {
-        error('내 정보를 불러오는 데 실패했습니다.')
-      }
+    const digits = phone.replace(/\D/g, '')
+    if (digits === '01000000000') return '미입력'
+    if (digits.length === 11) {
+      const part1 = digits.slice(0, 3)
+      const part2 = digits.slice(3, 7)
+      const part3 = digits.slice(7, 11)
+      return `${part1}-${part2}-${part3}`
     }
-    fetchMyInfo()
-  }, [])
-
+    return digits
+  }
   return (
     <T.Container>
       <T.TitleText>회원 정보</T.TitleText>
@@ -48,7 +44,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ handleEdit }) => {
           {myInfo?.phoneNumber === '010-0000-0000' ? (
             <S.EmptyContent>미입력</S.EmptyContent>
           ) : (
-            myInfo?.phoneNumber
+            formatPhoneNumber(myInfo?.phoneNumber)
           )}
         </S.Content>
       </T.Box>

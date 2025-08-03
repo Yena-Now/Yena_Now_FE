@@ -11,6 +11,7 @@ export const Box = styled.div`
   width: 30vw;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 20px;
 `
 export const ProfileSection = styled.div`
@@ -43,6 +44,11 @@ export const Label = styled.div`
 export const Input = styled.input`
   width: 60%;
   height: 20px;
+  border: 0;
+  border-radius: 15px;
+  outline: none;
+  padding: 0.5rem 10px;
+  background-color: rgb(233, 233, 233);
 `
 
 export const GenderBox = styled.div`

@@ -1,8 +1,13 @@
+import type { UserMeResponse } from '@/types/User'
 import { LuUpload } from 'react-icons/lu'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/MyProfile/ProfileEditStyle'
 
-const ProfileEdit: React.FC = () => {
+interface ProfileEditProps {
+  myInfo: UserMeResponse
+}
+
+const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   return (
     <S.Container>
       <S.TitleText>회원 정보 수정</S.TitleText>
@@ -17,25 +22,25 @@ const ProfileEdit: React.FC = () => {
         <S.Label>
           <label htmlFor="name">이름</label>
         </S.Label>
-        <S.Input type="text" id="name" />
+        <S.Input type="text" id="name" value={myInfo.name} />
       </S.Box>
       <S.Box>
         <S.Label>
           <label htmlFor="name">닉네임</label>
         </S.Label>
-        <S.Input type="text" id="nickname" />
+        <S.Input type="text" id="nickname" value={myInfo.nickname} />
       </S.Box>
       <S.Box>
         <S.Label>
           <label htmlFor="phone-number">전화번호</label>
         </S.Label>
-        <S.Input type="text" id="phone-number" />
+        <S.Input type="text" id="phone-number" value={myInfo.phoneNumber} />
       </S.Box>
       <S.Box>
         <S.Label>
           <label htmlFor="birthdate">생년월일</label>
         </S.Label>
-        <S.Input type="text" id="birthdate" />
+        <S.Input type="text" id="birthdate" value={myInfo.birthdate} />
       </S.Box>
       <S.Box>
         <S.Label>
@@ -43,11 +48,21 @@ const ProfileEdit: React.FC = () => {
         </S.Label>
         <S.GenderBox>
           <S.GenderInput>
-            <S.Input type="radio" id="gender-m" name="gender-select" />
+            <S.Input
+              type="radio"
+              id="gender-m"
+              name="gender-select"
+              checked={myInfo.gender === 'MALE'}
+            />
             <label htmlFor="gender-m">남자</label>
           </S.GenderInput>
           <S.GenderInput>
-            <S.Input type="radio" id="gender-f" name="gender-select" />
+            <S.Input
+              type="radio"
+              id="gender-f"
+              name="gender-select"
+              checked={myInfo.gender === 'FEMALE'}
+            />
             <label htmlFor="gender-f">여자</label>
           </S.GenderInput>
         </S.GenderBox>
