@@ -1,4 +1,4 @@
-export interface UserMeInfoEditRequest {
+export interface UserMeInfoPatchRequest {
   name: string
   nickname: string
   phoneNumber: string

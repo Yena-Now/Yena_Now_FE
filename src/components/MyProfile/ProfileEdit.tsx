@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { UserMeResponse, UserMeInfoEditRequest } from '@/types/User'
+import type { UserMeResponse, UserMeInfoPatchRequest } from '@/types/User'
 import { useToast } from '@/hooks/useToast'
 import { LuUpload } from 'react-icons/lu'
 import ProfileImage from '@components/Common/ProfileImage'
@@ -15,7 +15,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   const navigate = useNavigate()
   const { error, success } = useToast()
 
-  const [userData, setUserData] = useState<UserMeInfoEditRequest>({
+  const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
     name: myInfo.name,
     nickname: myInfo.nickname,
     phoneNumber: myInfo.phoneNumber,
@@ -31,7 +31,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
 
   // 값이 변경 필드만 patch 요청 전송
   const getPatchPayload = () => {
-    const payload: Partial<UserMeInfoEditRequest> = {}
+    const payload: Partial<UserMeInfoPatchRequest> = {}
 
     if (myInfo.name !== userData.name) {
       payload.name = userData.name
@@ -50,7 +50,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   const handleSubmit = async () => {
     const patchData = getPatchPayload()
     try {
-      await userAPI.editUserMeInfo(patchData)
+      await userAPI.patchUserMeInfo(patchData)
       success('회원 정보 수정이 완료되었습니다.')
       navigate('/my-profile')
     } catch (err) {

@@ -1,9 +1,9 @@
 import apiClient from '@api/client'
-import type { UserMeInfoEditRequest, UserMeResponse } from '@/types/User'
+import type { UserMeInfoPatchRequest, UserMeResponse } from '@/types/User'
 
 export const userAPI = {
-  editUserMeInfo: async (
-    requestData: Partial<UserMeInfoEditRequest>,
+  patchUserMeInfo: async (
+    requestData: Partial<UserMeInfoPatchRequest>,
   ): Promise<UserMeResponse> => {
     const response = await apiClient.patch('/users/me', requestData)
     return response.data
