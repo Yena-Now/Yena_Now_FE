@@ -44,4 +44,13 @@ export const userAPI = {
       throw err
     }
   },
+
+  deleteUser: async (): Promise<void> => {
+    try {
+      await apiClient.delete('/users/me')
+    } catch (err) {
+      console.log('회원 탈퇴 실패', err)
+      throw err
+    }
+  },
 }

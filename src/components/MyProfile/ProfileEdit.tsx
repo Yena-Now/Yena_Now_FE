@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/useToast'
 import { FiUpload } from 'react-icons/fi'
 import { FaRegTrashCan } from 'react-icons/fa6'
 import ProfileImage from '@components/Common/ProfileImage'
+import OptionModal from '@components/Common/OptionModal'
 import * as S from '@styles/components/MyProfile/ProfileEditStyle'
 
 interface ProfileEditProps {
@@ -28,6 +29,10 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       ...prev,
       [name]: value,
     }))
+  }
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const handleModalClose = () => {
+    setIsModalOpen(false)
   }
 
   // 값이 변경 필드만 patch 요청 전송
@@ -74,6 +79,16 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
 
   const handleImageDelete = () => {
     // 프로필 사진 삭제 api 호출
+  }
+
+  const deleteUser = async () => {
+    try {
+      await userAPI.deleteUser()
+      success('회원 탈퇴가 완료되었습니다.')
+      navigate('/login')
+    } catch (err) {
+      error('다시 시도해 주세요.')
+    }
   }
 
   return (
@@ -186,10 +201,21 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       <S.Box>
         <div></div>
         <div>
-          <S.DeleteButton>회원 탈퇴</S.DeleteButton>
+          <S.DeleteButton onClick={() => setIsModalOpen(true)}>
+            회원 탈퇴
+          </S.DeleteButton>
           <S.EditButton onClick={handleSubmit}>수정</S.EditButton>
         </div>
       </S.Box>
+      {isModalOpen && (
+        <OptionModal
+          title="계정을 삭제하면 모든 정보가 사라집니다. 계속 진행할까요?"
+          onClose={handleModalClose}
+        >
+          <S.DeleteButton onClick={deleteUser}>탈퇴</S.DeleteButton>
+          <S.EditButton onClick={handleModalClose}>취소</S.EditButton>
+        </OptionModal>
+      )}
     </S.Container>
   )
 }
