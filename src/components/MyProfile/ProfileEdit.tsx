@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { userAPI } from '@/api/user'
 import type { UserMeResponse, UserMeInfoPatchRequest } from '@/types/User'
 import { useToast } from '@/hooks/useToast'
-import { LuUpload } from 'react-icons/lu'
+import { FiUpload } from 'react-icons/fi'
+import { FaRegTrashCan } from 'react-icons/fa6'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/MyProfile/ProfileEditStyle'
-import { userAPI } from '@/api/user'
 
 interface ProfileEditProps {
   myInfo: UserMeResponse
@@ -14,13 +15,13 @@ interface ProfileEditProps {
 const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   const navigate = useNavigate()
   const { error, success } = useToast()
-
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
     name: myInfo.name,
     nickname: myInfo.nickname,
     phoneNumber: myInfo.phoneNumber,
   })
-
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setUserData((prev) => ({
@@ -58,15 +59,54 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     }
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+
+    if (file) {
+      setImageFile(file)
+      setImagePreview(URL.createObjectURL(file))
+    } else {
+      return
+    }
+
+    // 프로필 사진 등록 api 호출
+  }
+
+  const handleImageDelete = () => {
+    // 프로필 사진 삭제 api 호출
+  }
+
   return (
     <S.Container>
       <S.TitleText>회원 정보 수정</S.TitleText>
       <S.ProfileSection>
-        <ProfileImage width="150" height="150" />
+        <ProfileImage
+          width="150"
+          height="150"
+          src={imagePreview ? imagePreview : myInfo.profileUrl}
+        />
       </S.ProfileSection>
       <S.EditSection>
-        <S.ImageEditButton>프로필 사진 수정</S.ImageEditButton>
-        <LuUpload />
+        <S.EditSubBox>
+          <S.ImageChangeInput
+            type="file"
+            id="profile-change"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+          <S.ImageChangeText htmlFor="profile-change">
+            사진 변경
+            <S.ImageChangeIcon>
+              <FiUpload />
+            </S.ImageChangeIcon>
+          </S.ImageChangeText>
+        </S.EditSubBox>
+        <S.EditSubBox>
+          <S.ImageDeleteButton onClick={handleImageDelete}>
+            사진 삭제
+          </S.ImageDeleteButton>
+          <FaRegTrashCan />
+        </S.EditSubBox>
       </S.EditSection>
       <S.Box>
         <S.Label>

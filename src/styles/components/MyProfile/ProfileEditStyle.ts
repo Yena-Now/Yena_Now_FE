@@ -18,12 +18,39 @@ export const ProfileSection = styled.div`
   margin-bottom: 2rem;
 `
 export const EditSection = styled.div`
+  width: 30%;
   margin: 10px 0px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+`
+export const EditSubBox = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+`
+
+export const ImageChangeInput = styled.input`
+  border: 0;
+  background-color: transparent;
+  cursor: pointer;
+  display: none;
+`
+export const ImageChangeText = styled.label`
+  font-size: 1rem;
+  margin-right: 0.3rem;
   display: flex;
   align-items: center;
 `
 
-export const ImageEditButton = styled.button`
+export const ImageChangeIcon = styled.span`
+  margin-left: 0.3rem;
+  text-align: center;
+  cursor: pointer;
+`
+
+export const ImageDeleteButton = styled.button`
+  font-size: 1rem;
   border: 0;
   background-color: transparent;
   cursor: pointer;

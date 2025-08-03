@@ -13,3 +13,11 @@ export interface UserMeResponse {
   phoneNumber: string
   profileUrl: string
 }
+
+export interface UserImagePatchRequest {
+  imageUrl: string
+}
+
+export interface UserImagePatchResponse {
+  imageUrl: string
+}
