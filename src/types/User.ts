@@ -21,3 +21,8 @@ export interface UserImagePatchRequest {
 export interface UserImagePatchResponse {
   imageUrl: string
 }
+
+export interface ChangePasswordRequest {
+  oldPassword: string
+  newPassword: string
+}
