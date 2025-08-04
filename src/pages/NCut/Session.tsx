@@ -42,6 +42,11 @@ export const Session: React.FC = () => {
   const [isBackgroundProcessing, setIsBackgroundProcessing] = useState(true)
   const [userInteracted, setUserInteracted] = useState(false)
   const [showInteractionPrompt, setShowInteractionPrompt] = useState(false)
+  const [canvasSize, setCanvasSize] = useState({ width: 160, height: 100 })
+
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [canvasPosition, setCanvasPosition] = useState({ x: 0, y: 0 })
 
   const connectionAttemptRef = useRef<boolean>(false)
   const roomRef = useRef<Room | undefined>(undefined)
@@ -100,7 +105,7 @@ export const Session: React.FC = () => {
       await initializeSelfieSegmentation()
 
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720, frameRate: 30 },
+        video: { width: 1920, height: 1080, frameRate: 30 },
         audio: false,
       })
 
@@ -152,9 +157,21 @@ export const Session: React.FC = () => {
     selfieSegmentation.onResults((results) => {
       ctx.save()
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height)
+      ctx.drawImage(
+        results.image,
+        canvasPosition.x,
+        canvasPosition.y,
+        canvasSize.width,
+        canvasSize.height,
+      )
       ctx.globalCompositeOperation = 'destination-in'
-      ctx.drawImage(results.segmentationMask, 0, 0, canvas.width, canvas.height)
+      ctx.drawImage(
+        results.segmentationMask,
+        canvasPosition.x,
+        canvasPosition.y,
+        canvasSize.width,
+        canvasSize.height,
+      )
       ctx.globalCompositeOperation = 'destination-over'
       if (bgImageElement) {
         ctx.drawImage(bgImageElement, 0, 0, canvas.width, canvas.height)
@@ -183,7 +200,7 @@ export const Session: React.FC = () => {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [bgImageElement])
+  }, [bgImageElement, canvasPosition, canvasSize])
 
   const connectToRoom = useCallback(
     async (token: string) => {
@@ -306,7 +323,9 @@ export const Session: React.FC = () => {
     return () => {
       cleanup()
       if (roomRef.current) {
-        roomRef.current.disconnect()
+        roomRef.current.disconnect().then((r) => {
+          console.log('Disconnected from room:', r)
+        })
       }
     }
   }, [cleanup])
@@ -437,11 +456,60 @@ export const Session: React.FC = () => {
       </div>
       <div id="layout-container">
         {localTrack ? (
-          <VideoComponent
-            track={localTrack}
-            participantIdentity={localParticipantIdentity || '나'}
-            local={true}
-          />
+          <div
+            style={{
+              position: 'relative',
+              cursor: isDragging ? 'grabbing' : 'grab',
+            }}
+            onMouseDown={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              const mouseX = e.clientX - rect.left
+              const mouseY = e.clientY - rect.top
+
+              // 비디오 이미지 영역을 클릭했는지 확인
+              if (
+                mouseX >= canvasPosition.x &&
+                mouseX <= canvasPosition.x + canvasSize.width &&
+                mouseY >= canvasPosition.y &&
+                mouseY <= canvasPosition.y + canvasSize.height
+              ) {
+                setIsDragging(true)
+                setDragOffset({
+                  x: mouseX - canvasPosition.x,
+                  y: mouseY - canvasPosition.y,
+                })
+              }
+            }}
+            onMouseMove={(e) => {
+              if (!isDragging) return
+              const rect = e.currentTarget.getBoundingClientRect()
+              const mouseX = e.clientX - rect.left
+              const mouseY = e.clientY - rect.top
+
+              const newX = mouseX - dragOffset.x
+              const newY = mouseY - dragOffset.y
+
+              // 캔버스 경계 내에서만 이동하도록 제한
+              const boundedX = Math.max(
+                0,
+                Math.min(newX, 1920 - canvasSize.width),
+              )
+              const boundedY = Math.max(
+                0,
+                Math.min(newY, 1080 - canvasSize.height),
+              )
+
+              setCanvasPosition({ x: boundedX, y: boundedY })
+            }}
+            onMouseUp={() => setIsDragging(false)}
+            onMouseLeave={() => setIsDragging(false)}
+          >
+            <VideoComponent
+              track={localTrack}
+              participantIdentity={localParticipantIdentity || '나'}
+              local={true}
+            />
+          </div>
         ) : (
           <div
             style={{
@@ -473,6 +541,42 @@ export const Session: React.FC = () => {
             />
           ),
         )}
+        <div style={{ marginTop: '10px' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '5px',
+              fontSize: '14px',
+            }}
+          >
+            현재 크기: {canvasSize.width.toFixed(0)} x{' '}
+            {canvasSize.height.toFixed(0)}
+          </label>
+          <input
+            id="size-slider"
+            type="range"
+            min="200"
+            max="1000"
+            value={canvasSize.height}
+            onChange={(e) => {
+              const newHeight = Number(e.target.value)
+              setCanvasSize({
+                width: newHeight * 1.6,
+                height: newHeight,
+              })
+            }}
+            style={{
+              appearance: 'none',
+              position: 'relative',
+              verticalAlign: 'middle',
+              width: '100px',
+              borderRadius: '20px',
+              background: 'hsl(0,0%,80%)',
+              boxShadow: '0 1px 0 hsla(0,0%,100%,.6)',
+              overflow: 'hidden',
+            }}
+          />
+        </div>
       </div>
     </div>
   )
