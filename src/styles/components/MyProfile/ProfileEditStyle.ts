@@ -80,27 +80,30 @@ export const Input = styled.input`
 
 export const InputWrapper = styled.div`
   display: flex;
-  justify-content: space-between;
   width: 65%;
+  margin: 0;
+  padding: 0;
 `
 export const NickNameInput = styled(Input)`
   width: 70%;
+  margin-right: 0.3rem;
+  flex: 3.5;
 `
 export const NickNameCheckButton = styled.button`
-  width: 20%;
-  height: 40px;
+  flex: 1;
+  width: 30%;
+  height: 36px;
   border: none;
   border-radius: 15px;
-  background: #229ed9;
+  background: #3498db;
   color: #fff;
-  font-size: 0.9rem;
-  font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  white-space: nowrap; /* ✅ 줄바꿈 방지 */
-  padding: 0 12px;
+  white-space: nowrap;
+  padding: 0 1rem;
+  margin-left: 0.3rem;
 `
 
 export const GenderBox = styled.div`

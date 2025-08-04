@@ -15,12 +15,16 @@ interface ProfileEditProps {
 
 const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   const navigate = useNavigate()
-  const { error, success } = useToast()
+  const { error, success, warning } = useToast()
+
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
     name: myInfo.name,
     nickname: myInfo.nickname,
     phoneNumber: myInfo.phoneNumber,
   })
+
+  const [isNickNameValid, setIsNickNameValid] = useState<boolean>(false)
+
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,9 +34,30 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       [name]: value,
     }))
   }
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const handleModalClose = () => {
     setIsModalOpen(false)
+  }
+
+  const verifyNickname = async (nickname: string) => {
+    try {
+      const response = await userAPI.verifyNickname({ nickname })
+      return !response.isDuplicated
+    } catch {
+      error('닉네임 중복 확인 오류')
+      return false
+    }
+  }
+
+  const handleNicknameVerify = async () => {
+    const isAvailable = await verifyNickname(userData.nickname)
+    setIsNickNameValid(isAvailable)
+    if (isAvailable) {
+      success('사용 가능한 닉네임입니다.')
+    } else {
+      warning('이미 사용 중인 닉네임입니다.')
+    }
   }
 
   // 값이 변경 필드만 patch 요청 전송
@@ -147,7 +172,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
             value={userData.nickname}
             onChange={handleChange}
           />
-          <S.NickNameCheckButton>중복 확인</S.NickNameCheckButton>
+          <S.NickNameCheckButton onClick={handleNicknameVerify}>
+            중복 확인
+          </S.NickNameCheckButton>
         </S.InputWrapper>
       </S.Box>
       <S.Box>
@@ -207,7 +234,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
           <S.DeleteButton onClick={() => setIsModalOpen(true)}>
             회원 탈퇴
           </S.DeleteButton>
-          <S.EditButton onClick={handleSubmit}>수정</S.EditButton>
+          <S.EditButton onClick={handleSubmit} disabled={!isNickNameValid}>
+            수정
+          </S.EditButton>
         </div>
       </S.Box>
       {isModalOpen && (

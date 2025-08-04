@@ -2,6 +2,9 @@ export interface UserMeInfoPatchRequest {
   name: string
   nickname: string
   phoneNumber: string
+  birthdate: string
+  gender: string
+  profileUrl: string
 }
 
 export interface UserMeResponse {
