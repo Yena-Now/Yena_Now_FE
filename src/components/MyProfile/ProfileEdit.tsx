@@ -139,13 +139,16 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
         <S.Label>
           <label htmlFor="name">닉네임</label>
         </S.Label>
-        <S.Input
-          type="text"
-          id="nickname"
-          name="nickname"
-          value={userData.nickname}
-          onChange={handleChange}
-        />
+        <S.InputWrapper>
+          <S.NickNameInput
+            type="text"
+            id="nickname"
+            name="nickname"
+            value={userData.nickname}
+            onChange={handleChange}
+          />
+          <S.NickNameCheckButton>중복 확인</S.NickNameCheckButton>
+        </S.InputWrapper>
       </S.Box>
       <S.Box>
         <S.Label>
