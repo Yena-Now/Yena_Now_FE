@@ -8,27 +8,24 @@ interface VideoComponentProps {
   local?: boolean;
 }
 
-function VideoComponent({ track, participantIdentity, local = false }: VideoComponentProps) {
-  const videoElement = useRef<HTMLVideoElement | null>(null);
+function VideoComponent({ track, participantIdentity }: VideoComponentProps) {
+  const videoElement = useRef<HTMLVideoElement | null>(null)
 
   useEffect(() => {
     if (videoElement.current) {
-      track.attach(videoElement.current);
+      track.attach(videoElement.current)
     }
 
     return () => {
-      track.detach();
-    };
-  }, [track]);
+      track.detach()
+    }
+  }, [track])
 
   return (
-    <div id={"camera-" + participantIdentity} className="video-container">
-      <div className="participant-data">
-        <p>{participantIdentity + (local ? " (You)" : "")}</p>
-      </div>
+    <div id={'camera-' + participantIdentity} className="video-container">
       <video ref={videoElement} id={track.sid}></video>
     </div>
-  );
+  )
 }
 
 export default VideoComponent;

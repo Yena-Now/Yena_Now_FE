@@ -12,7 +12,7 @@ const filters = [
   {
     name: '기본',
     value: 'basic',
-    style: '',
+    style: 'none',
   },
   { name: '흑백', value: 'blackwhite', style: 'grayscale(100%)' },
   {
@@ -27,11 +27,11 @@ function SecondCreateStep({
   isImageUploaded,
   onFormDataChange,
 }: SecondCreateStepProps) {
-  const [selectedFilter, setSelectedFilter] = useState<string>('')
+  const [selectedFilter, setSelectedFilter] = useState<string>('basic')
 
-  const handleFilterSelect = (filterValue: string) => {
+  const handleFilterSelect = (filterValue: string, filterStyle: string) => {
     setSelectedFilter(filterValue)
-    onFormDataChange({ selectedFilter: filterValue })
+    onFormDataChange({ selectedFilter: filterStyle })
   }
 
   const getFilterStyle = (filterValue: string) => {
@@ -66,7 +66,7 @@ function SecondCreateStep({
             {filters.map((filter) => (
               <S.FilterOption
                 key={filter.value}
-                onClick={() => handleFilterSelect(filter.value)}
+                onClick={() => handleFilterSelect(filter.value, filter.style)}
                 $isSelected={selectedFilter === filter.value}
               >
                 <S.FilterThumbnail>

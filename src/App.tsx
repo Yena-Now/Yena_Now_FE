@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Header from '@components/Header/Header'
 import GlobalStyle from '@styles/GlobalStyle'
 import Landing from '@pages/Landing/Landing'
@@ -18,6 +18,7 @@ import GalleryPage from '@pages/Gallery/Gallery'
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const location = useLocation()
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -52,6 +53,9 @@ function App() {
     return <div>로딩 중...</div>
   }
 
+  const showHeader =
+    isLoggedIn && !location.pathname.startsWith('/film/room/')
+
   return (
     <>
       <GlobalStyle />
@@ -62,9 +66,7 @@ function App() {
           hideProgressBar={true}
           pauseOnFocusLoss={false}
         />
-        {isLoggedIn && !window.location.pathname.startsWith('/film/room/') && (
-          <Header />
-        )}
+        {showHeader && <Header />}
         <main>
           <Routes>
             <Route

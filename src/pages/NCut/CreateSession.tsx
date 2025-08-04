@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import * as G from '@styles/components/NCut/Create/GlobalStyle'
 import { nCutAPI } from '@/api/ncut'
 import { useToast } from '@/hooks/useToast'
@@ -27,9 +27,56 @@ const CreateSession: React.FC = () => {
     cutCnt: 2,
     timeLimit: 10,
   })
+  const [originalImage, setOriginalImage] = useState<{
+    file: File | null
+    url: string | null
+  }>({ file: null, url: null })
+
   const [roomCode, setRoomCode] = useState('')
   const [sessionToken, setSessionToken] = useState('')
   const [isCreating, setIsCreating] = useState(false)
+
+  const applyFilterToImage = useCallback(
+    async (
+      imageUrl: string,
+      filter: string,
+    ): Promise<{ file: File; url: string }> => {
+      return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.crossOrigin = 'Anonymous'
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          if (!ctx) {
+            return reject(new Error('Canvas context not available'))
+          }
+          canvas.width = img.width
+          canvas.height = img.height
+          ctx.filter = filter
+          ctx.drawImage(img, 0, 0)
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const newFile = new File([blob], 'filtered.png', {
+                  type: 'image/png',
+                })
+                const newUrl = URL.createObjectURL(newFile)
+                resolve({ file: newFile, url: newUrl })
+              } else {
+                reject(new Error('Blob creation failed'))
+              }
+            },
+            'image/png',
+            1,
+          )
+        }
+        img.onerror = (err) => reject(err)
+        img.src = imageUrl
+      })
+    },
+    [],
+  )
 
   const handleCreateSession = async () => {
     setIsCreating(true)
@@ -59,17 +106,68 @@ const CreateSession: React.FC = () => {
     setCurrentIndex((prev) => Math.max(prev - 1, 0))
   }
 
-  const handleFormDataChange = (newData: Partial<typeof formData>) => {
-    setFormData((prev) => ({ ...prev, ...newData }))
-  }
+  const handleFormDataChange = useCallback(
+    async (newData: Partial<typeof formData>) => {
+      // 이미지 업로드 시 원본 이미지 저장
+      if (newData.backgroundImage && newData.backgroundImageUrl) {
+        setOriginalImage({
+          file: newData.backgroundImage,
+          url: newData.backgroundImageUrl,
+        })
+      }
 
-  const handleJoinSession = () => {
+      // 필터 변경 시
+      if (newData.selectedFilter && originalImage.url) {
+        try {
+          const { file, url } = await applyFilterToImage(
+            originalImage.url,
+            newData.selectedFilter,
+          )
+          setFormData((prev) => ({
+            ...prev,
+            ...newData,
+            backgroundImage: file,
+            backgroundImageUrl: url,
+          }))
+        } catch (err) {
+          error(`필터 적용 실패: ${err}`)
+          setFormData((prev) => ({ ...prev, ...newData }))
+        }
+      } else {
+        setFormData((prev) => ({ ...prev, ...newData }))
+      }
+    },
+    [applyFilterToImage, originalImage.url, error],
+  )
+
+  const handleJoinSession = async () => {
+    let backgroundUrl = formData.backgroundImageUrl || ''
+
+    if (formData.backgroundImage instanceof File && !formData.isImageUploaded) {
+      const fileToProcess = formData.backgroundImage
+
+      backgroundUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          if (event.target && typeof event.target.result === 'string') {
+            resolve(event.target.result)
+          } else {
+            reject(new Error('파일 읽기 실패'))
+          }
+        }
+
+        reader.onerror = () => reject(new Error('파일 읽기 오류'))
+        reader.readAsDataURL(fileToProcess)
+      })
+    }
+
     if (roomCode && sessionToken) {
       navigate('/film/room/' + roomCode, {
         state: {
           roomCode: roomCode,
           token: sessionToken,
           isHost: true,
+          backgroundImageUrl: backgroundUrl,
         },
       })
     }
