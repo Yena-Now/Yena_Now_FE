@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { userAPI } from '@/api/user'
 import type { UserMeResponse, UserMeInfoPatchRequest } from '@/types/User'
 import { useToast } from '@/hooks/useToast'
+import DatePicker from 'react-datepicker'
 import { FiUpload } from 'react-icons/fi'
 import { FaRegTrashCan } from 'react-icons/fa6'
 import ProfileImage from '@components/Common/ProfileImage'
@@ -21,12 +22,16 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     name: myInfo.name,
     nickname: myInfo.nickname,
     phoneNumber: myInfo.phoneNumber,
+    birthdate: myInfo.birthdate,
+    gender: myInfo.gender,
+    profileUrl: myInfo.profileUrl,
   })
 
   const [isNickNameValid, setIsNickNameValid] = useState<boolean>(false)
 
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setUserData((prev) => ({
@@ -34,7 +39,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       [name]: value,
     }))
   }
-
+  console.log('userData', userData)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const handleModalClose = () => {
     setIsModalOpen(false)
@@ -60,21 +65,23 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     }
   }
 
+  const parseDate = (date: Date | null) => {
+    setUserData((prev) => ({
+      ...prev,
+      birthdate: date ? date.toISOString().slice(0, 10) : '',
+    }))
+  }
+
   // 값이 변경 필드만 patch 요청 전송
   const getPatchPayload = () => {
-    const payload: Partial<UserMeInfoPatchRequest> = {}
-
-    if (myInfo.name !== userData.name) {
-      payload.name = userData.name
-    }
-
-    if (myInfo.nickname !== userData.nickname) {
-      payload.nickname = userData.nickname
-    }
-
-    if (myInfo.phoneNumber !== userData.phoneNumber) {
-      payload.phoneNumber = userData.phoneNumber
-    }
+    const payload = (
+      Object.keys(userData) as (keyof UserMeInfoPatchRequest)[]
+    ).reduce((acc, key) => {
+      if (userData[key] !== myInfo[key]) {
+        acc[key] = userData[key]
+      }
+      return acc
+    }, {} as Partial<UserMeInfoPatchRequest>)
     return payload
   }
 
@@ -84,7 +91,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       await userAPI.patchUserMeInfo(patchData)
       success('회원 정보 수정이 완료되었습니다.')
       navigate('/my-profile')
-    } catch (err) {
+    } catch {
       error('정보 수정에 실패했습니다.')
     }
   }
@@ -111,7 +118,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       await userAPI.deleteUser()
       success('회원 탈퇴가 완료되었습니다.')
       navigate('/login')
-    } catch (err) {
+    } catch {
       error('다시 시도해 주세요.')
     }
   }
@@ -193,7 +200,17 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
         <S.Label>
           <label htmlFor="birthdate">생년월일</label>
         </S.Label>
-        <S.Input type="text" id="birthdate" value={myInfo.birthdate} />
+        <S.DatePickerWrapper>
+          <DatePicker
+            selected={new Date(userData.birthdate)}
+            onChange={(date) => parseDate(date)}
+            dateFormat="yyyy-MM-dd"
+            dateFormatCalendar="yyyy년 MM월"
+            popperPlacement="bottom-start"
+            maxDate={new Date()}
+            customInput={<S.DatePicker />}
+          />
+        </S.DatePickerWrapper>
       </S.Box>
       <S.Box>
         <S.Label>
@@ -204,8 +221,10 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
             <S.Input
               type="radio"
               id="gender-m"
-              name="gender-select"
-              checked={myInfo.gender === 'MALE'}
+              name="gender"
+              checked={userData.gender === 'MALE'}
+              value="MALE"
+              onChange={handleChange}
             />
             <label htmlFor="gender-m">남자</label>
           </S.GenderInput>
@@ -213,8 +232,10 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
             <S.Input
               type="radio"
               id="gender-f"
-              name="gender-select"
-              checked={myInfo.gender === 'FEMALE'}
+              name="gender"
+              checked={userData.gender === 'FEMALE'}
+              value="FEMALE"
+              onChange={handleChange}
             />
             <label htmlFor="gender-f">여자</label>
           </S.GenderInput>

@@ -10,6 +10,7 @@ import SocialCallback from '@pages/Auth/SocialCallback'
 import ResetPassword from '@pages/Auth/ResetPassword'
 import MyProfileInfo from './pages/MyProfile/MyProfileInfo'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
+import 'react-datepicker/dist/react-datepicker.css'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)

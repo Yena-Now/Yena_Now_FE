@@ -5,6 +5,19 @@ export const Container = styled.div`
   flex-direction: column;
   align-items: center;
   margin-bottom: 3rem;
+  .react-datepicker__triangle {
+    display: none;
+  }
+  .react-datepicker-wrapper {
+    width: 100%;
+  }
+  .react-datepicker__input-container {
+    width: 100%;
+    padding: 0;
+  }
+  .react-datepicker__input-container input {
+    width: 95%;
+  }
 `
 
 export const Box = styled.div`
@@ -106,6 +119,20 @@ export const NickNameCheckButton = styled.button`
   margin-left: 0.3rem;
 `
 
+export const DatePickerWrapper = styled.div`
+  width: 65%;
+`
+
+export const DatePicker = styled.input`
+  width: 100%;
+  height: 20px;
+  border: 0;
+  border-radius: 15px;
+  outline: none;
+  padding: 0.5rem 10px;
+  background-color: rgb(233, 233, 233);
+`
+
 export const GenderBox = styled.div`
   display: flex;
   justify-content: center;
@@ -134,7 +161,6 @@ export const DeleteButton = styled.button`
   color: #fff;
   border-radius: 5px;
   padding: 0.5rem 1.2rem;
-
   cursor: pointer;
 `
 
