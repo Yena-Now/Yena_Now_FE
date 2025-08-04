@@ -29,14 +29,6 @@ export interface EmailVerifyResponse {
   verified: boolean
 }
 
-export interface NicknameVerificationRequest {
-  nickname: string
-}
-
-export interface NicknameVerificationResponse {
-  isDuplicated: boolean
-}
-
 export interface LoginRequest {
   email: string
   password: string

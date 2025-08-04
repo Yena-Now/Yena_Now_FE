@@ -21,3 +21,11 @@ export interface UserImagePatchRequest {
 export interface UserImagePatchResponse {
   imageUrl: string
 }
+
+export interface NicknameVerificationRequest {
+  nickname: string
+}
+
+export interface NicknameVerificationResponse {
+  isDuplicated: boolean
+}

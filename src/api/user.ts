@@ -4,6 +4,8 @@ import type {
   UserMeResponse,
   UserImagePatchRequest,
   UserImagePatchResponse,
+  NicknameVerificationRequest,
+  NicknameVerificationResponse,
 } from '@/types/User'
 
 export const userAPI = {
@@ -52,5 +54,16 @@ export const userAPI = {
       console.log('회원 탈퇴 실패', err)
       throw err
     }
+  },
+
+  verifyNickname: async (
+    nickname: NicknameVerificationRequest,
+  ): Promise<NicknameVerificationResponse> => {
+    const response = await apiClient.post('/users/nickname', nickname, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    return response.data
   },
 }
