@@ -8,6 +8,7 @@ import defaultProfileImage from '/user_default_profile.png'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/pages/Auth/AuthGlobalStyle'
 import * as S2 from '@styles/pages/Auth/SignupMoreStyle'
+import { uploadImage } from '@utils/ImageUploader'
 
 const SignupMore: React.FC = () => {
   const { success, error } = useToast()
@@ -40,6 +41,10 @@ const SignupMore: React.FC = () => {
     phoneNumber: null,
   })
 
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadUrl, setUploadUrl] = useState<string | null>(null)
+
   const [formBirth, setFormBirth] = useState({
     birthYear: '',
     birthMonth: '',
@@ -47,16 +52,8 @@ const SignupMore: React.FC = () => {
   })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setFormData((prev) => ({
-          ...prev,
-          profileUrl: reader.result as string,
-        }))
-      }
-      reader.readAsDataURL(file)
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedImage(e.target.files[0])
     }
   }
 
@@ -82,17 +79,23 @@ const SignupMore: React.FC = () => {
       formBirth.birthMonth || '',
       formBirth.birthDay || '',
     )
+    setIsUploading(true)
+    const finalUrl = await uploadImage(selectedImage)
+    setUploadUrl(finalUrl)
+
     const submitData = {
       ...formData,
       birthdate: birthDate,
+      profileUrl: finalUrl || formData.profileUrl,
     }
+
     const result = await authAPI.signup(submitData)
     if (result.userUuid) {
-      const response = await authAPI.login({
+      await authAPI.login({
         email: submitData.email,
         password: submitData.password,
       })
-      console.log(response)
+      setIsUploading(false)
       navigate('/gallery')
       return
     } else {
@@ -133,7 +136,7 @@ const SignupMore: React.FC = () => {
         </S.LogoWrapper>
         <S2.ProfileImageWrapper>
           <ProfileImage
-            src={formData.profileUrl}
+            src={uploadUrl || selectedImage ? URL.createObjectURL(selectedImage!) : formData.profileUrl}
             width="140px"
             height="140px"
             alt="프로필 이미지"
@@ -272,7 +275,10 @@ const SignupMore: React.FC = () => {
               />
             </S2.InputGroup>
             <S2.ButtonWrapper>
-              <S2.Button type="submit" disabled={!isNicknameValid}>
+              <S2.Button
+                type="submit"
+                disabled={!isNicknameValid || isUploading}
+              >
                 확인
               </S2.Button>
             </S2.ButtonWrapper>

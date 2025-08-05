@@ -187,3 +187,14 @@ export const AuthLogin = styled.img`
     width: 60%;
   }
 `
+
+
+export const ErrorMessage = styled.div`
+  position: absolute;
+  top: 80%;
+  color: #ff4d4f;
+  font-size: 0.9rem;
+  margin-top: -1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+`

@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Header from '@components/Header/Header'
 import GlobalStyle from '@styles/GlobalStyle'
 import Landing from '@pages/Landing/Landing'
@@ -11,11 +11,17 @@ import ResetPassword from '@pages/Auth/ResetPassword'
 import MyProfileInfo from './pages/MyProfile/MyProfileInfo'
 import ChangePassword from '@pages/MyProfile/ChangePassword'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
+import NCutMain from '@pages/NCut/NCutMain'
+import CreateSession from '@pages/NCut/CreateSession'
+import ParticipationSession from '@pages/NCut/ParticipationSession'
+import Session from '@pages/NCut/Session'
+import GalleryPage from '@pages/Gallery/Gallery'
 import 'react-datepicker/dist/react-datepicker.css'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const location = useLocation()
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -50,6 +56,9 @@ function App() {
     return <div>로딩 중...</div>
   }
 
+  const showHeader =
+    isLoggedIn && !location.pathname.startsWith('/film/room/')
+
   return (
     <>
       <GlobalStyle />
@@ -60,9 +69,7 @@ function App() {
           hideProgressBar={true}
           pauseOnFocusLoss={false}
         />
-        {isLoggedIn && !window.location.pathname.startsWith('/film/') && (
-          <Header />
-        )}
+        {showHeader && <Header />}
         <main>
           <Routes>
             <Route
@@ -92,11 +99,7 @@ function App() {
             <Route
               path="/gallery"
               element={
-                isLoggedIn ? (
-                  <div>Gallery Page</div>
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                isLoggedIn ? <GalleryPage /> : <Navigate to="/login" replace />
               }
             />
             <Route path="/auth/callback" element={<SocialCallback />} />
@@ -108,6 +111,38 @@ function App() {
                 ) : (
                   <ResetPassword />
                 )
+              }
+            />
+            <Route
+              path="/film"
+              element={
+                isLoggedIn ? <NCutMain /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/film/create"
+              element={
+                isLoggedIn ? (
+                  <CreateSession />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/film/participant"
+              element={
+                isLoggedIn ? (
+                  <ParticipationSession />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/film/room/:roomCode"
+              element={
+                isLoggedIn ? <Session /> : <Navigate to="/login" replace />
               }
             />
             <Route
