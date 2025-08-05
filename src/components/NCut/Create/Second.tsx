@@ -12,7 +12,7 @@ const filters = [
   {
     name: '기본',
     value: 'basic',
-    style: '',
+    style: 'none',
   },
   { name: '흑백', value: 'blackwhite', style: 'grayscale(100%)' },
   {
@@ -27,11 +27,11 @@ function SecondCreateStep({
   isImageUploaded,
   onFormDataChange,
 }: SecondCreateStepProps) {
-  const [selectedFilter, setSelectedFilter] = useState<string>('')
+  const [selectedFilter, setSelectedFilter] = useState<string>('basic')
 
-  const handleFilterSelect = (filterValue: string) => {
+  const handleFilterSelect = (filterValue: string, filterStyle: string) => {
     setSelectedFilter(filterValue)
-    onFormDataChange({ selectedFilter: filterValue })
+    onFormDataChange({ selectedFilter: filterStyle })
   }
 
   const getFilterStyle = (filterValue: string) => {
@@ -46,19 +46,10 @@ function SecondCreateStep({
       {isImageUploaded && backgroundImageUrl && (
         <>
           <S.MainImagePreview>
-            <img
+            <S.PreviewImage
+              selectedFilter={getFilterStyle(selectedFilter)}
               src={backgroundImageUrl}
               alt="미리보기"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                borderRadius: '10px',
-                filter: selectedFilter
-                  ? getFilterStyle(selectedFilter)
-                  : 'none',
-                transition: 'filter 0.3s ease',
-              }}
             />
           </S.MainImagePreview>
 
@@ -66,20 +57,14 @@ function SecondCreateStep({
             {filters.map((filter) => (
               <S.FilterOption
                 key={filter.value}
-                onClick={() => handleFilterSelect(filter.value)}
+                onClick={() => handleFilterSelect(filter.value, filter.style)}
                 $isSelected={selectedFilter === filter.value}
               >
                 <S.FilterThumbnail>
-                  <img
+                  <S.ThumbnailImage
+                    filterStyle={filter.style}
                     src={backgroundImageUrl}
                     alt={filter.name}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                      filter: filter.style,
-                    }}
                   />
                 </S.FilterThumbnail>
                 <S.FilterName>{filter.name}</S.FilterName>

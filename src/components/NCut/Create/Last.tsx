@@ -2,7 +2,12 @@ import * as G from '@styles/components/NCut/Create/GlobalStyle'
 import * as S from '@styles/components/NCut/Create/LastStyle'
 import { FaRegCopy } from 'react-icons/fa6'
 
-function LastStep({ sessionId }: { sessionId: string }) {
+interface LastStepProps {
+  sessionId: string
+  onJoinSession: () => void
+}
+
+function LastStep({ sessionId, onJoinSession }: LastStepProps) {
   const handleCopy = () => {
     navigator.clipboard
       .writeText(sessionId)
@@ -21,6 +26,15 @@ function LastStep({ sessionId }: { sessionId: string }) {
       .map((digit, index) => <S.CodeDigit key={index}>{digit}</S.CodeDigit>)
   }
 
+  if (!sessionId) {
+    return (
+      <G.NCutCreateContentContainer>
+        <G.NcutCreateHeader>세션 생성 중...</G.NcutCreateHeader>
+        <G.NcutCreateDescription>잠시만 기다려주세요.</G.NcutCreateDescription>
+      </G.NCutCreateContentContainer>
+    )
+  }
+
   return (
     <G.NCutCreateContentContainer>
       <G.NcutCreateHeader>촬영 코드</G.NcutCreateHeader>
@@ -31,7 +45,7 @@ function LastStep({ sessionId }: { sessionId: string }) {
       </G.NcutCreateDescription>
       <S.LastStepContainer>
         <S.CodeContainer>
-          <S.CodeDigitContainer>
+          <S.CodeDigitContainer onClick={handleCopy}>
             {formatSessionId(sessionId)}
           </S.CodeDigitContainer>
           <S.CopyIcon onClick={handleCopy}>
@@ -39,12 +53,8 @@ function LastStep({ sessionId }: { sessionId: string }) {
           </S.CopyIcon>
         </S.CodeContainer>
       </S.LastStepContainer>
-      <S.ConnectToSessionButton
-        onClick={() => {
-          window.location.href = `/film/room/${sessionId}`
-        }}
-      >
-        Go to Session
+      <S.ConnectToSessionButton onClick={onJoinSession}>
+        입장하기
       </S.ConnectToSessionButton>
     </G.NCutCreateContentContainer>
   )
