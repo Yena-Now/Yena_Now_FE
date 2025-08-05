@@ -22,6 +22,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
+  const [isPhoneNumberValid, setIsPhoneNumberValid] = useState<boolean>(false)
 
   // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
@@ -63,6 +64,12 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       warning('닉네임 중복 확인이 필요합니다.')
       return
     }
+
+    if (!isPhoneNumberValid) {
+      warning('전화번호 형식이 맞지 않습니다.')
+      return
+    }
+
     const patchData = getPatchPayload()
     console.log('patchData', patchData)
     try {
@@ -138,6 +145,12 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       birthdate: date ? date.toISOString().slice(0, 10) : '',
     }))
   }
+
+  // 5. 전화번호
+  useEffect(() => {
+    const regex = /^010\d{8}$/
+    setIsPhoneNumberValid(regex.test(userData.phoneNumber))
+  }, [userData.phoneNumber])
 
   return (
     <S.Container>
