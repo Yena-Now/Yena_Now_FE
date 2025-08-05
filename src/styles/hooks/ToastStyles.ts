@@ -2,6 +2,14 @@ import { ToastContainer } from 'react-toastify'
 import styled from 'styled-components'
 
 export const StyledToastContainer = styled(ToastContainer)`
+  .Toastify__toast {
+    font-size: 1rem;
+    word-break: keep-all;
+    white-space: pre-line;
+    max-width: 400px;
+    line-height: 1.5;
+  }
+
   .Toastify__toast--success {
     background: #57ad5a;
     color: white;

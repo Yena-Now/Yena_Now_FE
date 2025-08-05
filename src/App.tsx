@@ -9,6 +9,7 @@ import SignupMore from '@pages/Auth/SignupMore'
 import SocialCallback from '@pages/Auth/SocialCallback'
 import ResetPassword from '@pages/Auth/ResetPassword'
 import MyProfileInfo from './pages/MyProfile/MyProfileInfo'
+import ChangePassword from '@pages/MyProfile/ChangePassword'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -114,6 +115,16 @@ function App() {
               element={
                 isLoggedIn ? (
                   <MyProfileInfo />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/change-password"
+              element={
+                isLoggedIn ? (
+                  <ChangePassword />
                 ) : (
                   <Navigate to="/login" replace />
                 )

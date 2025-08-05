@@ -6,6 +6,7 @@ import type {
   UserImagePatchResponse,
   NicknameVerificationRequest,
   NicknameVerificationResponse,
+  ChangePasswordRequest,
 } from '@/types/User'
 
 export const userAPI = {
@@ -65,5 +66,14 @@ export const userAPI = {
       },
     })
     return response.data
+  },
+
+  changePassword: async (requestData: ChangePasswordRequest): Promise<void> => {
+    try {
+      await apiClient.patch('/users/password', requestData)
+    } catch (err) {
+      console.log('비밀번호 변경 실패', err)
+      throw err
+    }
   },
 }

@@ -72,7 +72,7 @@ export const ImageDeleteButton = styled.button`
 export const TitleText = styled.span`
   font-size: 24px;
   font-weight: bold;
-  margin: 24px;
+  margin: 3rem 2rem;
 `
 
 export const Label = styled.div`
@@ -173,6 +173,5 @@ export const EditButton = styled.button`
   border-radius: 5px;
   margin-left: 20px;
   padding: 0.5rem 1.2rem;
-
   cursor: pointer;
 `

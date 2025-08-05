@@ -32,3 +32,8 @@ export interface NicknameVerificationRequest {
 export interface NicknameVerificationResponse {
   isDuplicated: boolean
 }
+
+export interface ChangePasswordRequest {
+  oldPassword: string
+  newPassword: string
+}
