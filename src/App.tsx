@@ -11,7 +11,7 @@ import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import ResetPassword from '@pages/Auth/ResetPassword'
 import NCutMain from '@pages/NCut/NCutMain'
 import CreateSession from '@pages/NCut/CreateSession'
-import ParticipationSession from './pages/NCut/ParticipationSession'
+import ParticipationSession from '@pages/NCut/ParticipationSession'
 import Session from '@pages/NCut/Session'
 import GalleryPage from '@pages/Gallery/Gallery'
 
