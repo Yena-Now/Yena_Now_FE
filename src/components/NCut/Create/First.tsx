@@ -34,42 +34,22 @@ function FirstCreateStep({
       <G.NcutCreateHeader>촬영 부스 생성</G.NcutCreateHeader>
       <G.NcutCreateDescription>배경을 업로드해주세요.</G.NcutCreateDescription>
       <S.ImageUploadContainer>
-        <input
+        <S.ImageUploadInput
           type="file"
           accept="image/*"
           onChange={handleImageUpload}
-          style={{ display: 'none' }}
           id="image-upload"
         />
-        <label
-          htmlFor="image-upload"
-          style={{
-            cursor: 'pointer',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#F3F0F0',
-            borderRadius: '5%',
-            border: '0.2px solid #000',
-          }}
-        >
+        <S.ImageUploadLabel htmlFor="image-upload">
           {isImageUploaded ? (
-            <img
+            <S.PreviewImage
               src={backgroundImageUrl || ''}
               alt="배경 이미지 미리보기"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                borderRadius: '5%',
-              }}
             />
           ) : (
             <span>이미지를 업로드해주세요</span>
           )}
-        </label>
+        </S.ImageUploadLabel>
       </S.ImageUploadContainer>
     </G.NCutCreateContentContainer>
   )

@@ -170,12 +170,18 @@ export const useRoom = () => {
         const data = encoder.encode(
           JSON.stringify({ type: 'positionUpdate', position, size }),
         )
-        roomRef.current.localParticipant.publishData(
-          data,
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          DataPacket_Kind.RELIABLE,
-        )
+        roomRef.current.localParticipant
+          .publishData(
+            data,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            DataPacket_Kind.RELIABLE,
+          )
+          // 이것도 .then을 사용하여 성공적으로 전송되었는지 확인할 수 있습니다.
+          // 안쓰면 빨간줄 뜸!
+          .then((r) => {
+            console.log('Position data sent:', r)
+          })
       }
     },
     [],

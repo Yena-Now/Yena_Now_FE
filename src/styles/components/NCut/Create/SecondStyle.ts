@@ -43,3 +43,20 @@ export const FilterName = styled.span`
   font-weight: 500;
   color: #333;
 `
+
+export const PreviewImage = styled.img<{ selectedFilter: string }>`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  filter: ${(props) => props.selectedFilter || 'none'};
+  transition: filter 0.3s ease;
+`
+
+export const ThumbnailImage = styled.img<{ filterStyle: string }>`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  filter: ${(props) => props.filterStyle || 'none'};
+`

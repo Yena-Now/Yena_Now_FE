@@ -6,6 +6,7 @@ import { SessionPrompt } from '@components/NCut/SessionPrompt'
 import { LoadingScreen } from '@components/NCut/LoadingScreen'
 import { useToast } from '@hooks/useToast'
 import { useDragAndDrop } from '@hooks/useDragAndDrop'
+import * as S from '@styles/pages/NCut/SessionStyle'
 
 export const Session: React.FC = () => {
   const location = useLocation()
@@ -209,7 +210,7 @@ export const Session: React.FC = () => {
 
     const token = location.state?.token
     if (!token) {
-      error('세션 토큰이 없습니다. 필름 페이지로 돌아갑니다.')
+      error('세션이 만료 되었습니다. 필름 페이지로 돌아갑니다.')
       navigate('/film')
       return
     }
@@ -249,7 +250,11 @@ export const Session: React.FC = () => {
     return () => {
       cleanup()
       if (room) {
-        leaveRoom()
+        // .then()을 사용하여 leaveRoom이 완료된 후에 로그를 출력
+        // 안하니까 빨간줄 뜸!
+        leaveRoom().then((r) => {
+          console.log('세션에서 나갔습니다:', r)
+        })
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -270,86 +275,49 @@ export const Session: React.FC = () => {
 
   if (!room) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
+      <S.NoSessionContainer>
         세션에 연결하지 못했습니다.
         <button onClick={() => navigate('/film')}>돌아가기</button>
-      </div>
+      </S.NoSessionContainer>
     )
   }
 
   return (
-    <div
-      id="room"
-      style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}
-    >
+    <S.SessionLayout id="room">
       <div
         id="room-header"
         style={{ padding: '10px', borderBottom: '1px solid #ccc' }}
       >
         <span>방 ID: {room.name}</span>
-        <button onClick={handleLeaveRoom} style={{ float: 'right' }}>
-          나가기
-        </button>
+        <button onClick={handleLeaveRoom}>나가기</button>
       </div>
-      <div
-        id="layout-container"
-        style={{ flex: 1, position: 'relative', background: '#f0f0f0' }}
-      >
-        <canvas
+      <S.SessionLayoutContainer id="layout-container">
+        <S.CanvasContainer
+          customCursor={cursor}
           ref={mainCanvasRef}
           width={1280}
           height={720}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            cursor: isDragging ? 'grabbing' : cursor,
-            background: 'transparent',
-          }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleCanvasMouseMove}
         />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '10px',
-            left: '10px',
-            right: '10px',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '10px',
-              left: '10px',
-              right: '10px',
-              background: 'rgba(255, 255, 255, 0.8)',
-              borderRadius: '10px',
-              padding: '5px',
-            }}
-          >
-            <div style={{ textAlign: 'center', padding: '0 10px' }}>
-              <label
-                htmlFor="size-slider"
-                style={{ marginRight: '10px', fontSize: '14px' }}
-              >
-                카메라 크기
-              </label>
-              <input
-                id="size-slider"
-                type="range"
-                min="0.2"
-                max="1.5"
-                step="0.05"
-                value={videoScale}
-                onChange={(e) => setVideoScale(parseFloat(e.target.value))}
-                style={{ width: '200px' }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        <S.CameraSizeRangeContainer>
+          <S.CameraSizeContainer>
+            <S.CameraSizeLabel htmlFor="size-slider">
+              카메라 크기
+            </S.CameraSizeLabel>
+            <S.CameraSizeInput
+              id="size-slider"
+              type="range"
+              min="0.2"
+              max="1.5"
+              step="0.05"
+              value={videoScale}
+              onChange={(e) => setVideoScale(parseFloat(e.target.value))}
+            />
+          </S.CameraSizeContainer>
+        </S.CameraSizeRangeContainer>
+      </S.SessionLayoutContainer>
+    </S.SessionLayout>
   )
 }
 

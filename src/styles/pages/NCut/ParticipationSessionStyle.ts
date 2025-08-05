@@ -22,7 +22,7 @@ export const CodeDigitContainer = styled.div`
 `
 
 export const CodeDigit = styled.input`
-  width: 50px;
+  width: 40px;
   height: 50px;
   display: flex;
   align-items: center;
@@ -30,7 +30,9 @@ export const CodeDigit = styled.input`
   background-color: #f5f5f5;
   border: 1px solid #ddd;
   border-radius: 8px;
-  font-size: 24px;
+  font-size: 16px;
   font-weight: bold;
   color: #333;
+  padding: 10px;
+  text-align: center;
 `

@@ -46,19 +46,10 @@ function SecondCreateStep({
       {isImageUploaded && backgroundImageUrl && (
         <>
           <S.MainImagePreview>
-            <img
+            <S.PreviewImage
+              selectedFilter={getFilterStyle(selectedFilter)}
               src={backgroundImageUrl}
               alt="미리보기"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                borderRadius: '10px',
-                filter: selectedFilter
-                  ? getFilterStyle(selectedFilter)
-                  : 'none',
-                transition: 'filter 0.3s ease',
-              }}
             />
           </S.MainImagePreview>
 
@@ -70,16 +61,10 @@ function SecondCreateStep({
                 $isSelected={selectedFilter === filter.value}
               >
                 <S.FilterThumbnail>
-                  <img
+                  <S.ThumbnailImage
+                    filterStyle={filter.style}
                     src={backgroundImageUrl}
                     alt={filter.name}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                      filter: filter.style,
-                    }}
                   />
                 </S.FilterThumbnail>
                 <S.FilterName>{filter.name}</S.FilterName>

@@ -139,12 +139,6 @@ const ParticipationSession: React.FC = () => {
                     inputRefs.current[index] = el
                   }}
                   maxLength={1}
-                  style={{
-                    padding: '10px',
-                    fontSize: '16px',
-                    width: '40px',
-                    textAlign: 'center',
-                  }}
                 />
               ))}
             </S.CodeContainer>

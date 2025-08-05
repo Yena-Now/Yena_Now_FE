@@ -1,4 +1,5 @@
 import React from 'react'
+import * as S from '@styles/components/NCut/LoadingScreenStyle'
 
 interface LoadingScreenProps {
   connectionStatus: string
@@ -10,23 +11,14 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
   isBackgroundProcessing,
 }) => {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        flexDirection: 'column',
-        gap: '10px',
-      }}
-    >
+    <S.LoadingScreenContainer>
       <div>세션에 연결 중...</div>
-      <div style={{ fontSize: '14px', color: '#666' }}>{connectionStatus}</div>
+      <S.ConnectionStatus>{connectionStatus}</S.ConnectionStatus>
       {isBackgroundProcessing && (
-        <div style={{ fontSize: '12px', color: '#888' }}>
+        <S.BackgroundProcessingStatus>
           배경 제거 처리 중...
-        </div>
+        </S.BackgroundProcessingStatus>
       )}
-    </div>
+    </S.LoadingScreenContainer>
   )
 }
