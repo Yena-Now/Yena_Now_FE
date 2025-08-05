@@ -20,6 +20,10 @@ export const Session: React.FC = () => {
   )
   const [videoScale, setVideoScale] = useState(0.5)
   const [cursor, setCursor] = useState('default')
+  const [isRecording, setIsRecording] = useState(false)
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const recordedChunksRef = useRef<Blob[]>([])
 
   const mainCanvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -240,6 +244,81 @@ export const Session: React.FC = () => {
     navigate('/film')
   }, [leaveRoom, navigate])
 
+  const captureCanvas = useCallback(() => {
+    const mainCanvas = mainCanvasRef.current
+    if (!mainCanvas) return
+
+    try {
+      const dataUrl = mainCanvas.toDataURL('image/webp', 1)
+      const link = document.createElement('a')
+
+      link.download = `session_capture_${new Date().toISOString()}.webp`
+      link.href = dataUrl
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (err) {
+      error(`캔버스 캡처 실패: ${err}`)
+    }
+  }, [error])
+
+  const startRecording = useCallback(() => {
+    const mainCanvas = mainCanvasRef.current
+    if (!mainCanvas) return
+
+    try {
+      const stream = mainCanvas.captureStream(30) // 30 FPS
+
+      // MediaRecorder 설정
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'video/webm;codecs=vp9', // 또는 'video/mp4' (브라우저 지원에 따라)
+      })
+
+      recordedChunksRef.current = []
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunksRef.current.push(event.data)
+        }
+      }
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, {
+          type: 'video/webm',
+        })
+
+        // 다운로드를 위한 링크 생성
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.download = `session-recording-${new Date().getTime()}.webm`
+        link.href = url
+
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        // 메모리 정리
+        URL.revokeObjectURL(url)
+        console.log('영상이 저장되었습니다.')
+      }
+
+      mediaRecorderRef.current = mediaRecorder
+      mediaRecorder.start()
+      setIsRecording(true)
+    } catch (err) {
+      error(`녹화 시작 실패: ${err}`)
+    }
+  }, [error])
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+      mediaRecorderRef.current = null
+    }
+  }, [isRecording])
+
   // 초기 설정 및 언마운트 정리
   useEffect(() => {
     if (!location.state) {
@@ -289,6 +368,13 @@ export const Session: React.FC = () => {
         style={{ padding: '10px', borderBottom: '1px solid #ccc' }}
       >
         <span>방 ID: {room.name}</span>
+        <S.TakePhotoButton onClick={captureCanvas}>저장</S.TakePhotoButton>
+        <S.TakeVideoButton
+          isActive={isRecording}
+          onClick={isRecording ? stopRecording : startRecording}
+        >
+          {isRecording ? '녹화 중지' : '녹화 시작'}
+        </S.TakeVideoButton>
         <button onClick={handleLeaveRoom}>나가기</button>
       </div>
       <S.SessionLayoutContainer id="layout-container">

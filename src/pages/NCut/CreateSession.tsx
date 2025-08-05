@@ -127,7 +127,8 @@ const CreateSession: React.FC = () => {
             ...prev,
             ...newData,
             backgroundImage: file,
-            backgroundImageUrl: url,
+            // backgroundImageUrl: url,
+            backgroundImageUrl: '/user_default_profile.png',
           }))
         } catch (err) {
           error(`필터 적용 실패: ${err}`)

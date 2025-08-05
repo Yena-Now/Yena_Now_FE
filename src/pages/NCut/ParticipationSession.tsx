@@ -86,7 +86,8 @@ const ParticipationSession: React.FC = () => {
         state: {
           roomCode: roomCode,
           token: token,
-          backgroundImageUrl: backgroundUrl || '',
+          // backgroundImageUrl: backgroundUrl || '',
+          backgroundImageUrl: '/user_default_profile.png',
           isHost: false,
         },
       })
