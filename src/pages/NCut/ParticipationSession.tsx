@@ -103,6 +103,7 @@ const ParticipationSession: React.FC = () => {
   const handleCancelJoin = () => {
     sessionStorage.removeItem('sessionToken')
     sessionStorage.removeItem('sessionRoomCode')
+    sessionStorage.removeItem('backgroundUrl')
     setIsModalOpen(false)
   }
 
