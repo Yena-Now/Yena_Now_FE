@@ -62,8 +62,11 @@ const ParticipationSession: React.FC = () => {
       setIsExist(true)
       setIsModalOpen(true)
 
+      console.log(response)
+
       sessionStorage.setItem('sessionToken', response.token)
       sessionStorage.setItem('sessionRoomCode', sessionId)
+      sessionStorage.setItem('backgroundUrl', response.backgoundUrl)
     } catch {
       setIsExist(false)
       setIsModalOpen(true)
@@ -75,6 +78,7 @@ const ParticipationSession: React.FC = () => {
   const handleConfirmJoin = () => {
     const token = sessionStorage.getItem('sessionToken')
     const roomCode = sessionStorage.getItem('sessionRoomCode')
+    const backgroundUrl = sessionStorage.getItem('backgroundUrl')
 
     if (token && roomCode) {
       // Session 페이지로 이동
@@ -82,6 +86,7 @@ const ParticipationSession: React.FC = () => {
         state: {
           roomCode: roomCode,
           token: token,
+          backgroundImageUrl: backgroundUrl || '',
           isHost: false,
         },
       })
@@ -89,6 +94,7 @@ const ParticipationSession: React.FC = () => {
       // 임시 저장된 데이터 정리
       sessionStorage.removeItem('sessionToken')
       sessionStorage.removeItem('sessionRoomCode')
+      sessionStorage.removeItem('backgroundUrl')
     }
 
     setIsModalOpen(false)

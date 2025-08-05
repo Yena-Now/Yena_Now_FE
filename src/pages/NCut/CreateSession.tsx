@@ -46,7 +46,7 @@ const CreateSession: React.FC = () => {
         img.crossOrigin = 'Anonymous'
         img.onload = () => {
           const canvas = document.createElement('canvas')
-          const ctx = canvas.getContext('2d')
+          const ctx = canvas?.getContext('2d', { alpha: true })
           if (!ctx) {
             return reject(new Error('Canvas context not available'))
           }
