@@ -102,7 +102,9 @@ export const NickNameInput = styled(Input)`
   margin-right: 0.3rem;
   flex: 3.5;
 `
-export const NickNameCheckButton = styled.button`
+export const NickNameCheckButton = styled.button.attrs((props) => ({
+  disabled: props.disabled,
+}))<{ disabled: boolean }>`
   flex: 1;
   width: 30%;
   height: 36px;
@@ -110,13 +112,14 @@ export const NickNameCheckButton = styled.button`
   border-radius: 15px;
   background: #3498db;
   color: #fff;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
   padding: 0 1rem;
   margin-left: 0.3rem;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
 `
 
 export const DatePickerWrapper = styled.div`

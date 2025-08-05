@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { userAPI } from '@/api/user'
 import type { UserMeResponse, UserMeInfoPatchRequest } from '@/types/User'
@@ -17,7 +17,13 @@ interface ProfileEditProps {
 const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   const navigate = useNavigate()
   const { error, success, warning } = useToast()
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isNickNameValid, setIsNickNameValid] = useState<boolean>(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
 
+  // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
     name: myInfo.name,
     nickname: myInfo.nickname,
@@ -27,11 +33,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     profileUrl: myInfo.profileUrl,
   })
 
-  const [isNickNameValid, setIsNickNameValid] = useState<boolean>(false)
-
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [imageFile, setImageFile] = useState<File | null>(null)
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setUserData((prev) => ({
@@ -39,37 +40,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       [name]: value,
     }))
   }
-  console.log('userData', userData)
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+
   const handleModalClose = () => {
     setIsModalOpen(false)
-  }
-
-  const verifyNickname = async (nickname: string) => {
-    try {
-      const response = await userAPI.verifyNickname({ nickname })
-      return !response.isDuplicated
-    } catch {
-      error('닉네임 중복 확인 오류')
-      return false
-    }
-  }
-
-  const handleNicknameVerify = async () => {
-    const isAvailable = await verifyNickname(userData.nickname)
-    setIsNickNameValid(isAvailable)
-    if (isAvailable) {
-      success('사용 가능한 닉네임입니다.')
-    } else {
-      warning('이미 사용 중인 닉네임입니다.')
-    }
-  }
-
-  const parseDate = (date: Date | null) => {
-    setUserData((prev) => ({
-      ...prev,
-      birthdate: date ? date.toISOString().slice(0, 10) : '',
-    }))
   }
 
   // 값이 변경 필드만 patch 요청 전송
@@ -86,7 +59,12 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   }
 
   const handleSubmit = async () => {
+    if (isNickNameChanged && !isNickNameValid) {
+      warning('닉네임 중복 확인이 필요합니다.')
+      return
+    }
     const patchData = getPatchPayload()
+    console.log('patchData', patchData)
     try {
       await userAPI.patchUserMeInfo(patchData)
       success('회원 정보 수정이 완료되었습니다.')
@@ -96,6 +74,46 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     }
   }
 
+  const deleteUser = async () => {
+    try {
+      await userAPI.deleteUser()
+      success('회원 탈퇴가 완료되었습니다.')
+      navigate('/login')
+    } catch {
+      error('다시 시도해 주세요.')
+    }
+  }
+
+  // 2. 닉네임 관련
+  useEffect(() => {
+    setIsNickNameChanged(myInfo.nickname !== userData.nickname)
+  }, [userData.nickname, myInfo.nickname])
+
+  const verifyNickname = async (nickname: string) => {
+    try {
+      const response = await userAPI.verifyNickname({ nickname })
+      return !response.isDuplicated
+    } catch {
+      error('닉네임 중복 확인 오류')
+      return false
+    }
+  }
+
+  const handleNicknameVerify = async () => {
+    const isAvailable = await verifyNickname(userData.nickname)
+    if (userData.nickname.trim() === '') {
+      warning('닉네임을 입력해주세요.')
+      return false
+    }
+    setIsNickNameValid(isAvailable)
+    if (isAvailable) {
+      success('사용 가능한 닉네임입니다.')
+    } else {
+      warning('이미 사용 중인 닉네임입니다.')
+    }
+  }
+
+  // 3. 이미지 관련
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
 
@@ -113,14 +131,12 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     // 프로필 사진 삭제 api 호출
   }
 
-  const deleteUser = async () => {
-    try {
-      await userAPI.deleteUser()
-      success('회원 탈퇴가 완료되었습니다.')
-      navigate('/login')
-    } catch {
-      error('다시 시도해 주세요.')
-    }
+  // 4. 생년월일
+  const parseDate = (date: Date | null) => {
+    setUserData((prev) => ({
+      ...prev,
+      birthdate: date ? date.toISOString().slice(0, 10) : '',
+    }))
   }
 
   return (
@@ -179,7 +195,10 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
             value={userData.nickname}
             onChange={handleChange}
           />
-          <S.NickNameCheckButton onClick={handleNicknameVerify}>
+          <S.NickNameCheckButton
+            onClick={handleNicknameVerify}
+            disabled={!isNickNameChanged}
+          >
             중복 확인
           </S.NickNameCheckButton>
         </S.InputWrapper>
@@ -255,9 +274,8 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
           <S.DeleteButton onClick={() => setIsModalOpen(true)}>
             회원 탈퇴
           </S.DeleteButton>
-          <S.EditButton onClick={handleSubmit} disabled={!isNickNameValid}>
-            수정
-          </S.EditButton>
+          {/* <S.EditButton onClick={handleSubmit} disabled={!isNickNameValid}> */}
+          <S.EditButton onClick={handleSubmit}>수정</S.EditButton>
         </div>
       </S.Box>
       {isModalOpen && (
