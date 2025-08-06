@@ -42,6 +42,7 @@ export const userAPI = {
   deleteUserImage: async (): Promise<void> => {
     try {
       await apiClient.delete('/users/image')
+      localStorage.clear()
     } catch (err) {
       console.log('프로필 사진 삭제 실패', err)
       throw err
