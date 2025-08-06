@@ -42,7 +42,6 @@ export const userAPI = {
   deleteUserImage: async (): Promise<void> => {
     try {
       await apiClient.delete('/users/image')
-      localStorage.clear()
     } catch (err) {
       console.log('프로필 사진 삭제 실패', err)
       throw err
@@ -52,6 +51,7 @@ export const userAPI = {
   deleteUser: async (): Promise<void> => {
     try {
       await apiClient.delete('/users/me')
+      localStorage.clear()
     } catch (err) {
       console.log('회원 탈퇴 실패', err)
       throw err
