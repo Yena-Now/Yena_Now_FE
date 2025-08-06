@@ -3,4 +3,8 @@ export const validator = {
     const regex = /^[A-Za-z@$!%*?&#]{8,16}$/
     return regex.test(password)
   },
+  isValidatePhoneNumber: (phoneNumber: string): boolean => {
+    const regex = /^010\d{8}$/
+    return regex.test(phoneNumber)
+  },
 }

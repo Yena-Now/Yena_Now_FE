@@ -9,6 +9,7 @@ import { FaRegTrashCan } from 'react-icons/fa6'
 import ProfileImage from '@components/Common/ProfileImage'
 import OptionModal from '@components/Common/OptionModal'
 import * as S from '@styles/components/MyProfile/ProfileEditStyle'
+import { validator } from '@/utils/validators'
 
 interface ProfileEditProps {
   myInfo: UserMeResponse
@@ -22,7 +23,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
-  const [isPhoneNumberValid, setIsPhoneNumberValid] = useState<boolean>(false)
 
   // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
@@ -65,7 +65,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       return
     }
 
-    if (!isPhoneNumberValid) {
+    if (!validator.isValidatePhoneNumber(userData.phoneNumber)) {
       warning('전화번호 형식이 맞지 않습니다.')
       return
     }
@@ -145,12 +145,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       birthdate: date ? date.toISOString().slice(0, 10) : '',
     }))
   }
-
-  // 5. 전화번호
-  useEffect(() => {
-    const regex = /^010\d{8}$/
-    setIsPhoneNumberValid(regex.test(userData.phoneNumber))
-  }, [userData.phoneNumber])
 
   return (
     <S.Container>
