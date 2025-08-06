@@ -125,7 +125,6 @@ const GalleryDetailPage: React.FC = () => {
 
           <S.Divider />
 
-          {/* 댓글 리스트 */}
           {comments.map((c) => (
             <CommentSection
               key={c.commentUuid}
