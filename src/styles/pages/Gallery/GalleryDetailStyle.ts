@@ -4,8 +4,9 @@ export const DetailBox = styled.div`
   display: flex;
   align-items: flex-start;
   flex-direction: row;
+  justify-content: center;
   gap: 20px;
-  padding: 30px;
+  padding: 40px;
 `
 
 export const LeftColumn = styled.div`
@@ -18,6 +19,12 @@ export const RightColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
+`
+export const PhotoHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 `
 
 export const CommentBox = styled.div`

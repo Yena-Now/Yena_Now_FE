@@ -9,6 +9,7 @@ import * as S from '@styles/pages/Gallery/GalleryDetailStyle'
 import Input from '@components/Common/Input'
 import type { NCutDetail } from '@/types/NCutDetail'
 import VisibilityIcon from '@components/GalleryDetail/VisivilityIcon'
+import ShareButton from '@components/GalleryDetail/ShareButton'
 
 const GalleryDetailPage: React.FC = () => {
   const { ncutUuid } = useParams<{ ncutUuid: string }>()
@@ -47,11 +48,14 @@ const GalleryDetailPage: React.FC = () => {
   return (
     <S.DetailBox>
       <S.LeftColumn>
-        <UserInfo
-          profileUrl={detailData.profileUrl}
-          nickname={detailData.nickname}
-          createdAt={detailData.createdAt}
-        />
+        <S.PhotoHeader>
+          <UserInfo
+            profileUrl={detailData.profileUrl}
+            nickname={detailData.nickname}
+            createdAt={detailData.createdAt}
+          />
+          <ShareButton ncutUrl={detailData.ncutUrl} />
+        </S.PhotoHeader>
         <PhotoSection ncutUrl={detailData.ncutUrl} />
       </S.LeftColumn>
 

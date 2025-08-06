@@ -10,6 +10,7 @@ import SocialCallback from '@pages/Auth/SocialCallback'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import ResetPassword from '@pages/Auth/ResetPassword'
 import GalleryPage from '@pages/Gallery/Gallery'
+import GalleryDetailPage from './pages/Gallery/GalleryDetail'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -101,6 +102,16 @@ function App() {
                   <Navigate to="/gallery" replace />
                 ) : (
                   <ResetPassword />
+                )
+              }
+            />
+            <Route
+              path="/gallery/:ncutUuid"
+              element={
+                isLoggedIn ? (
+                  <GalleryDetailPage />
+                ) : (
+                  <Navigate to="/login" replace />
                 )
               }
             />
