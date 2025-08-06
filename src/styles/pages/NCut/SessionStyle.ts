@@ -35,11 +35,11 @@ export const SessionLayoutContainer = styled.div`
   background: #f0f0f0;
 `
 
-export const CanvasContainer = styled.canvas<{ cursor?: string }>`
+export const CanvasContainer = styled.canvas<{ customCursor?: string }>`
   width: 100%;
   height: 100%;
   object-fit: contain;
-  cursor: ${(props) => props.cursor || 'default'};
+  cursor: ${(props) => props.customCursor || 'default'};
   background: transparent;
 `
 

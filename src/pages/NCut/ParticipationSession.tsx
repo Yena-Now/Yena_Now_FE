@@ -62,11 +62,9 @@ const ParticipationSession: React.FC = () => {
       setIsExist(true)
       setIsModalOpen(true)
 
-      console.log(response)
-
       sessionStorage.setItem('sessionToken', response.token)
       sessionStorage.setItem('sessionRoomCode', sessionId)
-      sessionStorage.setItem('backgroundUrl', response.backgoundUrl)
+      sessionStorage.setItem('backgroundUrl', response.backgroundUrl)
     } catch {
       setIsExist(false)
       setIsModalOpen(true)
@@ -86,8 +84,7 @@ const ParticipationSession: React.FC = () => {
         state: {
           roomCode: roomCode,
           token: token,
-          // backgroundImageUrl: backgroundUrl || '',
-          backgroundImageUrl: '/user_default_profile.png',
+          backgroundImageUrl: backgroundUrl || '',
           isHost: false,
         },
       })

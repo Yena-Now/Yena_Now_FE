@@ -12,6 +12,7 @@ import Third from '@components/NCut/Create/Third'
 import Fourth from '@components/NCut/Create/Fourth'
 import Fifth from '@components/NCut/Create/Fifth'
 import Last from '@components/NCut/Create/Last'
+import { s3API } from '@/api/s3'
 
 const CreateSession: React.FC = () => {
   const { error } = useToast()
@@ -58,9 +59,13 @@ const CreateSession: React.FC = () => {
           canvas.toBlob(
             (blob) => {
               if (blob) {
-                const newFile = new File([blob], 'filtered.png', {
-                  type: 'image/png',
-                })
+                const newFile = new File(
+                  [blob],
+                  imageUrl.split('.png')[0] + '-filtered.png',
+                  {
+                    type: 'image/png',
+                  },
+                )
                 const newUrl = URL.createObjectURL(newFile)
                 resolve({ file: newFile, url: newUrl })
               } else {
@@ -81,8 +86,23 @@ const CreateSession: React.FC = () => {
   const handleCreateSession = async () => {
     setIsCreating(true)
     try {
+      const fileUrl = await s3API.upload({
+        type: 'profile',
+        file: formData.backgroundImage as File,
+      })
+      if (fileUrl) {
+        setFormData((prev) => ({
+          ...prev,
+          backgroundImageUrl: fileUrl as unknown as string,
+          isImageUploaded: true,
+        }))
+      } else {
+        error('이미지 업로드 실패')
+        return
+      }
+
       const response = await nCutAPI.createSession({
-        backgroundUrl: formData.backgroundImageUrl || '',
+        backgroundUrl: fileUrl as unknown as string,
         takeCnt: formData.takeCnt,
         cutCnt: formData.cutCnt,
         timeLimit: formData.timeLimit,
@@ -127,8 +147,7 @@ const CreateSession: React.FC = () => {
             ...prev,
             ...newData,
             backgroundImage: file,
-            // backgroundImageUrl: url,
-            backgroundImageUrl: '/user_default_profile.png',
+            backgroundImageUrl: url,
           }))
         } catch (err) {
           error(`필터 적용 실패: ${err}`)
