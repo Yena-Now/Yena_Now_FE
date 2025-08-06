@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import { userAPI } from '@/api/user'
 import type { UserMeResponse, UserMeInfoPatchRequest } from '@/types/User'
 import { useToast } from '@/hooks/useToast'
+import { validator } from '@/utils/validators'
 import DatePicker from 'react-datepicker'
 import { FiUpload } from 'react-icons/fi'
 import { FaRegTrashCan } from 'react-icons/fa6'
 import ProfileImage from '@components/Common/ProfileImage'
 import OptionModal from '@components/Common/OptionModal'
+import { IoIosArrowBack } from 'react-icons/io'
 import * as S from '@styles/components/MyProfile/ProfileEditStyle'
-import { validator } from '@/utils/validators'
+import * as T from '@styles/components/MyProfile/ProfileViewStyle'
 
 interface ProfileEditProps {
   myInfo: UserMeResponse
@@ -276,12 +278,15 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
         </S.PasswordChangeButton>
       </S.Box>
       <S.Box>
-        <div></div>
+        <S.GoBackSection>
+          <T.EditText onClick={() => navigate('/my-profile')}>
+            <IoIosArrowBack size={12} /> 돌아가기
+          </T.EditText>
+        </S.GoBackSection>
         <div>
           <S.DeleteButton onClick={() => setIsModalOpen(true)}>
             회원 탈퇴
           </S.DeleteButton>
-          {/* <S.EditButton onClick={handleSubmit} disabled={!isNickNameValid}> */}
           <S.EditButton onClick={handleSubmit}>수정</S.EditButton>
         </div>
       </S.Box>

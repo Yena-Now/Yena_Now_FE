@@ -158,6 +158,13 @@ export const PasswordChangeButton = styled.button`
   padding: 0.5rem 0;
 `
 
+export const GoBackSection = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 30%;
+`
+
 export const DeleteButton = styled.button`
   background-color: #ff4f4f;
   border: none;

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import type { UserMeResponse } from '@/types/User'
 import { IoIosArrowForward } from 'react-icons/io'
 import ProfileImage from '@components/Common/ProfileImage'
@@ -6,10 +7,10 @@ import * as T from '@styles/components/MyProfile/ProfileEditStyle'
 
 interface ProfileViewProps {
   myInfo: UserMeResponse
-  handleEdit: () => void
 }
 
-const ProfileView: React.FC<ProfileViewProps> = ({ myInfo, handleEdit }) => {
+const ProfileView: React.FC<ProfileViewProps> = ({ myInfo }) => {
+  const navigate = useNavigate()
   const formatPhoneNumber = (phone: string) => {
     if (!phone) return ''
 
@@ -74,7 +75,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ myInfo, handleEdit }) => {
         <S.Content>{myInfo?.email}</S.Content>
       </T.Box>
       <S.EditSection>
-        <S.EditText onClick={handleEdit}>
+        <S.EditText onClick={() => navigate('/my-profile?edit')}>
           회원정보 수정 <IoIosArrowForward size={12} />
         </S.EditText>
       </S.EditSection>
