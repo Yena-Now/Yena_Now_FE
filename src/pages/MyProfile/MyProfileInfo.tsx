@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { userAPI } from '@api/user'
 import type { UserMeResponse } from '@/types/User'
 import { useToast } from '@/hooks/useToast'
@@ -6,20 +7,17 @@ import ProfileEdit from '@components/MyProfile/ProfileEdit'
 import ProfileView from '@components/MyProfile/ProfileView'
 
 const MyProfileInfo: React.FC = () => {
+  const [searchParams] = useSearchParams()
   const { error } = useToast()
-  const [isEdit, setIsEdit] = useState<boolean>(false)
+  const isEdit = searchParams.has('edit')
   const [myInfo, setMyInfo] = useState<UserMeResponse | null>(null)
-
-  const handleEdit = (): void => {
-    setIsEdit(true)
-  }
 
   useEffect(() => {
     const fetchMyInfo = async () => {
       try {
         const myData = await userAPI.getUserMeInfo()
         setMyInfo(myData)
-      } catch (err) {
+      } catch {
         error('내 정보를 불러오는 데 실패했습니다.')
       }
     }
@@ -33,7 +31,7 @@ const MyProfileInfo: React.FC = () => {
           {isEdit ? (
             <ProfileEdit myInfo={myInfo} />
           ) : (
-            <ProfileView myInfo={myInfo} handleEdit={handleEdit} />
+            <ProfileView myInfo={myInfo} />
           )}
         </>
       )}
