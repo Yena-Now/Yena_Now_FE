@@ -29,6 +29,22 @@ export const TakeVideoButton = styled.button<{ isActive?: boolean }>`
   cursor: pointer;
 `
 
+export const RemainingTakesCnt = styled.span`
+  margin-left: 10px;
+  font-size: 16px;
+  color: #333;
+`
+
+export const GoToEditPage = styled.button<{ disabled?: boolean }>`
+  background-color: ${(props) => (props.disabled ? '#ccc' : '#2196f3')};
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+  margin-top: 10px;
+`
+
 export const SessionLayoutContainer = styled.div`
   flex: 1;
   position: relative;

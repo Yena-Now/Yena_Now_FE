@@ -18,7 +18,7 @@ function FifthCreateStep({ onFormDataChange }: FifthCreateStepProps) {
     <G.NCutCreateContentContainer>
       <G.NcutCreateHeader>촬영 부스 생성</G.NcutCreateHeader>
       <G.NcutCreateDescription>
-        촬영 시간을 설정해주세요.
+        영상 촬영 시간을 설정해주세요.
       </G.NcutCreateDescription>
       <G.NcutCreateSubDescription>
         최소 10초 ~ 최대 30초

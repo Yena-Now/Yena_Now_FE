@@ -8,11 +8,19 @@ import { useToast } from '@hooks/useToast'
 import { useDragAndDrop } from '@hooks/useDragAndDrop'
 import * as S from '@styles/pages/NCut/SessionStyle'
 import { s3API } from '@/api/s3'
+import {
+  IoCameraOutline,
+  IoVideocamOffOutline,
+  IoVideocamOutline,
+} from 'react-icons/io5'
+import type { StateProps } from '@/types/Session'
 
 export const Session: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { success, error } = useToast()
+  const { backgroundImageUrl, takeCnt, cutCnt, timeLimit } =
+    location.state as StateProps
 
   const [showInteractionPrompt, setShowInteractionPrompt] = useState(true)
   const [hasAttemptedConnection, setHasAttemptedConnection] = useState(false)
@@ -22,11 +30,7 @@ export const Session: React.FC = () => {
   const [videoScale, setVideoScale] = useState(0.5)
   const [cursor, setCursor] = useState('default')
   const [isRecording, setIsRecording] = useState(false)
-  /* 현재 저장된 URL 목록
-  이 부분은 나중에 Edit 페이지에서 사용될 예정이므로, 현재는 urls 변수를 기입하지 않음.
-  기입하면 오류가 발생하기 때문 - unused-vars 경고가 발생함.
-  */
-  const [, setUrls] = useState<string[]>([])
+  const [urls, setUrls] = useState<string[]>([])
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordedChunksRef = useRef<Blob[]>([])
@@ -93,15 +97,15 @@ export const Session: React.FC = () => {
 
   // 배경 이미지 로드
   useEffect(() => {
-    if (location.state?.backgroundImageUrl) {
+    if (backgroundImageUrl) {
       const img = new Image()
       img.crossOrigin = 'Anonymous'
       img.onload = () => setBgImageElement(img)
       img.onerror = (err) => error(`배경 이미지 로드 실패: ${err}`)
-      img.src = location.state.backgroundImageUrl
+      img.src = backgroundImageUrl
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.state?.backgroundImageUrl])
+  }, [backgroundImageUrl])
 
   // 캔버스 크기 업데이트
   useEffect(() => {
@@ -327,10 +331,22 @@ export const Session: React.FC = () => {
       mediaRecorderRef.current = mediaRecorder
       mediaRecorder.start()
       setIsRecording(true)
+
+      setTimeout(() => {
+        if (
+          mediaRecorderRef.current &&
+          mediaRecorderRef.current.state === 'recording'
+        ) {
+          mediaRecorderRef.current.stop()
+          setIsRecording(false)
+          mediaRecorderRef.current = null
+          success('녹화가 자동으로 중지되었습니다. 영상이 저장되었습니다.')
+        }
+      }, timeLimit * 1000)
     } catch (err) {
       error(`녹화 시작 실패: ${err}`)
     }
-  }, [error, success])
+  }, [error, success, timeLimit])
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
@@ -382,20 +398,58 @@ export const Session: React.FC = () => {
     )
   }
 
+  const handleFinishTakes = () => {
+    navigate('/film/edit', {
+      state: {
+        urls,
+        cutCnt,
+      },
+    })
+  }
+
+  const canCapture = urls.length < takeCnt
+
   return (
     <S.SessionLayout id="room">
       <div
         id="room-header"
         style={{ padding: '10px', borderBottom: '1px solid #ccc' }}
       >
-        <span>방 ID: {room.name}</span>
-        <S.TakePhotoButton onClick={captureCanvas}>저장</S.TakePhotoButton>
+        <S.RemainingTakesCnt>
+          촬영 횟수: {urls.length} / {takeCnt}
+        </S.RemainingTakesCnt>
+        <S.TakePhotoButton onClick={captureCanvas} disabled={!canCapture}>
+          <IoCameraOutline style={{ width: '24px', height: '24px' }} />
+        </S.TakePhotoButton>
         <S.TakeVideoButton
           isActive={isRecording}
           onClick={isRecording ? stopRecording : startRecording}
+          disabled={!canCapture}
         >
-          {isRecording ? '녹화 중지' : '녹화 시작'}
+          {isRecording ? (
+            <IoVideocamOffOutline
+              style={{
+                width: '24px',
+                height: '24px',
+              }}
+            />
+          ) : (
+            <IoVideocamOutline
+              style={{
+                width: '24px',
+                height: '24px',
+              }}
+            />
+          )}
         </S.TakeVideoButton>
+        <S.GoToEditPage onClick={handleFinishTakes} disabled={canCapture}>
+          다음
+        </S.GoToEditPage>
+      </div>
+      <div
+        id="room-footer"
+        style={{ padding: '10px', borderTop: '1px solid #ccc' }}
+      >
         <button onClick={handleLeaveRoom}>나가기</button>
       </div>
       <S.SessionLayoutContainer id="layout-container">

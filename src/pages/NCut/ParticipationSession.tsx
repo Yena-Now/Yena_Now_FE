@@ -65,6 +65,9 @@ const ParticipationSession: React.FC = () => {
       sessionStorage.setItem('sessionToken', response.token)
       sessionStorage.setItem('sessionRoomCode', sessionId)
       sessionStorage.setItem('backgroundUrl', response.backgroundUrl)
+      sessionStorage.setItem('takeCnt', response.takeCnt.toString())
+      sessionStorage.setItem('cutCnt', response.cutCnt.toString())
+      sessionStorage.setItem('timeLimit', response.timeLimit.toString())
     } catch {
       setIsExist(false)
       setIsModalOpen(true)
@@ -77,6 +80,9 @@ const ParticipationSession: React.FC = () => {
     const token = sessionStorage.getItem('sessionToken')
     const roomCode = sessionStorage.getItem('sessionRoomCode')
     const backgroundUrl = sessionStorage.getItem('backgroundUrl')
+    const takeCnt = sessionStorage.getItem('takeCnt')
+    const cutCnt = sessionStorage.getItem('cutCnt')
+    const timeLimit = sessionStorage.getItem('timeLimit')
 
     if (token && roomCode) {
       // Session 페이지로 이동
@@ -85,15 +91,21 @@ const ParticipationSession: React.FC = () => {
           roomCode: roomCode,
           token: token,
           backgroundImageUrl: backgroundUrl || '',
+          takeCnt: takeCnt ? parseInt(takeCnt, 10) : 0,
+          cutCnt: cutCnt ? parseInt(cutCnt, 10) : 0,
+          timeLimit: timeLimit ? parseInt(timeLimit, 10) : 0,
           isHost: false,
         },
       })
-
-      // 임시 저장된 데이터 정리
-      sessionStorage.removeItem('sessionToken')
-      sessionStorage.removeItem('sessionRoomCode')
-      sessionStorage.removeItem('backgroundUrl')
     }
+
+    // 임시 저장된 데이터 정리
+    sessionStorage.removeItem('sessionToken')
+    sessionStorage.removeItem('sessionRoomCode')
+    sessionStorage.removeItem('backgroundUrl')
+    sessionStorage.removeItem('takeCnt')
+    sessionStorage.removeItem('cutCnt')
+    sessionStorage.removeItem('timeLimit')
 
     setIsModalOpen(false)
   }
@@ -102,6 +114,9 @@ const ParticipationSession: React.FC = () => {
     sessionStorage.removeItem('sessionToken')
     sessionStorage.removeItem('sessionRoomCode')
     sessionStorage.removeItem('backgroundUrl')
+    sessionStorage.removeItem('takeCnt')
+    sessionStorage.removeItem('cutCnt')
+    sessionStorage.removeItem('timeLimit')
     setIsModalOpen(false)
   }
 
