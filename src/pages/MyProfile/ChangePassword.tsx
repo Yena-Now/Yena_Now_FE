@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { userAPI } from '@/api/user'
 import { useToast } from '@/hooks/useToast'
+import { validator } from '@/utils/validators'
 import { IoIosArrowBack } from 'react-icons/io'
 import * as S from '@styles/pages/MyProfile/ChangePasswordStyle'
 import * as T from '@styles/components/MyProfile/ProfileEditStyle'
@@ -15,6 +16,10 @@ const ChangePassword: React.FC = () => {
   const [checkPassword, setCheckPassword] = useState<string>('')
 
   const handleSubmit = async () => {
+    if (!validator.isValidatePassword(newPassword)) {
+      error('비밀번호가 형식에 맞지 않습니다.')
+      return
+    }
     try {
       await userAPI.changePassword({ oldPassword, newPassword })
       success('비밀번호가 변경되었습니다.')
