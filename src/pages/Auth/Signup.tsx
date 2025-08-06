@@ -14,8 +14,9 @@ const Signup: React.FC = () => {
   const [emailVerified, setEmailVerified] = useState(false)
   const [emailVerificationCode, setEmailVerificationCode] = useState('')
   const [emailCodeVerified, setEmailCodeVerified] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const {success, error, info} = useToast()
+  const { success, error, info } = useToast()
 
   const navigate = useNavigate()
 
@@ -25,6 +26,31 @@ const Signup: React.FC = () => {
       ...prev,
       [name]: value,
     }))
+
+    if (name === 'email') {
+      if (value && !isValidEmail(value)) {
+        setErrorMessage('유효한 이메일 주소를 입력해주세요.')
+      } else {
+        setErrorMessage('')
+      }
+    } else if (name === 'password') {
+      if (value && !isValidPassword(value)) {
+        setErrorMessage(
+          '비밀번호는 8자 이상 16자 이하로, 영문과 숫자를 포함해야 합니다.',
+        )
+      } else {
+        setErrorMessage('')
+      }
+    }
+    else if (name === 'passwordConfirm') {
+      if (value && !isValidPasswordConfirm(form.password, value)) {
+        setErrorMessage('비밀번호가 일치하지 않습니다.')
+      } else {
+        setErrorMessage('')
+      }
+    } else {
+      setErrorMessage('')
+    }
   }
 
   const handleEmailVerificationCodeChange = (
@@ -56,13 +82,16 @@ const Signup: React.FC = () => {
       return
     }
     try {
-      const isVerified = await verifyEmailCode(form.email, emailVerificationCode)
+      const isVerified = await verifyEmailCode(
+        form.email,
+        emailVerificationCode,
+      )
       if (isVerified) {
         success('이메일 인증 성공!')
       } else {
         error('인증 코드가 올바르지 않습니다.')
       }
-    } catch{
+    } catch {
       error('이메일 인증 코드 검증 실패')
     }
   }
@@ -70,21 +99,22 @@ const Signup: React.FC = () => {
   const handleEmailVerify = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     try {
-      const response = await authAPI.sendEmailVerification({ email: form.email })
+      const response = await authAPI.sendEmailVerification({
+        email: form.email,
+      })
       if (response.status === 204) {
         info('인증 코드가 이메일로 전송되었습니다.')
         setEmailVerified(true)
       } else if (response.status === 401) {
         error('이미 인증된 이메일입니다.')
       }
-    } catch{
+    } catch {
       error('이메일 인증 요청에 실패했습니다. 다시 시도해주세요.')
     }
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // alert('회원가입 요청!')
     navigate('/signup/more', {
       state: { email: form.email, password: form.password },
     })
@@ -92,7 +122,11 @@ const Signup: React.FC = () => {
 
   const isValidEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  const isValidPassword = (password: string) => password.length >= 8
+  const isValidPassword = (password: string) =>
+    password.length >= 8 &&
+    password.length <= 16 &&
+    /[a-zA-Z]/.test(password) &&
+    /\d/.test(password)
   const isValidPasswordConfirm = (pw: string, pwc: string) => pw === pwc
 
   const isFormValid =
@@ -165,6 +199,7 @@ const Signup: React.FC = () => {
           </S.Button>
         </form>
       </S.SignupContainer>
+        {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
     </S.Layout>
   )
 }

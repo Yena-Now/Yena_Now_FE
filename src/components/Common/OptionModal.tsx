@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react'
+import React, { useRef, useEffect, useCallback } from 'react'
 import { IoCloseOutline } from 'react-icons/io5'
 import * as S from '@/styles/components/Common/OptionModalStyle'
 
@@ -22,6 +22,7 @@ const OptionModal: React.FC<OptionModalProps> = ({
     if (!modalRef.current.contains(e.target as HTMLElement)) {
       onClose()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 모달 외부 영역 클릭 시 닫기
@@ -43,6 +44,7 @@ const OptionModal: React.FC<OptionModalProps> = ({
     return () => {
       window.removeEventListener('keydown', handleEscape)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -59,10 +61,7 @@ const OptionModal: React.FC<OptionModalProps> = ({
         </S.TopBox>
         <S.ContentBox>
           <S.TitleBox>{title}</S.TitleBox>
-          <S.Content>
-            {/* modal content text */}
-            {children}
-          </S.Content>
+          <S.Content>{children}</S.Content>
         </S.ContentBox>
       </S.Container>
     </S.OverLay>
