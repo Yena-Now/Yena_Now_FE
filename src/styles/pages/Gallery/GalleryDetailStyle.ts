@@ -5,8 +5,8 @@ export const DetailBox = styled.div`
   align-items: flex-start;
   flex-direction: row;
   justify-content: center;
-  gap: 20px;
-  padding: 40px;
+  gap: 30px;
+  padding: 30px;
 `
 
 export const LeftColumn = styled.div`
@@ -36,7 +36,7 @@ export const CommentBox = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 60px;
+  padding: 20px 40px;
   width: 620px;
   height: 650px;
   border: 1px solid #eaeaea;

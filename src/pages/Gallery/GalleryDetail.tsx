@@ -8,20 +8,26 @@ import LikeButton from '@components/GalleryDetail/LikeButton'
 import * as S from '@styles/pages/Gallery/GalleryDetailStyle'
 import Input from '@components/Common/Input'
 import type { NCutDetail } from '@/types/NCutDetail'
-import VisibilityIcon from '@components/GalleryDetail/VisivilityIcon'
 import ShareButton from '@components/GalleryDetail/ShareButton'
 import DownloadButton from '@components/GalleryDetail/DownloadButton'
+import PostEditButton from '@components/GalleryDetail/PostEditButton'
+import VisibilityIcon from '@components/GalleryDetail/VisibilityIcon'
 
 const GalleryDetailPage: React.FC = () => {
   const { ncutUuid } = useParams<{ ncutUuid: string }>()
   const [detailData, setDetailData] = useState<NCutDetail | null>(null)
 
-  useEffect(() => {
-    // 🚀 API 연동 전까지는 더미데이터 사용
-    const fetchData = async () => {
-      // const res = await fetch(`/api/ncut/${ncutUuid}`)
-      // const data: NCutDetail = await res.json()
+  // 글 수정 모드 상태
+  const [isEditing, setIsEditing] = useState(false)
+  const [postContent, setPostContent] = useState('')
 
+  // 공개 범위 상태
+  const [visibility, setVisibility] = useState<'Public' | 'Follow' | 'Private'>(
+    'Public',
+  )
+
+  useEffect(() => {
+    const fetchData = async () => {
       const data: NCutDetail = {
         ncutUuid: ncutUuid || 'dummy-uuid',
         ncutUrl:
@@ -39,6 +45,8 @@ const GalleryDetailPage: React.FC = () => {
         isMine: true,
       }
       setDetailData(data)
+      setPostContent(data.content)
+      setVisibility(data.visibility)
     }
 
     fetchData()
@@ -57,7 +65,7 @@ const GalleryDetailPage: React.FC = () => {
           />
           <S.ButtonBox>
             <ShareButton />
-            {detailData?.isMine && (
+            {detailData.isMine && (
               <DownloadButton
                 fileUrl={detailData.ncutUrl}
                 ncutUuid={detailData.ncutUuid}
@@ -72,9 +80,29 @@ const GalleryDetailPage: React.FC = () => {
         <S.CommentBox>
           <S.PostHeader>
             <LikeButton data={detailData} />
-            <VisibilityIcon visibility={detailData.visibility} />
+            <S.ButtonBox>
+              <VisibilityIcon visibility={visibility} />
+              {detailData.isMine && (
+                <PostEditButton
+                  onEdit={() => setIsEditing(true)}
+                  initialVisibility={visibility}
+                  onChangeVisibility={setVisibility} // PostEditButton에서 변경 반영
+                />
+              )}
+            </S.ButtonBox>
           </S.PostHeader>
-          <PostSection content={detailData.content} />
+
+          <PostSection
+            content={postContent}
+            isMine={detailData.isMine}
+            isEditingFromParent={isEditing}
+            onUpdateContent={(newContent) => {
+              setPostContent(newContent)
+              setIsEditing(false)
+            }}
+            onFinishEdit={() => setIsEditing(false)}
+          />
+
           <S.Divider />
           <CommentSection
             profileUrl={detailData.profileUrl}
@@ -82,6 +110,7 @@ const GalleryDetailPage: React.FC = () => {
             comment="집보내줘"
           />
         </S.CommentBox>
+
         <S.InputBox>
           <Input />
         </S.InputBox>
