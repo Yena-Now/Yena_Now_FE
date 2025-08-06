@@ -5,6 +5,7 @@ import { userAPI } from '@/api/user'
 import { useToast } from '@/hooks/useToast'
 import { validator } from '@/utils/validators'
 import { IoIosArrowBack } from 'react-icons/io'
+import { AiOutlineInfoCircle } from 'react-icons/ai'
 import * as S from '@styles/pages/MyProfile/ChangePasswordStyle'
 import * as T from '@styles/components/MyProfile/ProfileEditStyle'
 
@@ -42,9 +43,9 @@ const ChangePassword: React.FC = () => {
     <T.Container>
       <T.TitleText>비밀번호 변경</T.TitleText>
       <T.Box>
-        <T.Label>
+        <S.Label>
           <label htmlFor="current-password">현재 비밀번호</label>
-        </T.Label>
+        </S.Label>
         <T.Input
           type="password"
           id="current-password"
@@ -55,9 +56,19 @@ const ChangePassword: React.FC = () => {
         />
       </T.Box>
       <T.Box>
-        <T.Label>
-          <label htmlFor="new-password">새 비밀번호</label>
-        </T.Label>
+        <S.Label>
+          <label htmlFor="new-password">
+            새 비밀번호 &nbsp;
+            <S.ToolTipWrapper>
+              <S.ToolTipIcon>
+                <AiOutlineInfoCircle />
+              </S.ToolTipIcon>
+              <S.ToolTipContent>
+                8~16자, 영문 대소문자/숫자 가능, 특수문자(@$!%*?&#) 포함 가능
+              </S.ToolTipContent>
+            </S.ToolTipWrapper>
+          </label>
+        </S.Label>
         <T.Input
           type="password"
           id="new-password"
@@ -68,9 +79,9 @@ const ChangePassword: React.FC = () => {
         />
       </T.Box>
       <T.Box>
-        <T.Label>
+        <S.Label>
           <label htmlFor="check-password">비밀번호 확인</label>
-        </T.Label>
+        </S.Label>
         <T.Input
           type="password"
           id="check-password"

@@ -96,16 +96,16 @@ export const InputWrapper = styled.div`
   width: 65%;
   margin: 0;
   padding: 0;
+  align-items: center;
 `
 export const NickNameInput = styled(Input)`
-  width: 70%;
   margin-right: 0.3rem;
-  flex: 3.5;
+  flex: 1;
 `
 export const NickNameCheckButton = styled.button.attrs((props) => ({
   disabled: props.disabled,
 }))<{ disabled: boolean }>`
-  flex: 1;
+  flex: 0 0 100px;
   width: 30%;
   height: 36px;
   border: none;
@@ -124,6 +124,8 @@ export const NickNameCheckButton = styled.button.attrs((props) => ({
 
 export const DatePickerWrapper = styled.div`
   width: 65%;
+  display: flex;
+  align-items: center;
 `
 
 export const DatePicker = styled.input`
@@ -156,6 +158,13 @@ export const PasswordChangeButton = styled.button`
   cursor: pointer;
   border: none;
   padding: 0.5rem 0;
+`
+
+export const GoBackSection = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 30%;
 `
 
 export const DeleteButton = styled.button`
