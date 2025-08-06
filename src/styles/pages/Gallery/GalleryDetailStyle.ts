@@ -23,10 +23,15 @@ export const RightColumn = styled.div`
 export const PhotoHeader = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 `
-
+export const ButtonBox = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 15px;
+`
 export const CommentBox = styled.div`
   display: flex;
   flex-direction: column;

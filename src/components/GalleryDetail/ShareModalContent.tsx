@@ -3,17 +3,15 @@ import * as S from '@styles/components/GalleryDetail/ShareModalContentStyle'
 import { MdContentCopy } from 'react-icons/md'
 
 interface ShareModalContentProps {
-  ncutUrl: string
   onCopy: () => void
 }
 
-const ShareModalContent: React.FC<ShareModalContentProps> = ({
-  ncutUrl,
-  onCopy,
-}) => {
+const ShareModalContent: React.FC<ShareModalContentProps> = ({ onCopy }) => {
+  const currentPageUrl = window.location.href // 현재 페이지 주소
+
   return (
     <S.ShareModalContainer>
-      <S.ShareLink type="text" value={ncutUrl} readOnly />
+      <S.ShareLink type="text" value={currentPageUrl} readOnly />
       <S.CopyButton onClick={onCopy}>
         <MdContentCopy size={20} />
       </S.CopyButton>

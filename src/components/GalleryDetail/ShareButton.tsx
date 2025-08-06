@@ -5,17 +5,13 @@ import * as S from '@styles/components/GalleryDetail/ShareButtonStyle'
 import OptionModal from '@components/Common/OptionModal'
 import ShareModalContent from '@components/GalleryDetail/ShareModalContent'
 
-interface ShareButtonProps {
-  ncutUrl: string
-}
-
-const ShareButton: React.FC<ShareButtonProps> = ({ ncutUrl }) => {
+const ShareButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { success, error } = useToast()
 
   const handleCopy = () => {
     navigator.clipboard
-      .writeText(ncutUrl)
+      .writeText(window.location.href) // 현재 페이지 주소 복사
       .then(() => {
         success('링크가 복사되었습니다.')
       })
@@ -32,7 +28,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ ncutUrl }) => {
 
       {isOpen && (
         <OptionModal title="공유 링크 복사" onClose={() => setIsOpen(false)}>
-          <ShareModalContent ncutUrl={ncutUrl} onCopy={handleCopy} />
+          <ShareModalContent onCopy={handleCopy} />
         </OptionModal>
       )}
     </>

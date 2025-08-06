@@ -10,6 +10,7 @@ import Input from '@components/Common/Input'
 import type { NCutDetail } from '@/types/NCutDetail'
 import VisibilityIcon from '@components/GalleryDetail/VisivilityIcon'
 import ShareButton from '@components/GalleryDetail/ShareButton'
+import DownloadButton from '@components/GalleryDetail/DownloadButton'
 
 const GalleryDetailPage: React.FC = () => {
   const { ncutUuid } = useParams<{ ncutUuid: string }>()
@@ -24,7 +25,7 @@ const GalleryDetailPage: React.FC = () => {
       const data: NCutDetail = {
         ncutUuid: ncutUuid || 'dummy-uuid',
         ncutUrl:
-          'https://image.fmkorea.com/files/attach/new3/20230916/486616/638012495/6186131518/67e5fcdd951103d74559a420ff5bb8c2.jpeg',
+          'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_1mb.mp4',
         userUuid: 'user-uuid',
         nickname: '연히',
         profileUrl:
@@ -54,7 +55,15 @@ const GalleryDetailPage: React.FC = () => {
             nickname={detailData.nickname}
             createdAt={detailData.createdAt}
           />
-          <ShareButton ncutUrl={detailData.ncutUrl} />
+          <S.ButtonBox>
+            <ShareButton />
+            {detailData?.isMine && (
+              <DownloadButton
+                fileUrl={detailData.ncutUrl}
+                ncutUuid={detailData.ncutUuid}
+              />
+            )}
+          </S.ButtonBox>
         </S.PhotoHeader>
         <PhotoSection ncutUrl={detailData.ncutUrl} />
       </S.LeftColumn>
