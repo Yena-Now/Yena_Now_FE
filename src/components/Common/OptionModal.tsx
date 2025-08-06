@@ -61,10 +61,7 @@ const OptionModal: React.FC<OptionModalProps> = ({
         </S.TopBox>
         <S.ContentBox>
           <S.TitleBox>{title}</S.TitleBox>
-          <S.Content>
-            modal content text
-            {children}
-          </S.Content>
+          <S.Content>{children}</S.Content>
         </S.ContentBox>
       </S.Container>
     </S.OverLay>

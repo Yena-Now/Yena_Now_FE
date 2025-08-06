@@ -1,13 +1,13 @@
 import React, { useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import * as S from '@styles/pages/Auth/AuthGlobalStyle'
-import * as S2 from '@styles/pages/Auth/SignupMoreStyle'
+import { authAPI } from '@/api/auth'
+import { userAPI } from '@/api/user'
+import { useToast } from '@hooks/useToast'
 import Logo from '@components/Common/Logo'
-
 import defaultProfileImage from '/user_default_profile.png'
 import ProfileImage from '@components/Common/ProfileImage'
-import { authAPI } from '@/api/auth'
-import { useToast } from '@hooks/useToast'
+import * as S from '@styles/pages/Auth/AuthGlobalStyle'
+import * as S2 from '@styles/pages/Auth/SignupMoreStyle'
 import { uploadImage } from '@utils/ImageUploader'
 
 const SignupMore: React.FC = () => {
@@ -109,7 +109,7 @@ const SignupMore: React.FC = () => {
 
   const verifyNickname = async (nickname: string) => {
     try {
-      const response = await authAPI.verifyNickname({ nickname })
+      const response = await userAPI.verifyNickname({ nickname })
       return !response.isDuplicated
     } catch {
       error('닉네임 중복 확인 오류')

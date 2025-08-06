@@ -7,13 +7,16 @@ import Login from '@pages/Auth/Login'
 import Signup from '@pages/Auth/Signup'
 import SignupMore from '@pages/Auth/SignupMore'
 import SocialCallback from '@pages/Auth/SocialCallback'
-import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import ResetPassword from '@pages/Auth/ResetPassword'
+import MyProfileInfo from './pages/MyProfile/MyProfileInfo'
+import ChangePassword from '@pages/MyProfile/ChangePassword'
+import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import NCutMain from '@pages/NCut/NCutMain'
 import CreateSession from '@pages/NCut/CreateSession'
 import ParticipationSession from '@pages/NCut/ParticipationSession'
 import Session from '@pages/NCut/Session'
 import GalleryPage from '@pages/Gallery/Gallery'
+import 'react-datepicker/dist/react-datepicker.css'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -140,6 +143,26 @@ function App() {
               path="/film/room/:roomCode"
               element={
                 isLoggedIn ? <Session /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/my-profile"
+              element={
+                isLoggedIn ? (
+                  <MyProfileInfo />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/change-password"
+              element={
+                isLoggedIn ? (
+                  <ChangePassword />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
           </Routes>
