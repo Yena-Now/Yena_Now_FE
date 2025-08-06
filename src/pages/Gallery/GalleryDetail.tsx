@@ -1,17 +1,79 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import UserInfo from '@components/GalleryDetail/UserInfo'
 import PhotoSection from '@components/GalleryDetail/PhotoSection'
+import PostSection from '@components/GalleryDetail/PostSection'
+import CommentSection from '@components/GalleryDetail/CommentSection'
+import LikeButton from '@components/GalleryDetail/LikeButton'
+import * as S from '@styles/pages/Gallery/GalleryDetailStyle'
+import Input from '@components/Common/Input'
+import type { NCutDetail } from '@/types/NCutDetail'
+import VisibilityIcon from '@components/GalleryDetail/VisivilityIcon'
 
 const GalleryDetailPage: React.FC = () => {
+  const { ncutUuid } = useParams<{ ncutUuid: string }>()
+  const [detailData, setDetailData] = useState<NCutDetail | null>(null)
+
+  useEffect(() => {
+    // 🚀 API 연동 전까지는 더미데이터 사용
+    const fetchData = async () => {
+      // const res = await fetch(`/api/ncut/${ncutUuid}`)
+      // const data: NCutDetail = await res.json()
+
+      const data: NCutDetail = {
+        ncutUuid: ncutUuid || 'dummy-uuid',
+        ncutUrl:
+          'https://image.fmkorea.com/files/attach/new3/20230916/486616/638012495/6186131518/67e5fcdd951103d74559a420ff5bb8c2.jpeg',
+        userUuid: 'user-uuid',
+        nickname: '연히',
+        profileUrl:
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRf6ywSWMBFVR3g-yXTaAW-K7WY6-q15ruZ1Q&s',
+        content: '잠와 죽겠다',
+        createdAt: '2025-07-28',
+        likeCount: 0,
+        commentCount: 1,
+        isRelay: false,
+        visibility: 'Follow',
+        isMine: true,
+      }
+      setDetailData(data)
+    }
+
+    fetchData()
+  }, [ncutUuid])
+
+  if (!detailData) return <div>로딩 중...</div>
+
   return (
-    <>
-      <UserInfo
-        profileUrl="data:image/jpeg;base64,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"
-        nickname="연히"
-        createdAt="2025-07-28"
-      />
-      <PhotoSection ncutUrl="https://filesamples.com/samples/video/mp4/sample_640x360.mp4" />
-    </>
+    <S.DetailBox>
+      <S.LeftColumn>
+        <UserInfo
+          profileUrl={detailData.profileUrl}
+          nickname={detailData.nickname}
+          createdAt={detailData.createdAt}
+        />
+        <PhotoSection ncutUrl={detailData.ncutUrl} />
+      </S.LeftColumn>
+
+      <S.RightColumn>
+        <S.CommentBox>
+          <S.PostHeader>
+            <LikeButton data={detailData} />
+            <VisibilityIcon visibility={detailData.visibility} />
+          </S.PostHeader>
+          <PostSection content={detailData.content} />
+          <S.Divider />
+          <CommentSection
+            profileUrl={detailData.profileUrl}
+            nickname={detailData.nickname}
+            comment="집보내줘"
+          />
+        </S.CommentBox>
+        <S.InputBox>
+          <Input />
+        </S.InputBox>
+      </S.RightColumn>
+    </S.DetailBox>
   )
 }
 

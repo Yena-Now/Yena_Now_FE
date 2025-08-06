@@ -1,6 +1,6 @@
 import React from 'react'
 import ProfileImage from '@components/Common/ProfileImage'
-import * as S from '@styles/components/GalleryDetail/UserInfo'
+import * as S from '@styles/components/GalleryDetail/UserInfoStyle'
 
 interface UserInfoProps {
   profileUrl: string
@@ -15,11 +15,11 @@ const UserInfo: React.FC<UserInfoProps> = ({
 }) => {
   return (
     <S.UserInfoWrapper>
-      <ProfileImage src={profileUrl} alt={`${nickname}의 프로필`} />
       <S.UserInfo>
+        <ProfileImage src={profileUrl} alt={`${nickname}의 프로필`} />
         <S.Nickname>{nickname}</S.Nickname>
-        <S.Date>{createdAt}</S.Date>
       </S.UserInfo>
+      <S.Date>{createdAt}</S.Date>
     </S.UserInfoWrapper>
   )
 }

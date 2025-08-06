@@ -2,13 +2,15 @@ import styled from 'styled-components'
 
 export const UserInfoWrapper = styled.div`
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 12px;
 `
 
 export const UserInfo = styled.div`
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 15px;
 `
 
 export const Nickname = styled.span`

@@ -3,8 +3,8 @@ import styled from 'styled-components'
 export const PhotoContainer = styled.div``
 
 export const PhotoFrame = styled.div`
-  width: 550px;
-  height: 600px;
+  width: 570px;
+  height: 660px;
   background-color: black;
   display: flex;
   justify-content: center;

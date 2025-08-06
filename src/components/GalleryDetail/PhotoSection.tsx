@@ -1,5 +1,5 @@
 import React from 'react'
-import * as S from '@styles/components/GalleryDetail/PhotoSection'
+import * as S from '@styles/components/GalleryDetail/PhotoSectionStyle'
 
 interface PhotoSectionProps {
   ncutUrl: string

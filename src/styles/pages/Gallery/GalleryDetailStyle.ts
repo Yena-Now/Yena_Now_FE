@@ -1,0 +1,48 @@
+import styled from 'styled-components'
+
+export const DetailBox = styled.div`
+  display: flex;
+  align-items: flex-start;
+  flex-direction: row;
+  gap: 20px;
+  padding: 30px;
+`
+
+export const LeftColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`
+
+export const RightColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`
+
+export const CommentBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 60px;
+  width: 620px;
+  height: 650px;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+`
+export const PostHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`
+export const Divider = styled.hr`
+  border: none;
+  border-bottom: 2px solid #ddd;
+  margin-bottom: 20px;
+  width: 100%;
+`
+
+export const InputBox = styled.div`
+  display: flex;
+  flex-direction: column;
+`

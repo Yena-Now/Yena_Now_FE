@@ -9,6 +9,6 @@ export interface NCutDetail {
   likeCount: number
   commentCount: number
   isRelay: boolean
-  visibility: 'PUBLIC' | 'FOLLOW' | 'PRIVATE'
+  visibility: 'Public' | 'Follow' | 'Private'
   isMine: boolean
 }
