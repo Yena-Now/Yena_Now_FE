@@ -4,7 +4,7 @@ import { nCutAPI } from '@/api/ncut'
 import { useToast } from '@/hooks/useToast'
 import { useNavigate } from 'react-router-dom'
 
-import { MdNavigateNext, MdOutlineSmokingRooms } from 'react-icons/md'
+import { MdNavigateNext, MdOutlineAddAPhoto } from 'react-icons/md'
 import { FaCheck } from 'react-icons/fa6'
 import First from '@components/NCut/Create/First'
 import Second from '@components/NCut/Create/Second'
@@ -227,7 +227,7 @@ const CreateSession: React.FC = () => {
       <G.NcutCreateContainer>
         {currentIndex !== pages.length - 1 && (
           <G.NCutCreateIcon>
-            <MdOutlineSmokingRooms
+            <MdOutlineAddAPhoto
               style={{
                 width: '100px',
                 height: '100px',

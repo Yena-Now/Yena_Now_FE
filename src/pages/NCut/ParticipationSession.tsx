@@ -4,7 +4,7 @@ import * as S from '@styles/pages/NCut/ParticipationSessionStyle'
 import ParticipationModal from '@components/NCut/Enter/EnterConfirmModal'
 import { useNavigate } from 'react-router-dom'
 
-import { MdOutlineSmokingRooms } from 'react-icons/md'
+import { FiUserPlus } from 'react-icons/fi'
 import { FaCheck } from 'react-icons/fa6'
 import { useToast } from '@/hooks/useToast'
 import { nCutAPI } from '@/api/ncut'
@@ -113,7 +113,7 @@ const ParticipationSession: React.FC = () => {
     <G.NCutCreateLayout>
       <G.NcutCreateContainer>
         <G.NCutCreateIcon>
-          <MdOutlineSmokingRooms
+          <FiUserPlus
             style={{
               width: '100px',
               height: '100px',

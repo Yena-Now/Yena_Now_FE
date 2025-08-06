@@ -1,9 +1,8 @@
 import React from 'react'
 import * as S from '@styles/pages/NCut/NCutMainStyle'
-import { MdOutlineSmokingRooms } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
-// import { MdOutlineAddAPhoto } from 'react-icons/md'
-// import { FiUserPlus } from 'react-icons/fi'
+import { MdOutlineAddAPhoto } from 'react-icons/md'
+import { FiUserPlus } from 'react-icons/fi'
 
 export const NCutMain: React.FC = () => {
   const navigate = useNavigate()
@@ -14,8 +13,7 @@ export const NCutMain: React.FC = () => {
         <S.Card>
           <S.IconSection>
             <S.Icon>
-              {/*<MdOutlineAddAPhoto />*/}
-              <MdOutlineSmokingRooms />
+              <MdOutlineAddAPhoto />
             </S.Icon>
           </S.IconSection>
           <S.Title>촬영 부스 생성</S.Title>
@@ -37,8 +35,7 @@ export const NCutMain: React.FC = () => {
         <S.Card>
           <S.IconSection>
             <S.Icon>
-              {/*<FiUserPlus />*/}
-              <MdOutlineSmokingRooms />
+              <FiUserPlus />
             </S.Icon>
           </S.IconSection>
           <S.Title>촬영 부스 참가</S.Title>
