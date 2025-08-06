@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { FiEdit3 } from 'react-icons/fi'
 import * as S from '@styles/components/GalleryDetail/PostSectionStyle'
+import { useToast } from '@/hooks/useToast'
 
 interface PostSectionProps {
   content: string
@@ -12,15 +12,15 @@ interface PostSectionProps {
 
 const PostSection: React.FC<PostSectionProps> = ({
   content,
-  // isMine,
   isEditingFromParent = false,
   onUpdateContent,
   onFinishEdit,
 }) => {
+  const { success } = useToast()
+
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(content)
 
-  // 부모에서 수정 모드 트리거 시
   useEffect(() => {
     if (isEditingFromParent) {
       setIsEditing(true)
@@ -31,38 +31,26 @@ const PostSection: React.FC<PostSectionProps> = ({
     setIsEditing(false)
     if (editValue.trim() !== content && onUpdateContent) {
       onUpdateContent(editValue)
+      success('글이 수정되었습니다.')
     }
     if (onFinishEdit) onFinishEdit()
   }
 
   return (
     <S.PostContainer>
-      <S.PostFrame>
-        {isEditing ? (
-          <S.InputWrapper>
-            <S.PostContentInput
-              type="text"
-              value={editValue}
-              autoFocus
-              onChange={(e) => setEditValue(e.target.value)}
-              onBlur={handleSave}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSave()
-                if (e.key === 'Escape') {
-                  setEditValue(content)
-                  setIsEditing(false)
-                  if (onFinishEdit) onFinishEdit()
-                }
-              }}
-            />
-            <S.EditIcon onClick={handleSave}>
-              <FiEdit3 />
-            </S.EditIcon>
-          </S.InputWrapper>
-        ) : (
-          <S.PostContent>{content}</S.PostContent>
-        )}
-      </S.PostFrame>
+      {isEditing ? (
+        <S.EditWrapper>
+          <S.PostContentInput
+            value={editValue}
+            autoFocus
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+          />
+          <S.SaveButton onClick={handleSave}>저장</S.SaveButton>
+        </S.EditWrapper>
+      ) : (
+        <S.PostContent>{content}</S.PostContent>
+      )}
     </S.PostContainer>
   )
 }

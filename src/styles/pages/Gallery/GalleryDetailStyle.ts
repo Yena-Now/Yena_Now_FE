@@ -36,9 +36,9 @@ export const CommentBox = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 20px 40px;
+  padding: 25px 40px;
   width: 620px;
-  height: 650px;
+  height: 700px;
   border: 1px solid #eaeaea;
   border-radius: 10px;
 `
