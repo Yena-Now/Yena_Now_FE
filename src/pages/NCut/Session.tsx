@@ -7,11 +7,12 @@ import { LoadingScreen } from '@components/NCut/LoadingScreen'
 import { useToast } from '@hooks/useToast'
 import { useDragAndDrop } from '@hooks/useDragAndDrop'
 import * as S from '@styles/pages/NCut/SessionStyle'
+import { s3API } from '@/api/s3'
 
 export const Session: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { error } = useToast()
+  const { success, error } = useToast()
 
   const [showInteractionPrompt, setShowInteractionPrompt] = useState(true)
   const [hasAttemptedConnection, setHasAttemptedConnection] = useState(false)
@@ -21,6 +22,11 @@ export const Session: React.FC = () => {
   const [videoScale, setVideoScale] = useState(0.5)
   const [cursor, setCursor] = useState('default')
   const [isRecording, setIsRecording] = useState(false)
+  /* 현재 저장된 URL 목록
+  이 부분은 나중에 Edit 페이지에서 사용될 예정이므로, 현재는 urls 변수를 기입하지 않음.
+  기입하면 오류가 발생하기 때문 - unused-vars 경고가 발생함.
+  */
+  const [, setUrls] = useState<string[]>([])
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordedChunksRef = useRef<Blob[]>([])
@@ -244,24 +250,40 @@ export const Session: React.FC = () => {
     navigate('/film')
   }, [leaveRoom, navigate])
 
-  const captureCanvas = useCallback(() => {
+  const captureCanvas = useCallback(async () => {
     const mainCanvas = mainCanvasRef.current
     if (!mainCanvas) return
 
     try {
-      const dataUrl = mainCanvas.toDataURL('image/webp', 1)
-      const link = document.createElement('a')
+      const blob = await new Promise<Blob>((resolve) => {
+        mainCanvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob)
+          },
+          'image/webp',
+          1,
+        )
+      })
 
-      link.download = `session_capture_${new Date().toISOString()}.webp`
-      link.href = dataUrl
+      if (!blob) {
+        error('캔버스 캡처 실패: Blob 생성 실패')
+        return
+      }
 
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const fileName = `session-capture-${new Date().getTime()}.webp`
+      const file = new File([blob], fileName, { type: 'image/webp' })
+
+      const fileUrl = await s3API.upload({
+        file,
+        type: 'profile',
+      })
+
+      success('캡처된 이미지를 저장했습니다.')
+      setUrls((prevUrls) => [...prevUrls, fileUrl as unknown as string])
     } catch (err) {
       error(`캔버스 캡처 실패: ${err}`)
     }
-  }, [error])
+  }, [error, success])
 
   const startRecording = useCallback(() => {
     const mainCanvas = mainCanvasRef.current
@@ -272,7 +294,7 @@ export const Session: React.FC = () => {
 
       // MediaRecorder 설정
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm;codecs=vp9', // 또는 'video/mp4' (브라우저 지원에 따라)
+        mimeType: 'video/webm;codecs=vp9',
       })
 
       recordedChunksRef.current = []
@@ -288,19 +310,18 @@ export const Session: React.FC = () => {
           type: 'video/webm',
         })
 
-        // 다운로드를 위한 링크 생성
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.download = `session-recording-${new Date().getTime()}.webm`
-        link.href = url
+        const fileName = `session-recording-${new Date().getTime()}.webm`
+        const file = new File([blob], fileName, { type: 'video/webm' })
 
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+        const fileUrl = s3API.upload({
+          file,
+          type: 'profile',
+        })
 
-        // 메모리 정리
-        URL.revokeObjectURL(url)
-        console.log('영상이 저장되었습니다.')
+        console.log('영상 녹화 성공:', fileUrl)
+        success('녹화된 영상을 저장했습니다.')
+        setUrls((prevUrls) => [...prevUrls, fileUrl as unknown as string])
+        recordedChunksRef.current = [] // 녹화가 끝나면 청소
       }
 
       mediaRecorderRef.current = mediaRecorder
@@ -309,7 +330,7 @@ export const Session: React.FC = () => {
     } catch (err) {
       error(`녹화 시작 실패: ${err}`)
     }
-  }, [error])
+  }, [error, success])
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
