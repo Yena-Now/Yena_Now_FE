@@ -29,7 +29,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ myInfo, fetchMyInfo }) => {
 
   useEffect(() => {
     fetchMyInfo()
-  }, [])
+  }, [fetchMyInfo])
 
   return (
     <T.Container>

@@ -19,11 +19,11 @@ const MyProfileInfo: React.FC = () => {
     } catch {
       error('내 정보를 불러오는 데 실패했습니다.')
     }
-  }, [])
+  }, [error, setMyInfo])
 
   useEffect(() => {
     fetchMyInfo()
-  }, [])
+  }, [fetchMyInfo])
 
   return (
     <>
