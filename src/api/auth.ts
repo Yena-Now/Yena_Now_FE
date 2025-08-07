@@ -74,9 +74,7 @@ export const authAPI = {
 
   logout: async () => {
     const response = await apiClient.post('/auth/logout')
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('nickname')
-    localStorage.removeItem('profileUrl')
+    localStorage.clear()
     delete apiClient.defaults.headers.common['Authorization']
     window.dispatchEvent(new Event('authChange'))
     return response.data
