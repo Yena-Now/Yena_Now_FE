@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { authAPI } from '@/api/auth'
 import { userAPI } from '@/api/user'
 import { s3API } from '@/api/s3'
 import { useToast } from '@hooks/useToast'
 import type { SignupRequest } from '@/types/auth'
+import { validator } from '@/utils/validators'
 import ProfileImage from '@components/Common/ProfileImage'
 import Logo from '@components/Common/Logo'
 import defaultProfileImage from '/user_default_profile.png'
@@ -12,7 +13,7 @@ import * as S from '@styles/pages/Auth/AuthGlobalStyle'
 import * as S2 from '@styles/pages/Auth/SignupMoreStyle'
 
 const SignupMore: React.FC = () => {
-  const { success, error } = useToast()
+  const { success, error, warning } = useToast()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -31,7 +32,6 @@ const SignupMore: React.FC = () => {
     birthdate: null,
     phoneNumber: null,
   })
-  console.log('formData', formData)
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -48,7 +48,6 @@ const SignupMore: React.FC = () => {
       const file = e.target.files[0]
       setSelectedImage(file)
       setIsUploading(true)
-      console.log('file', file)
       try {
         const { fileUrl } = await s3API.upload({
           type: 'profile',
@@ -88,6 +87,14 @@ const SignupMore: React.FC = () => {
     )
     if (!isNicknameValid) {
       error('닉네임 중복 확인을 해주세요.')
+      return
+    }
+
+    if (
+      formData.phoneNumber &&
+      !validator.isValidatePhoneNumber(formData.phoneNumber)
+    ) {
+      warning('전화번호 형식이 맞지 않습니다.')
       return
     }
 
@@ -131,6 +138,11 @@ const SignupMore: React.FC = () => {
   }
 
   const [isNicknameValid, setIsNicknameValid] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsNicknameValid(false)
+  }, [formData.nickname])
+
   const handleNicknameVerify = async () => {
     const isAvailable = await verifyNickname(formData.nickname)
     setIsNicknameValid(isAvailable)
@@ -172,7 +184,7 @@ const SignupMore: React.FC = () => {
         <S2.Form onSubmit={handleSubmit}>
           <S2.InputContainer>
             <S2.NicknameWrapper>
-              <S2.Label htmlFor="nickname">닉네임</S2.Label>
+              <S2.Label htmlFor="nickname">닉네임*</S2.Label>
               <S2.Input
                 type="text"
                 id="nickname"
@@ -287,17 +299,13 @@ const SignupMore: React.FC = () => {
                 type="tel"
                 id="phoneNumber"
                 name="phoneNumber"
-                pattern="^\d{11}$"
                 placeholder="01012345678"
                 value={formData.phoneNumber || ''}
                 onChange={handleChange}
               />
             </S2.InputGroup>
             <S2.ButtonWrapper>
-              <S2.Button
-                type="submit"
-                disabled={!isNicknameValid || isUploading}
-              >
+              <S2.Button type="submit" disabled={isUploading}>
                 확인
               </S2.Button>
             </S2.ButtonWrapper>
