@@ -67,7 +67,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     }
 
     if (
-      userData.phoneNumber !== '' &&
+      userData.phoneNumber &&
       !validator.isValidatePhoneNumber(userData.phoneNumber)
     ) {
       warning('전화번호 형식이 맞지 않습니다.')
