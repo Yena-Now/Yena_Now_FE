@@ -1,0 +1,102 @@
+import type { NCutList } from '@/types/NCutList'
+
+export const dummyNCutList: NCutList = {
+  totalPage: 2,
+  ncuts: [
+    {
+      userUuid: 'userA',
+      profileUrl: 'https://randomuser.me/api/portraits/men/61.jpg',
+      nickname: '예나',
+      ncut_uuid: 'ncut-001',
+      thumbnailUrl: 'https://picsum.photos/id/200/400/300',
+      ncutURL: 'https://picsum.photos/id/107/800/600',
+      likeCount: 109,
+      isRelay: false,
+    },
+    {
+      userUuid: 'userA',
+      profileUrl: 'https://randomuser.me/api/portraits/men/51.jpg',
+      nickname: '예나',
+      ncut_uuid: 'ncut-002',
+      thumbnailUrl: 'https://picsum.photos/id/208/400/300',
+      ncutURL: 'https://picsum.photos/id/106/800/600',
+      likeCount: 105,
+      isRelay: false,
+    },
+    {
+      userUuid: 'userA',
+      profileUrl: 'https://randomuser.me/api/portraits/men/17.jpg',
+      nickname: '예나',
+      ncut_uuid: 'ncut-003',
+      thumbnailUrl: 'https://picsum.photos/id/208/400/300',
+      ncutURL:
+        'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_640x360.m4v',
+      likeCount: 113,
+      isRelay: false,
+    },
+    {
+      userUuid: 'userB',
+      profileUrl: 'https://randomuser.me/api/portraits/men/7.jpg',
+      nickname: '민수',
+      ncut_uuid: 'ncut-005',
+      thumbnailUrl: 'https://picsum.photos/id/202/400/300',
+      ncutURL:
+        'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_640x360.m4v',
+      likeCount: 47,
+      isRelay: false,
+    },
+    {
+      userUuid: 'userB',
+      profileUrl: 'https://randomuser.me/api/portraits/men/88.jpg',
+      nickname: '민수',
+      ncut_uuid: 'ncut-006',
+      thumbnailUrl: 'https://picsum.photos/id/201/400/300',
+      ncutURL:
+        'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_640x360.m4v',
+      likeCount: 141,
+      isRelay: false,
+    },
+    {
+      userUuid: 'userC',
+      profileUrl: 'https://randomuser.me/api/portraits/men/91.jpg',
+      nickname: '수지',
+      ncut_uuid: 'ncut-008',
+      thumbnailUrl: 'https://picsum.photos/id/206/400/300',
+      ncutURL:
+        'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_640x360.m4v',
+      likeCount: 7,
+      isRelay: true,
+    },
+    {
+      userUuid: 'userD',
+      profileUrl: 'https://randomuser.me/api/portraits/men/96.jpg',
+      nickname: '현우',
+      ncut_uuid: 'ncut-010',
+      thumbnailUrl: 'https://picsum.photos/id/203/400/300',
+      ncutURL: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
+      likeCount: 138,
+      isRelay: false,
+    },
+    {
+      userUuid: 'userD',
+      profileUrl: 'https://randomuser.me/api/portraits/men/24.jpg',
+      nickname: '현우',
+      ncut_uuid: 'ncut-011',
+      thumbnailUrl: 'https://picsum.photos/id/207/400/300',
+      ncutURL: 'https://picsum.photos/id/101/800/600',
+      likeCount: 50,
+      isRelay: false,
+    },
+    {
+      userUuid: 'vertical-user-1',
+      profileUrl: 'https://picsum.photos/seed/pu1/50/50',
+      nickname: '세로유저1',
+      ncut_uuid: 'vertical-uuid-001',
+      thumbnailUrl: 'https://picsum.photos/seed/vt1/400/240',
+      ncutURL:
+        'https://res.cloudinary.com/demo/video/upload/fetch,w_240,h_320,c_pad,b_black/https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+      likeCount: 15,
+      isRelay: false,
+    },
+  ],
+}

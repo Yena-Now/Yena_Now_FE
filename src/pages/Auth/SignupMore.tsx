@@ -1,16 +1,19 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { authAPI } from '@/api/auth'
+import { userAPI } from '@/api/user'
+import { s3API } from '@/api/s3'
+import { useToast } from '@hooks/useToast'
+import type { SignupRequest } from '@/types/auth'
+import { validator } from '@/utils/validators'
+import ProfileImage from '@components/Common/ProfileImage'
+import Logo from '@components/Common/Logo'
+import defaultProfileImage from '/user_default_profile.png'
 import * as S from '@styles/pages/Auth/AuthGlobalStyle'
 import * as S2 from '@styles/pages/Auth/SignupMoreStyle'
-import Logo from '@components/Common/Logo'
-
-import defaultProfileImage from '/user_default_profile.png'
-import ProfileImage from '@components/Common/ProfileImage'
-import { authAPI } from '@/api/auth'
-import { useToast } from '@hooks/useToast'
 
 const SignupMore: React.FC = () => {
-  const { success, error } = useToast()
+  const { success, error, warning } = useToast()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -19,17 +22,7 @@ const SignupMore: React.FC = () => {
     email: string
     password: string
   }
-
-  const [formData, setFormData] = useState<{
-    email: string
-    password: string
-    nickname: string
-    profileUrl: string
-    name: string | null
-    gender: string | null
-    birthdate: string | null
-    phoneNumber: string | null
-  }>({
+  const [formData, setFormData] = useState<SignupRequest>({
     email,
     password,
     nickname: '',
@@ -40,23 +33,33 @@ const SignupMore: React.FC = () => {
     phoneNumber: null,
   })
 
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadUrl, setUploadUrl] = useState<string | null>(null)
+
   const [formBirth, setFormBirth] = useState({
     birthYear: '',
     birthMonth: '',
     birthDay: '',
   })
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setFormData((prev) => ({
-          ...prev,
-          profileUrl: reader.result as string,
-        }))
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0]
+      setSelectedImage(file)
+      setIsUploading(true)
+      try {
+        const { fileUrl } = await s3API.upload({
+          type: 'profile',
+          file,
+        })
+        setUploadUrl(fileUrl)
+      } catch (e) {
+        error('이미지 업로드에 실패했습니다.')
+        setUploadUrl(null)
+      } finally {
+        setIsUploading(false)
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -82,20 +85,41 @@ const SignupMore: React.FC = () => {
       formBirth.birthMonth || '',
       formBirth.birthDay || '',
     )
+    if (!isNicknameValid) {
+      error('닉네임 중복 확인을 해주세요.')
+      return
+    }
+
+    if (
+      formData.phoneNumber &&
+      !validator.isValidatePhoneNumber(formData.phoneNumber)
+    ) {
+      warning('전화번호 형식이 맞지 않습니다.')
+      return
+    }
+
+    setIsUploading(true)
+
+    // 이미지 업로드는 handleFileChange에서 바로 처리되므로 필요 없음
+    const finalUrl = uploadUrl || defaultProfileImage
+
     const submitData = {
       ...formData,
       birthdate: birthDate,
+      profileUrl: finalUrl,
     }
+
     const result = await authAPI.signup(submitData)
     if (result.userUuid) {
-      const response = await authAPI.login({
+      await authAPI.login({
         email: submitData.email,
         password: submitData.password,
       })
-      console.log(response)
+      setIsUploading(false)
       navigate('/gallery')
       return
     } else {
+      setIsUploading(false)
       error('회원가입에 실패했습니다.')
       return {
         success: false,
@@ -103,10 +127,9 @@ const SignupMore: React.FC = () => {
       }
     }
   }
-
   const verifyNickname = async (nickname: string) => {
     try {
-      const response = await authAPI.verifyNickname({ nickname })
+      const response = await userAPI.verifyNickname({ nickname })
       return !response.isDuplicated
     } catch {
       error('닉네임 중복 확인 오류')
@@ -115,6 +138,11 @@ const SignupMore: React.FC = () => {
   }
 
   const [isNicknameValid, setIsNicknameValid] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsNicknameValid(false)
+  }, [formData.nickname])
+
   const handleNicknameVerify = async () => {
     const isAvailable = await verifyNickname(formData.nickname)
     setIsNicknameValid(isAvailable)
@@ -133,7 +161,13 @@ const SignupMore: React.FC = () => {
         </S.LogoWrapper>
         <S2.ProfileImageWrapper>
           <ProfileImage
-            src={formData.profileUrl}
+            src={
+              uploadUrl
+                ? uploadUrl
+                : selectedImage
+                  ? URL.createObjectURL(selectedImage)
+                  : formData.profileUrl
+            }
             width="140px"
             height="140px"
             alt="프로필 이미지"
@@ -150,7 +184,7 @@ const SignupMore: React.FC = () => {
         <S2.Form onSubmit={handleSubmit}>
           <S2.InputContainer>
             <S2.NicknameWrapper>
-              <S2.Label htmlFor="nickname">닉네임</S2.Label>
+              <S2.Label htmlFor="nickname">닉네임*</S2.Label>
               <S2.Input
                 type="text"
                 id="nickname"
@@ -265,14 +299,13 @@ const SignupMore: React.FC = () => {
                 type="tel"
                 id="phoneNumber"
                 name="phoneNumber"
-                pattern="^\d{11}$"
                 placeholder="01012345678"
                 value={formData.phoneNumber || ''}
                 onChange={handleChange}
               />
             </S2.InputGroup>
             <S2.ButtonWrapper>
-              <S2.Button type="submit" disabled={!isNicknameValid}>
+              <S2.Button type="submit" disabled={isUploading}>
                 확인
               </S2.Button>
             </S2.ButtonWrapper>
