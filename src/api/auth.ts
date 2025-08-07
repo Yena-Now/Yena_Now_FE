@@ -14,13 +14,20 @@ export const authAPI = {
   sendEmailVerification: async (
     email: EmailVerificationRequest,
   ): Promise<AxiosResponse<object>> => {
-    const response = await apiClient.post('/users/verification-email', email, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    console.log(response)
-    return response
+    try {
+      const response = await apiClient.post(
+        '/users/verification-email',
+        email,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      return response
+    } catch (err) {
+      throw err
+    }
   },
 
   verifyEmail: async (
