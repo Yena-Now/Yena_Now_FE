@@ -69,6 +69,10 @@ export const ImageDeleteButton = styled.button`
   cursor: pointer;
 `
 
+export const ImageIcon = styled.span`
+  margin-top: 3px;
+`
+
 export const TitleText = styled.span`
   font-size: 24px;
   font-weight: bold;
