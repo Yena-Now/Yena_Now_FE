@@ -188,6 +188,9 @@ const CreateSession: React.FC = () => {
           token: sessionToken,
           isHost: true,
           backgroundImageUrl: backgroundUrl,
+          takeCnt: formData.takeCnt,
+          cutCnt: formData.cutCnt,
+          timeLimit: formData.timeLimit,
         },
       })
     }
