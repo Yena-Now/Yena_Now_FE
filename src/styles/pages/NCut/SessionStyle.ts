@@ -77,7 +77,6 @@ export const BackgroundImageContainer = styled.div`
 
 export const ChatContainer = styled.div`
   height: 50%;
-  border: 1px solid black;
 `
 
 export const CameraSizeRangeContainer = styled.div`

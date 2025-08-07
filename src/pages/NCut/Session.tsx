@@ -4,6 +4,7 @@ import { useRoom } from '@hooks/useRoom'
 import { useBackgroundRemoval } from '@hooks/useBackgroundRemoval'
 import { SessionPrompt } from '@components/NCut/SessionPrompt'
 import { LoadingScreen } from '@components/NCut/LoadingScreen'
+import { Chat } from '@components/NCut/Chat'
 import { useToast } from '@hooks/useToast'
 import { useDragAndDrop } from '@hooks/useDragAndDrop'
 import * as S from '@styles/pages/NCut/SessionStyle'
@@ -48,6 +49,8 @@ export const Session: React.FC = () => {
     leaveRoom,
     setIsConnecting,
     sendData,
+    chatMessages,
+    sendChatMessage,
   } = useRoom()
 
   const {
@@ -554,7 +557,15 @@ export const Session: React.FC = () => {
           <S.BackgroundImageContainer>
             여기는 배경 입니다.
           </S.BackgroundImageContainer>
-          <S.ChatContainer>여기는 채팅입니다.</S.ChatContainer>
+          <S.ChatContainer>
+            <Chat
+              messages={chatMessages}
+              onSendMessage={sendChatMessage}
+              currentUserIdentity={
+                localStorage.getItem('nickname') || 'anonymous'
+              }
+            />
+          </S.ChatContainer>
         </S.OtherContainer>
       </S.mainContent>
     </S.SessionLayout>

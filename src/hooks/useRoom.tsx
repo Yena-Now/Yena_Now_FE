@@ -10,6 +10,7 @@ import {
   RemoteParticipant,
 } from 'livekit-client'
 import { useToast } from '@hooks/useToast'
+import type { ChatMessage } from '@/types/Chat'
 
 type TrackInfo = {
   track: RemoteVideoTrack
@@ -28,6 +29,7 @@ export const useRoom = () => {
   const [remoteTracks, setRemoteTracks] = useState<TrackInfo[]>([])
   const [isConnecting, setIsConnecting] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<string>('준비 중...')
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
 
   const connectionAttemptRef = useRef<boolean>(false)
   const roomRef = useRef<Room | undefined>(undefined)
@@ -52,6 +54,13 @@ export const useRoom = () => {
               : t,
           ),
         )
+      } else if (data.type === 'chatMessage') {
+        const newMessage: ChatMessage = {
+          participantIdentity: data.nickname || participant.identity,
+          message: data.message,
+          timestamp: Date.now(),
+        }
+        setChatMessages((prev) => [...prev, newMessage])
       }
     },
     [],
@@ -200,6 +209,38 @@ export const useRoom = () => {
     [],
   )
 
+  const sendChatMessage = useCallback((message: string) => {
+    if (roomRef.current && message.trim()) {
+      const nickname = localStorage.getItem('nickname') || 'Anonymous'
+
+      const chatData = {
+        type: 'chatMessage',
+        message: message.trim(),
+        nickname: nickname,
+        timestamp: Date.now(),
+      }
+
+      const encoder = new TextEncoder()
+      const data = encoder.encode(JSON.stringify(chatData))
+
+      roomRef.current.localParticipant
+        .publishData(
+          data,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {
+          const newMessage: ChatMessage = {
+            participantIdentity: nickname as unknown as string,
+            message: chatData.message,
+            timestamp: chatData.timestamp,
+          }
+          setChatMessages((prev) => [...prev, newMessage])
+        })
+    }
+  }, [])
+
   return {
     room,
     localTrack,
@@ -210,5 +251,7 @@ export const useRoom = () => {
     leaveRoom,
     setIsConnecting,
     sendData,
+    chatMessages,
+    sendChatMessage,
   }
 }
