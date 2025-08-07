@@ -11,18 +11,75 @@ export const SessionLayout = styled.div`
   height: 100vh;
 `
 
+export const TakePhotoButton = styled.button`
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+`
+
+export const TakeVideoButton = styled.button<{ isActive?: boolean }>`
+  background-color: ${(props) => (props.isActive ? '#f44336' : '#9e9e9e')};
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+`
+
+export const RemainingTakesCnt = styled.span`
+  margin-left: 10px;
+  font-size: 16px;
+  color: #333;
+`
+
+export const GoToEditPage = styled.button<{ disabled?: boolean }>`
+  background-color: ${(props) => (props.disabled ? '#ccc' : '#2196f3')};
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+  margin-top: 10px;
+`
+
 export const SessionLayoutContainer = styled.div`
   flex: 1;
   position: relative;
-  background: #f0f0f0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 `
 
-export const CanvasContainer = styled.canvas<{ cursor?: string }>`
-  width: 100%;
-  height: 100%;
+export const CanvasContainer = styled.canvas<{ customCursor?: string }>`
+  width: 80%;
+  height: 80%;
   object-fit: contain;
-  cursor: ${(props) => props.cursor || 'default'};
+  cursor: ${(props) => props.customCursor || 'default'};
   background: transparent;
+`
+
+export const OtherContainer = styled.div`
+  width: 20%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+`
+
+export const BackgroundImageContainer = styled.div`
+  width: 90%;
+  height: 45%;
+  border: 1px solid black;
+`
+
+export const ChatContainer = styled.div`
+  width: 90%;
+  height: 45%;
+  border: 1px solid black;
 `
 
 export const CameraSizeRangeContainer = styled.div`

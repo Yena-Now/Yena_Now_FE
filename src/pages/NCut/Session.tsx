@@ -7,11 +7,20 @@ import { LoadingScreen } from '@components/NCut/LoadingScreen'
 import { useToast } from '@hooks/useToast'
 import { useDragAndDrop } from '@hooks/useDragAndDrop'
 import * as S from '@styles/pages/NCut/SessionStyle'
+import { s3API } from '@/api/s3'
+import {
+  IoCameraOutline,
+  IoVideocamOffOutline,
+  IoVideocamOutline,
+} from 'react-icons/io5'
+import type { StateProps } from '@/types/Session'
 
 export const Session: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { error } = useToast()
+  const { success, error } = useToast()
+  const { backgroundImageUrl, takeCnt, cutCnt, timeLimit } =
+    location.state as StateProps
 
   const [showInteractionPrompt, setShowInteractionPrompt] = useState(true)
   const [hasAttemptedConnection, setHasAttemptedConnection] = useState(false)
@@ -20,6 +29,11 @@ export const Session: React.FC = () => {
   )
   const [videoScale, setVideoScale] = useState(0.5)
   const [cursor, setCursor] = useState('default')
+  const [isRecording, setIsRecording] = useState(false)
+  const [urls, setUrls] = useState<string[]>([])
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const recordedChunksRef = useRef<Blob[]>([])
 
   const mainCanvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -83,15 +97,15 @@ export const Session: React.FC = () => {
 
   // 배경 이미지 로드
   useEffect(() => {
-    if (location.state?.backgroundImageUrl) {
+    if (backgroundImageUrl) {
       const img = new Image()
       img.crossOrigin = 'Anonymous'
       img.onload = () => setBgImageElement(img)
       img.onerror = (err) => error(`배경 이미지 로드 실패: ${err}`)
-      img.src = location.state.backgroundImageUrl
+      img.src = backgroundImageUrl
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.state?.backgroundImageUrl])
+  }, [backgroundImageUrl])
 
   // 캔버스 크기 업데이트
   useEffect(() => {
@@ -210,7 +224,7 @@ export const Session: React.FC = () => {
 
     const token = location.state?.token
     if (!token) {
-      error('세션이 만료 되었습니다. 필름 페이지로 돌아갑니다.')
+      error('세션이 만료 되었습니다.\n 필름 페이지로 돌아갑니다.')
       navigate('/film')
       return
     }
@@ -239,6 +253,108 @@ export const Session: React.FC = () => {
     await leaveRoom()
     navigate('/film')
   }, [leaveRoom, navigate])
+
+  const captureCanvas = useCallback(async () => {
+    const mainCanvas = mainCanvasRef.current
+    if (!mainCanvas) return
+
+    try {
+      const blob = await new Promise<Blob>((resolve) => {
+        mainCanvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob)
+          },
+          'image/webp',
+          1,
+        )
+      })
+
+      if (!blob) {
+        error('캔버스 캡처 실패: Blob 생성 실패')
+        return
+      }
+
+      const fileName = `session-capture-${new Date().getTime()}.webp`
+      const file = new File([blob], fileName, { type: 'image/webp' })
+
+      const fileUrl = await s3API.upload({
+        file,
+        type: 'profile',
+      })
+
+      success('캡처된 이미지를 저장했습니다.')
+      setUrls((prevUrls) => [...prevUrls, fileUrl as unknown as string])
+    } catch (err) {
+      error(`캔버스 캡처 실패: ${err}`)
+    }
+  }, [error, success])
+
+  const startRecording = useCallback(() => {
+    const mainCanvas = mainCanvasRef.current
+    if (!mainCanvas) return
+
+    try {
+      const stream = mainCanvas.captureStream(30) // 30 FPS
+
+      // MediaRecorder 설정
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'video/webm;codecs=vp9',
+      })
+
+      recordedChunksRef.current = []
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunksRef.current.push(event.data)
+        }
+      }
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, {
+          type: 'video/webm',
+        })
+
+        const fileName = `session-recording-${new Date().getTime()}.webm`
+        const file = new File([blob], fileName, { type: 'video/webm' })
+
+        const fileUrl = s3API.upload({
+          file,
+          type: 'profile',
+        })
+
+        console.log('영상 녹화 성공:', fileUrl)
+        success('녹화된 영상을 저장했습니다.')
+        setUrls((prevUrls) => [...prevUrls, fileUrl as unknown as string])
+        recordedChunksRef.current = [] // 녹화가 끝나면 청소
+      }
+
+      mediaRecorderRef.current = mediaRecorder
+      mediaRecorder.start()
+      setIsRecording(true)
+
+      setTimeout(() => {
+        if (
+          mediaRecorderRef.current &&
+          mediaRecorderRef.current.state === 'recording'
+        ) {
+          mediaRecorderRef.current.stop()
+          setIsRecording(false)
+          mediaRecorderRef.current = null
+          success('녹화가 자동으로 중지되었습니다.\n 영상이 저장되었습니다.')
+        }
+      }, timeLimit * 1000)
+    } catch (err) {
+      error(`녹화 시작 실패: ${err}`)
+    }
+  }, [error, success, timeLimit])
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+      mediaRecorderRef.current = null
+    }
+  }, [isRecording])
 
   // 초기 설정 및 언마운트 정리
   useEffect(() => {
@@ -282,13 +398,20 @@ export const Session: React.FC = () => {
     )
   }
 
+  const handleFinishTakes = () => {
+    navigate('/film/edit', {
+      state: {
+        urls,
+        cutCnt,
+      },
+    })
+  }
+
+  const canCapture = urls.length < takeCnt
+
   return (
     <S.SessionLayout id="room">
-      <div
-        id="room-header"
-        style={{ padding: '10px', borderBottom: '1px solid #ccc' }}
-      >
-        <span>방 ID: {room.name}</span>
+      <div style={{ padding: '10px', borderTop: '1px solid #ccc' }}>
         <button onClick={handleLeaveRoom}>나가기</button>
       </div>
       <S.SessionLayoutContainer id="layout-container">
@@ -300,7 +423,16 @@ export const Session: React.FC = () => {
           onMouseDown={handleMouseDown}
           onMouseMove={handleCanvasMouseMove}
         />
+        <S.OtherContainer>
+          <S.BackgroundImageContainer>
+            여기는 배경 입니다.
+          </S.BackgroundImageContainer>
+          <S.ChatContainer>여기는 채팅입니다.</S.ChatContainer>
+        </S.OtherContainer>
         <S.CameraSizeRangeContainer>
+          <S.RemainingTakesCnt>
+            {urls.length} / {takeCnt}
+          </S.RemainingTakesCnt>
           <S.CameraSizeContainer>
             <S.CameraSizeLabel htmlFor="size-slider">
               카메라 크기
@@ -312,11 +444,42 @@ export const Session: React.FC = () => {
               max="1.5"
               step="0.05"
               value={videoScale}
-              onChange={(e) => setVideoScale(parseFloat(e.target.value))}
+              onChange={(e: { target: { value: string } }) =>
+                setVideoScale(parseFloat(e.target.value))
+              }
             />
           </S.CameraSizeContainer>
         </S.CameraSizeRangeContainer>
       </S.SessionLayoutContainer>
+      <div style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
+        <S.TakePhotoButton onClick={captureCanvas} disabled={!canCapture}>
+          <IoCameraOutline style={{ width: '24px', height: '24px' }} />
+        </S.TakePhotoButton>
+        <S.TakeVideoButton
+          isActive={isRecording}
+          onClick={isRecording ? stopRecording : startRecording}
+          disabled={!canCapture}
+        >
+          {isRecording ? (
+            <IoVideocamOffOutline
+              style={{
+                width: '24px',
+                height: '24px',
+              }}
+            />
+          ) : (
+            <IoVideocamOutline
+              style={{
+                width: '24px',
+                height: '24px',
+              }}
+            />
+          )}
+        </S.TakeVideoButton>
+        <S.GoToEditPage onClick={handleFinishTakes} disabled={canCapture}>
+          다음
+        </S.GoToEditPage>
+      </div>
     </S.SessionLayout>
   )
 }
