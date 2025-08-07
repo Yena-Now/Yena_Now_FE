@@ -17,6 +17,7 @@ type TrackInfo = {
   element: HTMLVideoElement
   position: { x: number; y: number }
   size: { width: number; height: number }
+  brightness: number
 }
 
 export const useRoom = () => {
@@ -42,7 +43,12 @@ export const useRoom = () => {
         setRemoteTracks((prev) =>
           prev.map((t) =>
             t.participantIdentity === participant.identity
-              ? { ...t, position: data.position, size: data.size }
+              ? {
+                  ...t,
+                  position: data.position,
+                  size: data.size,
+                  brightness: data.brightness ?? 1,
+                }
               : t,
           ),
         )
@@ -73,6 +79,7 @@ export const useRoom = () => {
           element,
           position: { x: 0, y: 0 }, // 초기 위치
           size: { width: 320, height: 180 }, // 초기 크기
+          brightness: 1, // 초기 밝기
         },
       ])
     },
@@ -160,15 +167,21 @@ export const useRoom = () => {
     connectionAttemptRef.current = false
   }, [remoteTracks])
 
-  const sendPosition = useCallback(
+  const sendData = useCallback(
     (
       position: { x: number; y: number },
       size: { width: number; height: number },
+      brightness: number,
     ) => {
       if (roomRef.current) {
         const encoder = new TextEncoder()
         const data = encoder.encode(
-          JSON.stringify({ type: 'positionUpdate', position, size }),
+          JSON.stringify({
+            type: 'positionUpdate',
+            position,
+            size,
+            brightness,
+          }),
         )
         roomRef.current.localParticipant
           .publishData(
@@ -196,6 +209,6 @@ export const useRoom = () => {
     connectToRoom,
     leaveRoom,
     setIsConnecting,
-    sendPosition,
+    sendData,
   }
 }

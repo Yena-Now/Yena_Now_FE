@@ -28,6 +28,7 @@ export const Session: React.FC = () => {
     null,
   )
   const [videoScale, setVideoScale] = useState(0.5)
+  const [brightness, setBrightness] = useState(1)
   const [cursor, setCursor] = useState('default')
   const [isRecording, setIsRecording] = useState(false)
   const [urls, setUrls] = useState<string[]>([])
@@ -46,7 +47,7 @@ export const Session: React.FC = () => {
     connectToRoom,
     leaveRoom,
     setIsConnecting,
-    sendPosition,
+    sendData,
   } = useRoom()
 
   const {
@@ -68,8 +69,8 @@ export const Session: React.FC = () => {
   )
 
   useEffect(() => {
-    sendPosition(canvasPosition, canvasSize)
-  }, [canvasPosition, canvasSize, sendPosition])
+    sendData(canvasPosition, canvasSize, brightness)
+  }, [canvasPosition, canvasSize, brightness, sendData])
 
   const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (isDragging) return // 드래그 중에는 커서 변경 안 함
@@ -173,6 +174,16 @@ export const Session: React.FC = () => {
               // 검은색 또는 거의 검은색인 픽셀을 투명하게 만들기
               if (r < 10 && g < 10 && b < 10) {
                 data[i + 3] = 0 // 알파값을 0으로 설정 (투명)
+              } else {
+                data[i] = Math.min(255, data[i] * remoteTrack.brightness)
+                data[i + 1] = Math.min(
+                  255,
+                  data[i + 1] * remoteTrack.brightness,
+                )
+                data[i + 2] = Math.min(
+                  255,
+                  data[i + 2] * remoteTrack.brightness,
+                )
               }
             }
 
@@ -192,13 +203,41 @@ export const Session: React.FC = () => {
 
       // 로컬 비디오 그리기
       if (localTrack && canvasRef.current) {
-        ctx.drawImage(
-          canvasRef.current,
-          canvasPosition.x,
-          canvasPosition.y,
-          canvasSize.width,
-          canvasSize.height,
-        )
+        if (brightness !== 1) {
+          // 임시 캔버스에서 밝기 조절
+          const tempCanvas = document.createElement('canvas')
+          const tempCtx = tempCanvas.getContext('2d')
+
+          if (tempCtx) {
+            tempCanvas.width = canvasSize.width
+            tempCanvas.height = canvasSize.height
+
+            tempCtx.drawImage(
+              canvasRef.current,
+              0,
+              0,
+              tempCanvas.width,
+              tempCanvas.height,
+            )
+            adjustBrightness(tempCanvas, brightness)
+
+            ctx.drawImage(
+              tempCanvas,
+              canvasPosition.x,
+              canvasPosition.y,
+              canvasSize.width,
+              canvasSize.height,
+            )
+          }
+        } else {
+          ctx.drawImage(
+            canvasRef.current,
+            canvasPosition.x,
+            canvasPosition.y,
+            canvasSize.width,
+            canvasSize.height,
+          )
+        }
       }
 
       renderFrameId = requestAnimationFrame(renderFrame)
@@ -216,7 +255,28 @@ export const Session: React.FC = () => {
     canvasSize,
     remoteTracks,
     localTrack,
+    brightness,
   ])
+
+  const adjustBrightness = (
+    canvas: HTMLCanvasElement,
+    brightnessValue: number,
+  ) => {
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    const data = imageData.data
+
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = Math.min(255, data[i] * brightnessValue) // Red
+      data[i + 1] = Math.min(255, data[i + 1] * brightnessValue) // Green
+      data[i + 2] = Math.min(255, data[i + 2] * brightnessValue) // Blue
+      // Alpha (i + 3)는 그대로 유지
+    }
+
+    ctx.putImageData(imageData, 0, 0)
+  }
 
   const handleUserInteraction = useCallback(async () => {
     setShowInteractionPrompt(false)
@@ -411,75 +471,92 @@ export const Session: React.FC = () => {
 
   return (
     <S.SessionLayout id="room">
-      <div style={{ padding: '10px', borderTop: '1px solid #ccc' }}>
-        <button onClick={handleLeaveRoom}>나가기</button>
-      </div>
-      <S.SessionLayoutContainer id="layout-container">
-        <S.CanvasContainer
-          customCursor={cursor}
-          ref={mainCanvasRef}
-          width={1280}
-          height={720}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleCanvasMouseMove}
-        />
+      <S.SessionHeader>
+        <S.RemainingTakesCnt>
+          {urls.length} / {takeCnt}
+        </S.RemainingTakesCnt>
+        <S.LeaveSessionButton onClick={handleLeaveRoom}>
+          나가기
+        </S.LeaveSessionButton>
+      </S.SessionHeader>
+      <S.mainContent>
+        <S.SessionLayoutContainer id="layout-container">
+          <S.CanvasContainer
+            customCursor={cursor}
+            ref={mainCanvasRef}
+            width={1280}
+            height={720}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleCanvasMouseMove}
+          />
+          <S.SessionFooter>
+            <S.CameraSizeContainer>
+              <S.CameraSizeLabel htmlFor="size-slider">
+                카메라 크기
+              </S.CameraSizeLabel>
+              <S.CameraSizeInput
+                type="range"
+                min="0.1"
+                max="1"
+                step="0.05"
+                value={videoScale}
+                onChange={(e: { target: { value: string } }) =>
+                  setVideoScale(parseFloat(e.target.value))
+                }
+              />
+            </S.CameraSizeContainer>
+            <S.BrightnessContainer>
+              <S.BrightnessLabel htmlFor="brightness-slider">
+                밝기
+              </S.BrightnessLabel>
+              <S.BrightnessInput
+                id="brightness-slider"
+                type="range"
+                min="0.3"
+                max="2"
+                step="0.1"
+                value={brightness}
+                onChange={(e) => setBrightness(parseFloat(e.target.value))}
+              />
+            </S.BrightnessContainer>
+            <S.TakeContainer>
+              <S.TakeVideoButton
+                isActive={isRecording}
+                onClick={isRecording ? stopRecording : startRecording}
+                disabled={!canCapture}
+              >
+                {isRecording ? (
+                  <IoVideocamOffOutline
+                    style={{
+                      width: '24px',
+                      height: '24px',
+                    }}
+                  />
+                ) : (
+                  <IoVideocamOutline
+                    style={{
+                      width: '24px',
+                      height: '24px',
+                    }}
+                  />
+                )}
+              </S.TakeVideoButton>
+              <S.TakePhotoButton onClick={captureCanvas} disabled={!canCapture}>
+                <IoCameraOutline style={{ width: '24px', height: '24px' }} />
+              </S.TakePhotoButton>
+            </S.TakeContainer>
+            <S.GoToEditPage onClick={handleFinishTakes} disabled={canCapture}>
+              다음
+            </S.GoToEditPage>
+          </S.SessionFooter>
+        </S.SessionLayoutContainer>
         <S.OtherContainer>
           <S.BackgroundImageContainer>
             여기는 배경 입니다.
           </S.BackgroundImageContainer>
           <S.ChatContainer>여기는 채팅입니다.</S.ChatContainer>
         </S.OtherContainer>
-        <S.CameraSizeRangeContainer>
-          <S.RemainingTakesCnt>
-            {urls.length} / {takeCnt}
-          </S.RemainingTakesCnt>
-          <S.CameraSizeContainer>
-            <S.CameraSizeLabel htmlFor="size-slider">
-              카메라 크기
-            </S.CameraSizeLabel>
-            <S.CameraSizeInput
-              id="size-slider"
-              type="range"
-              min="0.2"
-              max="1.5"
-              step="0.05"
-              value={videoScale}
-              onChange={(e: { target: { value: string } }) =>
-                setVideoScale(parseFloat(e.target.value))
-              }
-            />
-          </S.CameraSizeContainer>
-        </S.CameraSizeRangeContainer>
-      </S.SessionLayoutContainer>
-      <div style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
-        <S.TakePhotoButton onClick={captureCanvas} disabled={!canCapture}>
-          <IoCameraOutline style={{ width: '24px', height: '24px' }} />
-        </S.TakePhotoButton>
-        <S.TakeVideoButton
-          isActive={isRecording}
-          onClick={isRecording ? stopRecording : startRecording}
-          disabled={!canCapture}
-        >
-          {isRecording ? (
-            <IoVideocamOffOutline
-              style={{
-                width: '24px',
-                height: '24px',
-              }}
-            />
-          ) : (
-            <IoVideocamOutline
-              style={{
-                width: '24px',
-                height: '24px',
-              }}
-            />
-          )}
-        </S.TakeVideoButton>
-        <S.GoToEditPage onClick={handleFinishTakes} disabled={canCapture}>
-          다음
-        </S.GoToEditPage>
-      </div>
+      </S.mainContent>
     </S.SessionLayout>
   )
 }
