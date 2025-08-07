@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import UserInfo from '@components/GalleryDetail/UserInfo'
 import PhotoSection from '@components/GalleryDetail/PhotoSection'
 import PostSection from '@components/GalleryDetail/PostSection'
@@ -7,71 +7,166 @@ import CommentSection from '@components/GalleryDetail/CommentSection'
 import LikeButton from '@components/GalleryDetail/LikeButton'
 import * as S from '@styles/pages/Gallery/GalleryDetailStyle'
 import Input from '@components/Common/Input'
-import type { NCutDetail } from '@/types/NCutDetail'
 import ShareButton from '@components/GalleryDetail/ShareButton'
 import DownloadButton from '@components/GalleryDetail/DownloadButton'
 import PostEditButton from '@components/GalleryDetail/PostEditButton'
 import VisibilityIcon from '@components/GalleryDetail/VisibilityIcon'
+import { useToast } from '@/hooks/useToast'
+import { nCutDetail } from '@/api/ncutdetail'
+import type { NCutDetailType } from '@/types/NCutDetail'
+import type { Comment } from '@/types/Comment'
+import { commentAPI } from '@/api/comment'
 
-// 더미 데이터 (나의 UUID)
 const myUuid = 'user-01'
 
 const GalleryDetailPage: React.FC = () => {
   const { ncutUuid } = useParams<{ ncutUuid: string }>()
-  const [detailData, setDetailData] = useState<NCutDetail | null>(null)
+  const { success, error } = useToast()
+  const navigate = useNavigate()
 
-  // 글 수정 모드 상태
+  const [detailData, setDetailData] = useState<NCutDetailType | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [postContent, setPostContent] = useState('')
-
-  // 공개 범위 상태
-  const [visibility, setVisibility] = useState<'Public' | 'Follow' | 'Private'>(
-    'Public',
+  const [visibility, setVisibility] = useState<'PUBLIC' | 'FOLLOW' | 'PRIVATE'>(
+    'PUBLIC',
   )
+  const [comments, setComments] = useState<Comment[]>([])
+  const [newComment, setNewComment] = useState('')
 
-  // 댓글 리스트 (더미 데이터)
-  const [comments, setComments] = useState([
-    {
-      commentUuid: 'c1',
-      userUuid: 'user-01',
-      profileUrl: 'https://picsum.photos/50/50?random=1',
-      nickname: '연히',
-      content: '내가 쓴 댓글이에요',
-    },
-    {
-      commentUuid: 'c2',
-      userUuid: 'user-02',
-      profileUrl: 'https://picsum.photos/50/50?random=2',
-      nickname: '철수',
-      content: '남이 쓴 댓글이에요',
-    },
-  ])
+  const USE_DUMMY = true
 
   useEffect(() => {
     const fetchData = async () => {
-      const data: NCutDetail = {
-        ncutUuid: ncutUuid || 'dummy-uuid',
-        ncutUrl:
-          'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_1mb.mp4',
-        userUuid: 'user-01', // 게시글 작성자
-        nickname: '연히',
-        profileUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRf6ywSWMBFVR3g-yXTaAW-K7WY6-q15ruZ1Q&s',
-        content: '잠와 죽겠다',
-        createdAt: '2025-07-28',
-        likeCount: 0,
-        commentCount: 2,
-        isRelay: false,
-        visibility: 'Follow',
-        isMine: true, // 내 글 여부
-      }
-      setDetailData(data)
-      setPostContent(data.content)
-      setVisibility(data.visibility)
-    }
+      try {
+        if (USE_DUMMY) {
+          const dummy: NCutDetailType = {
+            ncutUuid: 'dummy-uuid',
+            ncutUrl:
+              'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+            userUuid: 'user-01',
+            nickname: '더미유저',
+            profileUrl: 'https://picsum.photos/50/50',
+            content: '🐰 테스트용 더미 게시글입니다.',
+            createdAt: new Date().toISOString(),
+            likeCount: 10,
+            commentCount: 0,
+            isRelay: false,
+            visibility: 'PUBLIC',
+            isMine: true,
+          }
 
+          const dummyComments: Comment[] = [
+            {
+              commentUuid: 'comment-1',
+              comment: '첫 번째 더미 댓글입니다.',
+              userUuid: 'user-02',
+              nickname: '댓글유저1',
+              profileUrl: 'https://picsum.photos/seed/c1/40/40',
+              createdAt: new Date().toISOString(),
+            },
+            {
+              commentUuid: 'comment-2',
+              comment: '두 번째 댓글은 나야!',
+              userUuid: 'user-01',
+              nickname: '나',
+              profileUrl: 'https://picsum.photos/seed/c2/40/40',
+              createdAt: new Date().toISOString(),
+            },
+          ]
+
+          setDetailData(dummy)
+          setPostContent(dummy.content)
+          setVisibility(dummy.visibility)
+          setComments(dummyComments)
+          return
+        }
+
+        if (!ncutUuid) return
+
+        const detail = await nCutDetail.getNCutDetail(ncutUuid)
+        const commentRes = await commentAPI.getComments(ncutUuid)
+
+        setDetailData(detail)
+        setPostContent(detail.content)
+        setVisibility(detail.visibility)
+        setComments(commentRes.comments)
+      } catch {
+        error('데이터 불러오기 실패')
+      }
+    }
     fetchData()
   }, [ncutUuid])
+
+  const handleUpdatePost = async (newContent: string) => {
+    if (!detailData) return
+    try {
+      await nCutDetail.updateNCut(detailData.ncutUuid, newContent)
+      setPostContent(newContent)
+      success('게시글이 수정되었습니다.')
+    } catch {
+      error('게시글 수정 실패')
+    }
+  }
+
+  const handleChangeVisibility = async (
+    newValue: 'PUBLIC' | 'FOLLOW' | 'PRIVATE',
+  ) => {
+    if (!detailData) return
+    try {
+      await nCutDetail.updateVisibility(detailData.ncutUuid, newValue)
+      setVisibility(newValue)
+      success('공개 범위가 변경되었습니다.')
+    } catch {
+      error('공개 범위 변경 실패')
+    }
+  }
+
+  const handleDeletePost = async () => {
+    if (!detailData) return
+    try {
+      await nCutDetail.deleteNCut(detailData.ncutUuid)
+      success('게시글이 삭제되었습니다.')
+      navigate('/gallery')
+    } catch {
+      error('게시글 삭제 실패')
+    }
+  }
+
+  const handleAddComment = async () => {
+    if (!ncutUuid || !newComment.trim()) return
+    try {
+      const comment = await commentAPI.addComment(ncutUuid, newComment)
+      setComments((prev) => [...prev, comment])
+      setNewComment('')
+      success('댓글이 작성되었습니다.')
+    } catch {
+      error('댓글 작성 실패')
+    }
+  }
+
+  const handleEditComment = async (commentUuid: string, newContent: string) => {
+    try {
+      await commentAPI.updateComment(commentUuid, newContent)
+      setComments((prev) =>
+        prev.map((c) =>
+          c.commentUuid === commentUuid ? { ...c, comment: newContent } : c,
+        ),
+      )
+      success('댓글이 수정되었습니다.')
+    } catch {
+      error('댓글 수정 실패')
+    }
+  }
+
+  const handleDeleteComment = async (commentUuid: string) => {
+    try {
+      await commentAPI.deleteComment(commentUuid)
+      setComments((prev) => prev.filter((c) => c.commentUuid !== commentUuid))
+      success('댓글이 삭제되었습니다.')
+    } catch {
+      error('댓글 삭제 실패')
+    }
+  }
 
   if (!detailData) return <div>로딩 중...</div>
 
@@ -81,10 +176,9 @@ const GalleryDetailPage: React.FC = () => {
         <S.PhotoHeader>
           <UserInfo
             profileUrl={detailData.profileUrl}
-            userUuid={detailData.userUuid}
             nickname={detailData.nickname}
             createdAt={detailData.createdAt}
-            onClick={() => console.log('UserInfo clicked')}
+            onClick={() => {}}
           />
           <S.ButtonBox>
             <ShareButton />
@@ -109,7 +203,8 @@ const GalleryDetailPage: React.FC = () => {
                 <PostEditButton
                   onEdit={() => setIsEditing(true)}
                   initialVisibility={visibility}
-                  onChangeVisibility={setVisibility}
+                  onChangeVisibility={handleChangeVisibility}
+                  onDelete={handleDeletePost}
                 />
               )}
             </S.ButtonBox>
@@ -117,11 +212,9 @@ const GalleryDetailPage: React.FC = () => {
 
           <PostSection
             content={postContent}
+            isMine={detailData.isMine}
             isEditingFromParent={isEditing}
-            onUpdateContent={(newContent) => {
-              setPostContent(newContent)
-              setIsEditing(false)
-            }}
+            onUpdateContent={handleUpdatePost}
             onFinishEdit={() => setIsEditing(false)}
           />
 
@@ -132,37 +225,24 @@ const GalleryDetailPage: React.FC = () => {
                 key={c.commentUuid}
                 profileUrl={c.profileUrl}
                 nickname={c.nickname}
-                comment={c.content}
-                userUuid={c.userUuid} // 댓글 작성자의 UUID'
-                isMyComment={c.userUuid === myUuid} // 내가 쓴 댓글인지 판별
-                isMine={detailData.isMine} // 내 글 여부
-                onEdit={(newComment) => {
-                  console.log('수정된 댓글:', newComment)
-                  setComments((prev) =>
-                    prev.map((cm) =>
-                      cm.commentUuid === c.commentUuid
-                        ? { ...cm, content: newComment }
-                        : cm,
-                    ),
-                  )
-                }}
-                onDelete={() => {
-                  console.log('내 댓글 삭제:', c.commentUuid)
-                  setComments((prev) =>
-                    prev.filter((cm) => cm.commentUuid !== c.commentUuid),
-                  )
-                }}
-                onOwnerDelete={() => {
-                  console.log('내 글 + 타인 댓글 삭제:', c.commentUuid)
-                  setComments((prev) =>
-                    prev.filter((cm) => cm.commentUuid !== c.commentUuid),
-                  )
-                }}
+                comment={c.comment}
+                isMyComment={c.userUuid === myUuid}
+                isMine={detailData.isMine}
+                onEdit={(newComment) =>
+                  handleEditComment(c.commentUuid, newComment)
+                }
+                onDelete={() => handleDeleteComment(c.commentUuid)}
+                onOwnerDelete={() => handleDeleteComment(c.commentUuid)}
               />
             ))}
           </S.CommentContainer>
           <S.InputBox>
-            <Input />
+            <Input
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              onSubmitCustom={handleAddComment}
+              placeholder="댓글을 입력하세요"
+            />
           </S.InputBox>
         </S.CommentBox>
       </S.RightColumn>

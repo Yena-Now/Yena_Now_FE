@@ -6,18 +6,20 @@ import VisibilityEditContent from './VisibilityEditContent'
 import DeletePostContent from './DeletePostContent'
 import * as S from '@styles/components/GalleryDetail/PostEditButtonStyle'
 
-type VisibilityType = 'Public' | 'Follow' | 'Private'
+type VisibilityType = 'PUBLIC' | 'FOLLOW' | 'PRIVATE'
 
 interface PostEditButtonProps {
   onEdit: () => void
   initialVisibility: VisibilityType
   onChangeVisibility: (newValue: VisibilityType) => void
+  onDelete: () => void
 }
 
 const PostEditButton: React.FC<PostEditButtonProps> = ({
   onEdit,
   initialVisibility,
   onChangeVisibility,
+  // onDelete,
 }) => {
   const [open, setOpen] = useState(false)
   const [visibilityModalOpen, setVisibilityModalOpen] = useState(false)

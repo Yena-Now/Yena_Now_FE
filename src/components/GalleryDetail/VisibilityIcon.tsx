@@ -3,7 +3,7 @@ import { AiOutlineGlobal } from 'react-icons/ai'
 import { FaUserFriends } from 'react-icons/fa'
 import { MdOutlineLockPerson } from 'react-icons/md'
 
-type VisibilityType = 'Public' | 'Follow' | 'Private'
+type VisibilityType = 'PUBLIC' | 'FOLLOW' | 'PRIVATE'
 
 interface VisibilityIconProps {
   visibility: VisibilityType
@@ -11,11 +11,11 @@ interface VisibilityIconProps {
 
 const VisibilityIcon: React.FC<VisibilityIconProps> = ({ visibility }) => {
   switch (visibility) {
-    case 'Public':
+    case 'PUBLIC':
       return <AiOutlineGlobal title="공개" size={25} />
-    case 'Follow':
+    case 'FOLLOW':
       return <FaUserFriends title="팔로우" size={25} />
-    case 'Private':
+    case 'PRIVATE':
       return <MdOutlineLockPerson title="비공개" size={25} />
     default:
       return null

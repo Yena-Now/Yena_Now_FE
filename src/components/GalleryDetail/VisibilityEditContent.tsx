@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import * as S from '@styles/components/GalleryDetail/VisibilityEditContentStyle'
 
-type VisibilityType = 'Public' | 'Follow' | 'Private'
+type VisibilityType = 'PUBLIC' | 'FOLLOW' | 'PRIVATE'
 
 interface VisibilityEditContentProps {
   currentValue: VisibilityType
@@ -24,27 +24,27 @@ const VisibilityEditContent: React.FC<VisibilityEditContentProps> = ({
         <label>
           <input
             type="radio"
-            value="Public"
-            checked={selected === 'Public'}
-            onChange={() => handleChange('Public')}
+            value="PUBLIC"
+            checked={selected === 'PUBLIC'}
+            onChange={() => handleChange('PUBLIC')}
           />
           전체 공개
         </label>
         <label>
           <input
             type="radio"
-            value="Follow"
-            checked={selected === 'Follow'}
-            onChange={() => handleChange('Follow')}
+            value="FOLLOW"
+            checked={selected === 'FOLLOW'}
+            onChange={() => handleChange('FOLLOW')}
           />
           팔로워 공개
         </label>
         <label>
           <input
             type="radio"
-            value="Private"
-            checked={selected === 'Private'}
-            onChange={() => handleChange('Private')}
+            value="PRIVATE"
+            checked={selected === 'PRIVATE'}
+            onChange={() => handleChange('PRIVATE')}
           />
           나만 보기
         </label>

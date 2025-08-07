@@ -1,4 +1,6 @@
-export interface NCutDetail {
+export type VisibilityType = 'PUBLIC' | 'FOLLOW' | 'PRIVATE'
+
+export interface NCutDetailType {
   ncutUuid: string
   ncutUrl: string
   userUuid: string
@@ -9,6 +11,26 @@ export interface NCutDetail {
   likeCount: number
   commentCount: number
   isRelay: boolean
-  visibility: 'Public' | 'Follow' | 'Private'
+  visibility: VisibilityType
   isMine: boolean
+}
+
+export interface UpdateVisibilityRequest {
+  visibility: VisibilityType
+}
+
+export interface UpdateVisibilityResponse {
+  ncutUuid: string
+  visibility: VisibilityType
+  updatedAt: string
+}
+
+export interface UpdateContentRequest {
+  content: string
+}
+
+export interface UpdateContentResponse {
+  ncutUuid: string
+  content: string
+  updatedAt: string
 }
