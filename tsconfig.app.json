@@ -25,7 +25,8 @@
       "@hooks/*": ["src/hooks/*"],
       "@utils/*": ["src/utils/*"],
       "@assets/*": ["src/assets/*"],
-      "@types/*": ["src/types/*"]
+      "@types/*": ["src/types/*"],
+      "@api/*": ["src/api/*"]
     },
     "strict": true,
     "noUnusedLocals": true,

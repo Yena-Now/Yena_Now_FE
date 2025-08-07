@@ -51,9 +51,7 @@ apiClient.interceptors.response.use(
         const { error } = useToast()
         error('세션이 만료되었습니다. 다시 로그인 해주세요.')
         console.log('토큰 재발급 실패', err)
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('nickname')
-        localStorage.removeItem('profileUrl')
+        localStorage.clear()
         window.location.href = '/login'
       }
     }
