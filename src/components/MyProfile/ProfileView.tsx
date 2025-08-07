@@ -41,7 +41,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ myInfo }) => {
       <T.Box>
         <S.Title>전화번호</S.Title>
         <S.Content>
-          {myInfo?.phoneNumber === '010-0000-0000' ? (
+          {myInfo?.phoneNumber === '010-0000-0000' || !myInfo.phoneNumber ? (
             <S.EmptyContent>미입력</S.EmptyContent>
           ) : (
             formatPhoneNumber(myInfo?.phoneNumber)

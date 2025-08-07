@@ -4,6 +4,14 @@ import axios from 'axios'
 
 export const s3API = {
   upload: async (request: S3UploadRequest): Promise<S3UploadResponse> => {
+    console.log(
+      'type:',
+      request.type,
+      'fileNmae:',
+      request.file.name,
+      'contentType:',
+      request.file.type,
+    )
     const response = await apiClient.post(
       '/s3/presigned-url',
       {
@@ -17,15 +25,16 @@ export const s3API = {
         withCredentials: true,
       },
     )
-
+    console.log('response', response.data)
     const { uploadUrl, fileUrl } = response.data
+    console.log('uploadUrl', uploadUrl)
     await axios.put(uploadUrl, request.file, {
       headers: {
         'Content-Type': request.file.type,
       },
       withCredentials: true,
     })
-
+    console.log('fileUrl', fileUrl, typeof fileUrl)
     return fileUrl
   },
 }

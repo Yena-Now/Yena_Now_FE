@@ -25,7 +25,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
-
   // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
     name: myInfo.name,
@@ -136,8 +135,15 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     // 프로필 사진 등록 api 호출
   }
 
-  const handleImageDelete = () => {
-    // 프로필 사진 삭제 api 호출
+  const handleImageDelete = async () => {
+    try {
+      await userAPI.deleteUserImage()
+      setImagePreview(null)
+      console.log('프로필 사진')
+      success('프로필 사진이 삭제되었습니다.')
+    } catch {
+      error('다시 시도해 주세요.')
+    }
   }
 
   // 4. 생년월일
@@ -177,7 +183,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
           <S.ImageDeleteButton onClick={handleImageDelete}>
             사진 삭제
           </S.ImageDeleteButton>
-          <FaRegTrashCan />
+          <S.ImageIcon>
+            <FaRegTrashCan onClick={handleImageDelete} />
+          </S.ImageIcon>
         </S.EditSubBox>
       </S.EditSection>
       <S.Box>
