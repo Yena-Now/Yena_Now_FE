@@ -23,7 +23,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isNickNameValid, setIsNickNameValid] = useState<boolean>(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [, setImageFile] = useState<File | null>(null)
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
   // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
