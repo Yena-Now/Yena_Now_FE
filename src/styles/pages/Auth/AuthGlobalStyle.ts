@@ -188,7 +188,6 @@ export const AuthLogin = styled.img`
   }
 `
 
-
 export const ErrorMessage = styled.div`
   position: absolute;
   top: 80%;
@@ -197,4 +196,6 @@ export const ErrorMessage = styled.div`
   margin-top: -1rem;
   margin-bottom: 1rem;
   text-align: center;
+  white-space: pre-line;
+  line-height: 1.5rem;
 `

@@ -52,6 +52,7 @@ export const userAPI = {
     try {
       await apiClient.delete('/users/me')
       localStorage.clear()
+      window.dispatchEvent(new Event('authChange'))
     } catch (err) {
       console.log('회원 탈퇴 실패', err)
       throw err
