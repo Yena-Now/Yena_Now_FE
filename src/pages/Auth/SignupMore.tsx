@@ -92,7 +92,7 @@ const SignupMore: React.FC = () => {
 
     if (
       formData.phoneNumber &&
-      !validator.isValidatePhoneNumber(formData.phoneNumber)
+      !validator.isValidateSignUpPhoneNumber(formData.phoneNumber)
     ) {
       warning('전화번호 형식이 맞지 않습니다.')
       return

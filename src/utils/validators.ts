@@ -7,4 +7,9 @@ export const validator = {
     const regex = /^010-\d{4}-\d{4}$/
     return regex.test(phoneNumber)
   },
+
+  isValidateSignUpPhoneNumber: (phoneNumber: string): boolean => {
+    const regex = /^010\d{8}$/
+    return regex.test(phoneNumber)
+  },
 }
