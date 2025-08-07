@@ -10,7 +10,7 @@ export const nCutAPI = {
   createSession: async (
     formData: CodeCreateRequest,
   ): Promise<CodeCreateResponse> => {
-    const response = await apiClient.post('/film/code', formData, {
+    const response = await apiClient.post('/openvidu/code', formData, {
       withCredentials: true,
     })
     return response.data
@@ -18,7 +18,7 @@ export const nCutAPI = {
   enterSession: async (
     req: SessionEnterRequest,
   ): Promise<SessionEnterResponse> => {
-    const response = await apiClient.post('/film/token', req, {
+    const response = await apiClient.post('/openvidu/token', req, {
       withCredentials: true,
     })
     return response.data

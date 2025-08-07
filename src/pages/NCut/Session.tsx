@@ -7,11 +7,12 @@ import { LoadingScreen } from '@components/NCut/LoadingScreen'
 import { useToast } from '@hooks/useToast'
 import { useDragAndDrop } from '@hooks/useDragAndDrop'
 import * as S from '@styles/pages/NCut/SessionStyle'
+import { s3API } from '@/api/s3'
 
 export const Session: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { error } = useToast()
+  const { success, error } = useToast()
 
   const [showInteractionPrompt, setShowInteractionPrompt] = useState(true)
   const [hasAttemptedConnection, setHasAttemptedConnection] = useState(false)
@@ -20,6 +21,15 @@ export const Session: React.FC = () => {
   )
   const [videoScale, setVideoScale] = useState(0.5)
   const [cursor, setCursor] = useState('default')
+  const [isRecording, setIsRecording] = useState(false)
+  /* 현재 저장된 URL 목록
+  이 부분은 나중에 Edit 페이지에서 사용될 예정이므로, 현재는 urls 변수를 기입하지 않음.
+  기입하면 오류가 발생하기 때문 - unused-vars 경고가 발생함.
+  */
+  const [, setUrls] = useState<string[]>([])
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const recordedChunksRef = useRef<Blob[]>([])
 
   const mainCanvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -240,6 +250,96 @@ export const Session: React.FC = () => {
     navigate('/film')
   }, [leaveRoom, navigate])
 
+  const captureCanvas = useCallback(async () => {
+    const mainCanvas = mainCanvasRef.current
+    if (!mainCanvas) return
+
+    try {
+      const blob = await new Promise<Blob>((resolve) => {
+        mainCanvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob)
+          },
+          'image/webp',
+          1,
+        )
+      })
+
+      if (!blob) {
+        error('캔버스 캡처 실패: Blob 생성 실패')
+        return
+      }
+
+      const fileName = `session-capture-${new Date().getTime()}.webp`
+      const file = new File([blob], fileName, { type: 'image/webp' })
+
+      const fileUrl = await s3API.upload({
+        file,
+        type: 'profile',
+      })
+
+      success('캡처된 이미지를 저장했습니다.')
+      setUrls((prevUrls) => [...prevUrls, fileUrl as unknown as string])
+    } catch (err) {
+      error(`캔버스 캡처 실패: ${err}`)
+    }
+  }, [error, success])
+
+  const startRecording = useCallback(() => {
+    const mainCanvas = mainCanvasRef.current
+    if (!mainCanvas) return
+
+    try {
+      const stream = mainCanvas.captureStream(30) // 30 FPS
+
+      // MediaRecorder 설정
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'video/webm;codecs=vp9',
+      })
+
+      recordedChunksRef.current = []
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunksRef.current.push(event.data)
+        }
+      }
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, {
+          type: 'video/webm',
+        })
+
+        const fileName = `session-recording-${new Date().getTime()}.webm`
+        const file = new File([blob], fileName, { type: 'video/webm' })
+
+        const fileUrl = s3API.upload({
+          file,
+          type: 'profile',
+        })
+
+        console.log('영상 녹화 성공:', fileUrl)
+        success('녹화된 영상을 저장했습니다.')
+        setUrls((prevUrls) => [...prevUrls, fileUrl as unknown as string])
+        recordedChunksRef.current = [] // 녹화가 끝나면 청소
+      }
+
+      mediaRecorderRef.current = mediaRecorder
+      mediaRecorder.start()
+      setIsRecording(true)
+    } catch (err) {
+      error(`녹화 시작 실패: ${err}`)
+    }
+  }, [error, success])
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+      mediaRecorderRef.current = null
+    }
+  }, [isRecording])
+
   // 초기 설정 및 언마운트 정리
   useEffect(() => {
     if (!location.state) {
@@ -289,6 +389,13 @@ export const Session: React.FC = () => {
         style={{ padding: '10px', borderBottom: '1px solid #ccc' }}
       >
         <span>방 ID: {room.name}</span>
+        <S.TakePhotoButton onClick={captureCanvas}>저장</S.TakePhotoButton>
+        <S.TakeVideoButton
+          isActive={isRecording}
+          onClick={isRecording ? stopRecording : startRecording}
+        >
+          {isRecording ? '녹화 중지' : '녹화 시작'}
+        </S.TakeVideoButton>
         <button onClick={handleLeaveRoom}>나가기</button>
       </div>
       <S.SessionLayoutContainer id="layout-container">
