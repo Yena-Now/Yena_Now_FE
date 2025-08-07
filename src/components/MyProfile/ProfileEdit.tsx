@@ -89,7 +89,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     try {
       await userAPI.deleteUser()
       success('회원 탈퇴가 완료되었습니다.')
-      navigate('/login')
     } catch {
       error('다시 시도해 주세요.')
     }
