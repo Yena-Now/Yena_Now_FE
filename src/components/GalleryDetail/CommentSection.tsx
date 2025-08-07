@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/GalleryDetail/CommentStyle'
 import { MdOutlineModeEdit } from 'react-icons/md'
@@ -10,6 +11,7 @@ interface CommentSectionProps {
   profileUrl: string
   nickname: string
   comment: string
+  userUuid?: string // 댓글 작성자의 UUID
   isMyComment?: boolean
   isMine?: boolean
   onEdit?: (newComment: string) => void
@@ -21,6 +23,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   profileUrl,
   nickname,
   comment,
+  userUuid,
   isMyComment,
   isMine,
   onEdit,
@@ -31,6 +34,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(comment)
+  const navigate = useNavigate()
+
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    navigate(`/profile/${userUuid}`)
+  }
 
   const handleSave = () => {
     if (onEdit) onEdit(editValue)
@@ -52,7 +61,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     <S.CommentWrapper>
       <S.CommentLeft>
         <S.CommentUser>
-          <ProfileImage src={profileUrl} alt={`${nickname}의 프로필`} />
+          <ProfileImage
+            src={profileUrl}
+            alt={`${nickname}의 프로필`}
+            height="50px"
+            width="50px"
+            onClick={handleProfileClick}
+          />
           <S.Nickname>{nickname}</S.Nickname>
         </S.CommentUser>
 

@@ -11,6 +11,7 @@ export const UserInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 15px;
+  cursor: pointer;
 `
 
 export const Nickname = styled.span`

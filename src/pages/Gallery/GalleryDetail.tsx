@@ -81,8 +81,10 @@ const GalleryDetailPage: React.FC = () => {
         <S.PhotoHeader>
           <UserInfo
             profileUrl={detailData.profileUrl}
+            userUuid={detailData.userUuid}
             nickname={detailData.nickname}
             createdAt={detailData.createdAt}
+            onClick={() => console.log('UserInfo clicked')}
           />
           <S.ButtonBox>
             <ShareButton />
@@ -131,6 +133,7 @@ const GalleryDetailPage: React.FC = () => {
                 profileUrl={c.profileUrl}
                 nickname={c.nickname}
                 comment={c.content}
+                userUuid={c.userUuid} // 댓글 작성자의 UUID'
                 isMyComment={c.userUuid === myUuid} // 내가 쓴 댓글인지 판별
                 isMine={detailData.isMine} // 내 글 여부
                 onEdit={(newComment) => {
