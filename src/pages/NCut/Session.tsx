@@ -562,7 +562,7 @@ export const Session: React.FC = () => {
               messages={chatMessages}
               onSendMessage={sendChatMessage}
               currentUserIdentity={
-                localStorage.getItem('nickname') || 'anonymous'
+                localStorage.getItem('nickname') || 'Anonymous'
               }
             />
           </S.ChatContainer>
