@@ -48,15 +48,38 @@ export const GoToEditPage = styled.button<{ disabled?: boolean }>`
 export const SessionLayoutContainer = styled.div`
   flex: 1;
   position: relative;
-  background: #f0f0f0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 `
 
 export const CanvasContainer = styled.canvas<{ customCursor?: string }>`
-  width: 100%;
-  height: 100%;
+  width: 80%;
+  height: 80%;
   object-fit: contain;
   cursor: ${(props) => props.customCursor || 'default'};
   background: transparent;
+`
+
+export const OtherContainer = styled.div`
+  width: 20%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+`
+
+export const BackgroundImageContainer = styled.div`
+  width: 90%;
+  height: 45%;
+  border: 1px solid black;
+`
+
+export const ChatContainer = styled.div`
+  width: 90%;
+  height: 45%;
+  border: 1px solid black;
 `
 
 export const CameraSizeRangeContainer = styled.div`

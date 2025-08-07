@@ -224,7 +224,7 @@ export const Session: React.FC = () => {
 
     const token = location.state?.token
     if (!token) {
-      error('세션이 만료 되었습니다. 필름 페이지로 돌아갑니다.')
+      error('세션이 만료 되었습니다.\n 필름 페이지로 돌아갑니다.')
       navigate('/film')
       return
     }
@@ -340,7 +340,7 @@ export const Session: React.FC = () => {
           mediaRecorderRef.current.stop()
           setIsRecording(false)
           mediaRecorderRef.current = null
-          success('녹화가 자동으로 중지되었습니다. 영상이 저장되었습니다.')
+          success('녹화가 자동으로 중지되었습니다.\n 영상이 저장되었습니다.')
         }
       }, timeLimit * 1000)
     } catch (err) {
@@ -411,13 +411,47 @@ export const Session: React.FC = () => {
 
   return (
     <S.SessionLayout id="room">
-      <div
-        id="room-header"
-        style={{ padding: '10px', borderBottom: '1px solid #ccc' }}
-      >
-        <S.RemainingTakesCnt>
-          촬영 횟수: {urls.length} / {takeCnt}
-        </S.RemainingTakesCnt>
+      <div style={{ padding: '10px', borderTop: '1px solid #ccc' }}>
+        <button onClick={handleLeaveRoom}>나가기</button>
+      </div>
+      <S.SessionLayoutContainer id="layout-container">
+        <S.CanvasContainer
+          customCursor={cursor}
+          ref={mainCanvasRef}
+          width={1280}
+          height={720}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleCanvasMouseMove}
+        />
+        <S.OtherContainer>
+          <S.BackgroundImageContainer>
+            여기는 배경 입니다.
+          </S.BackgroundImageContainer>
+          <S.ChatContainer>여기는 채팅입니다.</S.ChatContainer>
+        </S.OtherContainer>
+        <S.CameraSizeRangeContainer>
+          <S.RemainingTakesCnt>
+            {urls.length} / {takeCnt}
+          </S.RemainingTakesCnt>
+          <S.CameraSizeContainer>
+            <S.CameraSizeLabel htmlFor="size-slider">
+              카메라 크기
+            </S.CameraSizeLabel>
+            <S.CameraSizeInput
+              id="size-slider"
+              type="range"
+              min="0.2"
+              max="1.5"
+              step="0.05"
+              value={videoScale}
+              onChange={(e: { target: { value: string } }) =>
+                setVideoScale(parseFloat(e.target.value))
+              }
+            />
+          </S.CameraSizeContainer>
+        </S.CameraSizeRangeContainer>
+      </S.SessionLayoutContainer>
+      <div style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
         <S.TakePhotoButton onClick={captureCanvas} disabled={!canCapture}>
           <IoCameraOutline style={{ width: '24px', height: '24px' }} />
         </S.TakePhotoButton>
@@ -446,38 +480,6 @@ export const Session: React.FC = () => {
           다음
         </S.GoToEditPage>
       </div>
-      <div
-        id="room-footer"
-        style={{ padding: '10px', borderTop: '1px solid #ccc' }}
-      >
-        <button onClick={handleLeaveRoom}>나가기</button>
-      </div>
-      <S.SessionLayoutContainer id="layout-container">
-        <S.CanvasContainer
-          customCursor={cursor}
-          ref={mainCanvasRef}
-          width={1280}
-          height={720}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleCanvasMouseMove}
-        />
-        <S.CameraSizeRangeContainer>
-          <S.CameraSizeContainer>
-            <S.CameraSizeLabel htmlFor="size-slider">
-              카메라 크기
-            </S.CameraSizeLabel>
-            <S.CameraSizeInput
-              id="size-slider"
-              type="range"
-              min="0.2"
-              max="1.5"
-              step="0.05"
-              value={videoScale}
-              onChange={(e) => setVideoScale(parseFloat(e.target.value))}
-            />
-          </S.CameraSizeContainer>
-        </S.CameraSizeRangeContainer>
-      </S.SessionLayoutContainer>
     </S.SessionLayout>
   )
 }
