@@ -32,7 +32,9 @@ const ProfileView: React.FC<ProfileViewProps> = ({ myInfo }) => {
       </T.ProfileSection>
       <T.Box>
         <S.Title>이름</S.Title>
-        <S.Content>{myInfo?.name}</S.Content>
+        <S.Content>
+          {myInfo?.name ? myInfo.name : <S.EmptyContent>미입력</S.EmptyContent>}
+        </S.Content>
       </T.Box>
       <T.Box>
         <S.Title>닉네임</S.Title>

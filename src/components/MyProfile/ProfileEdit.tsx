@@ -75,7 +75,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     }
 
     const patchData = getPatchPayload()
-    console.log('patchData', patchData)
     try {
       await userAPI.patchUserMeInfo(patchData)
       success('회원 정보 수정이 완료되었습니다.')
