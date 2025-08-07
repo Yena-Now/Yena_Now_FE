@@ -229,6 +229,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
           type="text"
           id="phone-number"
           name="phoneNumber"
+          placeholder="010-1234-5678"
           value={userData.phoneNumber}
           onChange={handleChange}
         />
