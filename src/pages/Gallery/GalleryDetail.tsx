@@ -124,44 +124,44 @@ const GalleryDetailPage: React.FC = () => {
           />
 
           <S.Divider />
-
-          {comments.map((c) => (
-            <CommentSection
-              key={c.commentUuid}
-              profileUrl={c.profileUrl}
-              nickname={c.nickname}
-              comment={c.content}
-              isMyComment={c.userUuid === myUuid} // 내가 쓴 댓글인지 판별
-              isMine={detailData.isMine} // 내 글 여부
-              onEdit={(newComment) => {
-                console.log('수정된 댓글:', newComment)
-                setComments((prev) =>
-                  prev.map((cm) =>
-                    cm.commentUuid === c.commentUuid
-                      ? { ...cm, content: newComment }
-                      : cm,
-                  ),
-                )
-              }}
-              onDelete={() => {
-                console.log('내 댓글 삭제:', c.commentUuid)
-                setComments((prev) =>
-                  prev.filter((cm) => cm.commentUuid !== c.commentUuid),
-                )
-              }}
-              onOwnerDelete={() => {
-                console.log('내 글 + 타인 댓글 삭제:', c.commentUuid)
-                setComments((prev) =>
-                  prev.filter((cm) => cm.commentUuid !== c.commentUuid),
-                )
-              }}
-            />
-          ))}
+          <S.CommentContainer>
+            {comments.map((c) => (
+              <CommentSection
+                key={c.commentUuid}
+                profileUrl={c.profileUrl}
+                nickname={c.nickname}
+                comment={c.content}
+                isMyComment={c.userUuid === myUuid} // 내가 쓴 댓글인지 판별
+                isMine={detailData.isMine} // 내 글 여부
+                onEdit={(newComment) => {
+                  console.log('수정된 댓글:', newComment)
+                  setComments((prev) =>
+                    prev.map((cm) =>
+                      cm.commentUuid === c.commentUuid
+                        ? { ...cm, content: newComment }
+                        : cm,
+                    ),
+                  )
+                }}
+                onDelete={() => {
+                  console.log('내 댓글 삭제:', c.commentUuid)
+                  setComments((prev) =>
+                    prev.filter((cm) => cm.commentUuid !== c.commentUuid),
+                  )
+                }}
+                onOwnerDelete={() => {
+                  console.log('내 글 + 타인 댓글 삭제:', c.commentUuid)
+                  setComments((prev) =>
+                    prev.filter((cm) => cm.commentUuid !== c.commentUuid),
+                  )
+                }}
+              />
+            ))}
+          </S.CommentContainer>
+          <S.InputBox>
+            <Input />
+          </S.InputBox>
         </S.CommentBox>
-
-        <S.InputBox>
-          <Input />
-        </S.InputBox>
       </S.RightColumn>
     </S.DetailBox>
   )

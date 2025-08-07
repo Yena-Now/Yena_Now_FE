@@ -35,12 +35,20 @@ export const ButtonBox = styled.div`
 export const CommentBox = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 20px;
   padding: 25px 40px;
   width: 620px;
   height: 700px;
   border: 1px solid #eaeaea;
   border-radius: 10px;
+`
+export const CommentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  height: 100%;
 `
 export const PostHeader = styled.div`
   display: flex;
