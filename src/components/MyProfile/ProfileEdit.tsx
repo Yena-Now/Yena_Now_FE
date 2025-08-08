@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { userAPI } from '@/api/user'
+import { s3API } from '@/api/s3'
 import type { UserMeResponse, UserMeInfoPatchRequest } from '@/types/User'
 import { useToast } from '@/hooks/useToast'
 import { validator } from '@/utils/validators'
@@ -26,7 +27,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
   const [isNickNameValid, setIsNickNameValid] = useState<boolean>(false)
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [imageFile, setImageFile] = useState<File | null>(null)
 
   // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
@@ -126,17 +126,25 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
   }
 
   // 3. 이미지 관련
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-
-    if (file) {
-      setImageFile(file)
-      setImagePreview(URL.createObjectURL(file))
-    } else {
+    if (!file) {
       return
+    } else {
+      setImagePreview(URL.createObjectURL(file))
+      const response = await s3API.upload({
+        file,
+        type: 'profile',
+      })
+      const fileUrl = response as unknown as string
+      try {
+        await userAPI.patchUserImage({ imageUrl: fileUrl })
+        success('프로필 사진이 등록되었습니다.')
+        await fetchMyInfo()
+      } catch {
+        error('다시 시도해 주세요.')
+      }
     }
-
-    // 프로필 사진 등록 api 호출
   }
 
   const handleImageDelete = async () => {
@@ -168,9 +176,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
           src={
             imagePreview
               ? imagePreview
-              : myInfo.profileUrl &&
-                  myInfo.profileUrl !==
-                    'https://yenanow.s3.ap-northeast-2.amazonaws.com/null'
+              : myInfo.profileUrl
                 ? myInfo.profileUrl
                 : defaultProfileImage
           }
