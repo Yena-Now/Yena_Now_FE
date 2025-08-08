@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { UserMeResponse } from '@/types/User'
 import { IoIosArrowForward } from 'react-icons/io'
@@ -7,9 +8,10 @@ import * as T from '@styles/components/MyProfile/ProfileEditStyle'
 
 interface ProfileViewProps {
   myInfo: UserMeResponse
+  fetchMyInfo: () => void
 }
 
-const ProfileView: React.FC<ProfileViewProps> = ({ myInfo }) => {
+const ProfileView: React.FC<ProfileViewProps> = ({ myInfo, fetchMyInfo }) => {
   const navigate = useNavigate()
   const formatPhoneNumber = (phone: string) => {
     if (!phone) return ''
@@ -24,6 +26,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({ myInfo }) => {
     }
     return digits
   }
+
+  useEffect(() => {
+    fetchMyInfo()
+  }, [fetchMyInfo])
+
   return (
     <T.Container>
       <T.TitleText>회원 정보</T.TitleText>
