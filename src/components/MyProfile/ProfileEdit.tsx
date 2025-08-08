@@ -10,21 +10,24 @@ import { FaRegTrashCan } from 'react-icons/fa6'
 import ProfileImage from '@components/Common/ProfileImage'
 import OptionModal from '@components/Common/OptionModal'
 import { IoIosArrowBack } from 'react-icons/io'
+import defaultProfileImage from '/user_default_profile.png'
 import * as S from '@styles/components/MyProfile/ProfileEditStyle'
 import * as T from '@styles/components/MyProfile/ProfileViewStyle'
 
 interface ProfileEditProps {
   myInfo: UserMeResponse
+  fetchMyInfo: () => void
 }
 
-const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
+const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
   const navigate = useNavigate()
   const { error, success, warning } = useToast()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isNickNameValid, setIsNickNameValid] = useState<boolean>(false)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [, setImageFile] = useState<File | null>(null)
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+
   // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
     name: myInfo.name,
@@ -140,7 +143,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     try {
       await userAPI.deleteUserImage()
       setImagePreview(null)
-      console.log('프로필 사진')
+      await fetchMyInfo()
       success('프로필 사진이 삭제되었습니다.')
     } catch {
       error('다시 시도해 주세요.')
@@ -162,7 +165,15 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
         <ProfileImage
           width="150"
           height="150"
-          src={imagePreview ? imagePreview : myInfo.profileUrl}
+          src={
+            imagePreview
+              ? imagePreview
+              : myInfo.profileUrl &&
+                  myInfo.profileUrl !==
+                    'https://yenanow.s3.ap-northeast-2.amazonaws.com/null'
+                ? myInfo.profileUrl
+                : defaultProfileImage
+          }
         />
       </S.ProfileSection>
       <S.EditSection>

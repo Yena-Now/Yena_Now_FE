@@ -30,7 +30,7 @@ const MyProfileInfo: React.FC = () => {
       {myInfo && (
         <>
           {isEdit ? (
-            <ProfileEdit myInfo={myInfo} />
+            <ProfileEdit myInfo={myInfo} fetchMyInfo={fetchMyInfo} />
           ) : (
             <ProfileView myInfo={myInfo} fetchMyInfo={fetchMyInfo} />
           )}
