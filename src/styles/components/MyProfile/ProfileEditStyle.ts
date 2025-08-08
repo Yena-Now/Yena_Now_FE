@@ -54,6 +54,7 @@ export const ImageChangeText = styled.label`
   margin-right: 0.3rem;
   display: flex;
   align-items: center;
+  cursor: pointer;
 `
 
 export const ImageChangeIcon = styled.span`
