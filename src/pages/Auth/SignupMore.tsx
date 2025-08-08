@@ -38,23 +38,14 @@ const SignupMore: React.FC = () => {
     birthMonth: '',
     birthDay: '',
   })
-
   const [fileUrl, setFileUrl] = useState<string | null>(null) // 서버 전송용
   const [selectedImage, setSelectedImage] = useState<File | null>(null) // 미리보기용
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
     setSelectedImage(file)
-
-    try {
-      const uploaded = await s3API.uploadSignup({ file }) // 업로드 성공시 S3 URL
-      setFileUrl(uploaded)
-    } catch {
-      setFileUrl(null)
-      error('이미지 업로드에 실패했습니다.')
-    }
+    setFileUrl(null)
   }
 
   const previewObjectUrl = React.useMemo(() => {
@@ -106,11 +97,22 @@ const SignupMore: React.FC = () => {
     }
 
     setIsUploading(true)
+    let uploadedUrl: string | null = null
+    try {
+      if (selectedImage) {
+        uploadedUrl = await s3API.uploadSignup({ file: selectedImage })
+        setFileUrl(uploadedUrl)
+      }
+    } catch {
+      setIsUploading(false)
+      error('이미지 업로드에 실패했습니다.')
+      return
+    }
 
     const submitData = {
       ...formData,
       birthdate: birthDate,
-      profileUrl: fileUrl ?? null,
+      profileUrl: uploadedUrl,
     }
 
     // 회원가입 요청 보내는 부분
