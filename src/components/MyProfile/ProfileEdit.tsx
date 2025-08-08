@@ -23,9 +23,8 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isNickNameValid, setIsNickNameValid] = useState<boolean>(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [, setImageFile] = useState<File | null>(null)
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
-
   // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
     name: myInfo.name,
@@ -67,13 +66,15 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
       return
     }
 
-    if (!validator.isValidatePhoneNumber(userData.phoneNumber)) {
+    if (
+      userData.phoneNumber &&
+      !validator.isValidatePhoneNumber(userData.phoneNumber)
+    ) {
       warning('전화번호 형식이 맞지 않습니다.')
       return
     }
 
     const patchData = getPatchPayload()
-    console.log('patchData', patchData)
     try {
       await userAPI.patchUserMeInfo(patchData)
       success('회원 정보 수정이 완료되었습니다.')
@@ -87,7 +88,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     try {
       await userAPI.deleteUser()
       success('회원 탈퇴가 완료되었습니다.')
-      navigate('/login')
     } catch {
       error('다시 시도해 주세요.')
     }
@@ -136,8 +136,15 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
     // 프로필 사진 등록 api 호출
   }
 
-  const handleImageDelete = () => {
-    // 프로필 사진 삭제 api 호출
+  const handleImageDelete = async () => {
+    try {
+      await userAPI.deleteUserImage()
+      setImagePreview(null)
+      console.log('프로필 사진')
+      success('프로필 사진이 삭제되었습니다.')
+    } catch {
+      error('다시 시도해 주세요.')
+    }
   }
 
   // 4. 생년월일
@@ -177,7 +184,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
           <S.ImageDeleteButton onClick={handleImageDelete}>
             사진 삭제
           </S.ImageDeleteButton>
-          <FaRegTrashCan />
+          <S.ImageIcon>
+            <FaRegTrashCan onClick={handleImageDelete} />
+          </S.ImageIcon>
         </S.EditSubBox>
       </S.EditSection>
       <S.Box>
@@ -220,6 +229,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
           type="text"
           id="phone-number"
           name="phoneNumber"
+          placeholder="010-1234-5678"
           value={userData.phoneNumber}
           onChange={handleChange}
         />

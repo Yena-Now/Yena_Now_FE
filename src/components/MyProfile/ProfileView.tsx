@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { UserMeResponse } from '@/types/User'
 import { IoIosArrowForward } from 'react-icons/io'
@@ -7,9 +8,10 @@ import * as T from '@styles/components/MyProfile/ProfileEditStyle'
 
 interface ProfileViewProps {
   myInfo: UserMeResponse
+  fetchMyInfo: () => void
 }
 
-const ProfileView: React.FC<ProfileViewProps> = ({ myInfo }) => {
+const ProfileView: React.FC<ProfileViewProps> = ({ myInfo, fetchMyInfo }) => {
   const navigate = useNavigate()
   const formatPhoneNumber = (phone: string) => {
     if (!phone) return ''
@@ -24,6 +26,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({ myInfo }) => {
     }
     return digits
   }
+
+  useEffect(() => {
+    fetchMyInfo()
+  }, [fetchMyInfo])
+
   return (
     <T.Container>
       <T.TitleText>회원 정보</T.TitleText>
@@ -32,7 +39,9 @@ const ProfileView: React.FC<ProfileViewProps> = ({ myInfo }) => {
       </T.ProfileSection>
       <T.Box>
         <S.Title>이름</S.Title>
-        <S.Content>{myInfo?.name}</S.Content>
+        <S.Content>
+          {myInfo?.name ? myInfo.name : <S.EmptyContent>미입력</S.EmptyContent>}
+        </S.Content>
       </T.Box>
       <T.Box>
         <S.Title>닉네임</S.Title>
@@ -41,7 +50,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ myInfo }) => {
       <T.Box>
         <S.Title>전화번호</S.Title>
         <S.Content>
-          {myInfo?.phoneNumber === '010-0000-0000' ? (
+          {myInfo?.phoneNumber === '010-0000-0000' || !myInfo.phoneNumber ? (
             <S.EmptyContent>미입력</S.EmptyContent>
           ) : (
             formatPhoneNumber(myInfo?.phoneNumber)

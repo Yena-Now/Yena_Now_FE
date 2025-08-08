@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import * as S from '@styles/pages/Auth/AuthGlobalStyle'
-import Logo from '@components/Common/Logo'
+import type { AxiosError } from 'axios'
 import { authAPI } from '@/api/auth'
 import { useToast } from '@hooks/useToast'
+import Logo from '@components/Common/Logo'
+import * as S from '@styles/pages/Auth/AuthGlobalStyle'
 
 const Signup: React.FC = () => {
   const [form, setForm] = useState({
@@ -36,13 +37,12 @@ const Signup: React.FC = () => {
     } else if (name === 'password') {
       if (value && !isValidPassword(value)) {
         setErrorMessage(
-          '비밀번호는 8자 이상 16자 이하로, 영문과 숫자를 포함해야 합니다.',
+          '비밀번호는 8~16자로 설정해야 합니다.\n영문 대소문자와 숫자, 특수문자(@$!%*?&#)를 포함할 수 있습니다.',
         )
       } else {
         setErrorMessage('')
       }
-    }
-    else if (name === 'passwordConfirm') {
+    } else if (name === 'passwordConfirm') {
       if (value && !isValidPasswordConfirm(form.password, value)) {
         setErrorMessage('비밀번호가 일치하지 않습니다.')
       } else {
@@ -102,14 +102,18 @@ const Signup: React.FC = () => {
       const response = await authAPI.sendEmailVerification({
         email: form.email,
       })
+      console.log(response)
       if (response.status === 204) {
         info('인증 코드가 이메일로 전송되었습니다.')
         setEmailVerified(true)
-      } else if (response.status === 401) {
-        error('이미 인증된 이메일입니다.')
       }
-    } catch {
-      error('이메일 인증 요청에 실패했습니다. 다시 시도해주세요.')
+    } catch (e) {
+      const err = e as AxiosError
+      if (err.response?.status === 409) {
+        error('이미 가입된 이메일입니다.')
+      } else {
+        error('이메일 인증 요청에 실패했습니다. 다시 시도해주세요.')
+      }
     }
   }
 
@@ -199,7 +203,7 @@ const Signup: React.FC = () => {
           </S.Button>
         </form>
       </S.SignupContainer>
-        {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
+      {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
     </S.Layout>
   )
 }

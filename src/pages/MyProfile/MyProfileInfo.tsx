@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { userAPI } from '@api/user'
 import type { UserMeResponse } from '@/types/User'
@@ -12,17 +12,18 @@ const MyProfileInfo: React.FC = () => {
   const isEdit = searchParams.has('edit')
   const [myInfo, setMyInfo] = useState<UserMeResponse | null>(null)
 
-  useEffect(() => {
-    const fetchMyInfo = async () => {
-      try {
-        const myData = await userAPI.getUserMeInfo()
-        setMyInfo(myData)
-      } catch {
-        error('내 정보를 불러오는 데 실패했습니다.')
-      }
+  const fetchMyInfo = useCallback(async () => {
+    try {
+      const myData = await userAPI.getUserMeInfo()
+      setMyInfo(myData)
+    } catch {
+      error('내 정보를 불러오는 데 실패했습니다.')
     }
+  }, [error, setMyInfo])
+
+  useEffect(() => {
     fetchMyInfo()
-  }, [])
+  }, [fetchMyInfo])
 
   return (
     <>
@@ -31,7 +32,7 @@ const MyProfileInfo: React.FC = () => {
           {isEdit ? (
             <ProfileEdit myInfo={myInfo} />
           ) : (
-            <ProfileView myInfo={myInfo} />
+            <ProfileView myInfo={myInfo} fetchMyInfo={fetchMyInfo} />
           )}
         </>
       )}
