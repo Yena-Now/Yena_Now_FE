@@ -6,7 +6,7 @@ export interface SignupRequest {
   gender?: string | null
   birthdate?: string | null
   phoneNumber?: string | null
-  profileUrl: string
+  profileUrl: string | null
 }
 
 export interface SignupResponse {
