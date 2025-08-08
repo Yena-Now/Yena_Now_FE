@@ -4,7 +4,7 @@ import { nCutAPI } from '@/api/ncut'
 import { useToast } from '@/hooks/useToast'
 import { useNavigate } from 'react-router-dom'
 
-import { MdNavigateNext, MdOutlineAddAPhoto } from 'react-icons/md'
+import { MdNavigateNext } from 'react-icons/md'
 import { FaCheck } from 'react-icons/fa6'
 import First from '@components/NCut/Create/First'
 import Second from '@components/NCut/Create/Second'
@@ -215,7 +215,7 @@ const CreateSession: React.FC = () => {
 
   return (
     <G.NCutCreateLayout>
-      {currentIndex > 0 && currentIndex < pages.length - 1 && (
+      {currentIndex > 0 && currentIndex < pages.length - 1 ? (
         <G.NCutPrvButton onClick={handlePrev}>
           <MdNavigateNext
             style={{
@@ -226,21 +226,21 @@ const CreateSession: React.FC = () => {
             }}
           />
         </G.NCutPrvButton>
+      ) : (
+        <G.NCutButtonWrapper />
       )}
       <G.NcutCreateContainer>
-        {currentIndex !== pages.length - 1 && (
-          <G.NCutCreateIcon>
-            <MdOutlineAddAPhoto
-              style={{
-                width: '100px',
-                height: '100px',
-              }}
-            />
-          </G.NCutCreateIcon>
-        )}
         {pages[currentIndex]}
+        <G.ProgressBar>
+          {pages.slice(0, pages.length - 1).map((page) => (
+            <G.ProgressBarItem
+              key={page.key}
+              isActive={pages.indexOf(page) === currentIndex}
+            />
+          ))}
+        </G.ProgressBar>
       </G.NcutCreateContainer>
-      {currentIndex < pages.length - 1 && (
+      {currentIndex < pages.length - 2 ? (
         <G.NCutNextButton onClick={handleNext}>
           <MdNavigateNext
             style={{
@@ -250,7 +250,9 @@ const CreateSession: React.FC = () => {
             }}
           />
         </G.NCutNextButton>
-      )}
+      ) : currentIndex < pages.length - 2 ? (
+        <G.NCutButtonWrapper />
+      ) : null}
       {currentIndex === pages.length - 2 && (
         <G.NCutNextButton onClick={handleCreateSession} disabled={isCreating}>
           <FaCheck
