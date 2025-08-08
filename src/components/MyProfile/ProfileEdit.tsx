@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { userAPI } from '@/api/user'
 import { s3API } from '@/api/s3'
@@ -27,6 +27,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
   const [isNickNameValid, setIsNickNameValid] = useState<boolean>(false)
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null) // 프로필 사진을 눌렀을 때도 변경 로직 동작하도록
 
   // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
@@ -126,6 +127,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
   }
 
   // 3. 이미지 관련
+  const handleProfileImageClick = () => {
+    fileInputRef.current?.click()
+  }
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) {
@@ -180,6 +184,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
                 ? myInfo.profileUrl
                 : defaultProfileImage
           }
+          onClick={handleProfileImageClick}
         />
       </S.ProfileSection>
       <S.EditSection>
@@ -189,6 +194,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
             id="profile-change"
             accept="image/*"
             onChange={handleImageChange}
+            ref={fileInputRef}
           />
           <S.ImageChangeText htmlFor="profile-change">
             사진 변경
