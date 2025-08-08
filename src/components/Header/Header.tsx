@@ -17,9 +17,13 @@ const Header: React.FC = () => {
     setSearchQuery(e.target.value)
   }
 
+  const handleSearchSubmit = (searchQuery: string) => {
+    console.log(searchQuery)
+  }
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      //   handleSearchSubmit();
+      handleSearchSubmit(searchQuery)
       setSearchQuery('')
     }
   }
@@ -52,9 +56,7 @@ const Header: React.FC = () => {
 
   return (
     <S.HeaderContainer>
-      <Link to="/">
-        <Logo />
-      </Link>
+      <Logo />
       <S.NavigationContainer>
         <S.NavigationLeftSection>
           <Link to="/film">
