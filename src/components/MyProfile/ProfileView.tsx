@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import type { UserMeResponse } from '@/types/User'
 import { IoIosArrowForward } from 'react-icons/io'
 import ProfileImage from '@components/Common/ProfileImage'
+import defaultProfileImage from '/user_default_profile.png'
 import * as S from '@styles/components/MyProfile/ProfileViewStyle'
 import * as T from '@styles/components/MyProfile/ProfileEditStyle'
 
@@ -35,7 +36,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({ myInfo, fetchMyInfo }) => {
     <T.Container>
       <T.TitleText>회원 정보</T.TitleText>
       <T.ProfileSection>
-        <ProfileImage width="150" height="150" />
+        <ProfileImage
+          width="150"
+          height="150"
+          src={myInfo.profileUrl ? myInfo.profileUrl : defaultProfileImage}
+        />
       </T.ProfileSection>
       <T.Box>
         <S.Title>이름</S.Title>

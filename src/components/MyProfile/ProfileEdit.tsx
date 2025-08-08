@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { userAPI } from '@/api/user'
+import { s3API } from '@/api/s3'
 import type { UserMeResponse, UserMeInfoPatchRequest } from '@/types/User'
 import { useToast } from '@/hooks/useToast'
 import { validator } from '@/utils/validators'
@@ -10,21 +11,24 @@ import { FaRegTrashCan } from 'react-icons/fa6'
 import ProfileImage from '@components/Common/ProfileImage'
 import OptionModal from '@components/Common/OptionModal'
 import { IoIosArrowBack } from 'react-icons/io'
+import defaultProfileImage from '/user_default_profile.png'
 import * as S from '@styles/components/MyProfile/ProfileEditStyle'
 import * as T from '@styles/components/MyProfile/ProfileViewStyle'
 
 interface ProfileEditProps {
   myInfo: UserMeResponse
+  fetchMyInfo: () => void
 }
 
-const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
+const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
   const navigate = useNavigate()
   const { error, success, warning } = useToast()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isNickNameValid, setIsNickNameValid] = useState<boolean>(false)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [, setImageFile] = useState<File | null>(null)
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null) // 프로필 사진을 눌렀을 때도 변경 로직 동작하도록
+
   // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
     name: myInfo.name,
@@ -123,24 +127,35 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
   }
 
   // 3. 이미지 관련
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileImageClick = () => {
+    fileInputRef.current?.click()
+  }
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-
-    if (file) {
-      setImageFile(file)
-      setImagePreview(URL.createObjectURL(file))
-    } else {
+    if (!file) {
       return
+    } else {
+      setImagePreview(URL.createObjectURL(file))
+      const response = await s3API.upload({
+        file,
+        type: 'profile',
+      })
+      const fileUrl = response as unknown as string
+      try {
+        await userAPI.patchUserImage({ imageUrl: fileUrl })
+        success('프로필 사진이 등록되었습니다.')
+        await fetchMyInfo()
+      } catch {
+        error('다시 시도해 주세요.')
+      }
     }
-
-    // 프로필 사진 등록 api 호출
   }
 
   const handleImageDelete = async () => {
     try {
       await userAPI.deleteUserImage()
       setImagePreview(null)
-      console.log('프로필 사진')
+      await fetchMyInfo()
       success('프로필 사진이 삭제되었습니다.')
     } catch {
       error('다시 시도해 주세요.')
@@ -162,7 +177,14 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
         <ProfileImage
           width="150"
           height="150"
-          src={imagePreview ? imagePreview : myInfo.profileUrl}
+          src={
+            imagePreview
+              ? imagePreview
+              : myInfo.profileUrl
+                ? myInfo.profileUrl
+                : defaultProfileImage
+          }
+          onClick={handleProfileImageClick}
         />
       </S.ProfileSection>
       <S.EditSection>
@@ -172,6 +194,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo }) => {
             id="profile-change"
             accept="image/*"
             onChange={handleImageChange}
+            ref={fileInputRef}
           />
           <S.ImageChangeText htmlFor="profile-change">
             사진 변경
