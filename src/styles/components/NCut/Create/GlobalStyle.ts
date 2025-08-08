@@ -6,7 +6,7 @@ export const NCutCreateLayout = styled.div`
   width: 100%;
   height: calc(100% - 150px);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
 `
@@ -21,18 +21,7 @@ export const NcutCreateContainer = styled.div`
   border: 1px solid #ccc;
   border-radius: 20px;
   box-shadow: 2px 2px 4px #ccc;
-`
-
-export const NCutCreateIcon = styled.div`
-  width: 180px;
-  height: 180px;
-  background-color: #f9be08;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.7;
-  margin: 20px;
+  flex-direction: column;
 `
 
 export const NCutCreateContentContainer = styled.div`
@@ -64,10 +53,15 @@ export const NcutCreateSubDescription = styled.p`
   text-align: center;
 `
 
+export const NCutButtonWrapper = styled.div`
+  position: relative;
+  width: 65px;
+  height: 65px;
+  margin: 0 20px;
+`
+
 export const NCutNextButton = styled.button`
-  position: absolute;
-  bottom: 50px;
-  right: 100px;
+  position: relative;
   width: 65px;
   height: 65px;
   border-radius: 50%;
@@ -78,12 +72,11 @@ export const NCutNextButton = styled.button`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  margin: 0 20px;
 `
 
 export const NCutPrvButton = styled.button`
-  position: absolute;
-  bottom: 50px;
-  left: 100px;
+  position: relative;
   width: 65px;
   height: 65px;
   border-radius: 50%;
@@ -94,4 +87,22 @@ export const NCutPrvButton = styled.button`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  margin: 0 20px;
+`
+
+export const ProgressBar = styled.div`
+  position: absolute;
+  bottom: 5%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`
+
+export const ProgressBarItem = styled.div<{ isActive: boolean }>`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: ${(props) => (props.isActive ? '#f9be08' : '#ccc')};
+  margin: 0 10px;
+  transition: background-color 0.3s ease;
 `

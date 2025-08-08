@@ -4,7 +4,6 @@ import * as S from '@styles/pages/NCut/ParticipationSessionStyle'
 import ParticipationModal from '@components/NCut/Enter/EnterConfirmModal'
 import { useNavigate } from 'react-router-dom'
 
-import { FiUserPlus } from 'react-icons/fi'
 import { FaCheck } from 'react-icons/fa6'
 import { useToast } from '@/hooks/useToast'
 import { nCutAPI } from '@/api/ncut'
@@ -34,6 +33,21 @@ const ParticipationSession: React.FC = () => {
       if (value && index < 5) {
         inputRefs.current[index + 1]?.focus()
       }
+    }
+  }
+
+  const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const pasteData = e.clipboardData.getData('text')
+
+    if (pasteData.length === 6 && /^[0-9]+$/.test(pasteData)) {
+      const newCode = pasteData.split('')
+      setSessionCode(newCode)
+      newCode.forEach((_, index) => {
+        if (inputRefs.current[index]) {
+          inputRefs.current[index]?.focus()
+        }
+      })
     }
   }
 
@@ -100,23 +114,13 @@ const ParticipationSession: React.FC = () => {
     }
 
     // 임시 저장된 데이터 정리
-    sessionStorage.removeItem('sessionToken')
-    sessionStorage.removeItem('sessionRoomCode')
-    sessionStorage.removeItem('backgroundUrl')
-    sessionStorage.removeItem('takeCnt')
-    sessionStorage.removeItem('cutCnt')
-    sessionStorage.removeItem('timeLimit')
+    sessionStorage.clear()
 
     setIsModalOpen(false)
   }
 
   const handleCancelJoin = () => {
-    sessionStorage.removeItem('sessionToken')
-    sessionStorage.removeItem('sessionRoomCode')
-    sessionStorage.removeItem('backgroundUrl')
-    sessionStorage.removeItem('takeCnt')
-    sessionStorage.removeItem('cutCnt')
-    sessionStorage.removeItem('timeLimit')
+    sessionStorage.clear()
     setIsModalOpen(false)
   }
 
@@ -127,14 +131,6 @@ const ParticipationSession: React.FC = () => {
   return (
     <G.NCutCreateLayout>
       <G.NcutCreateContainer>
-        <G.NCutCreateIcon>
-          <FiUserPlus
-            style={{
-              width: '100px',
-              height: '100px',
-            }}
-          />
-        </G.NCutCreateIcon>
         <G.NCutCreateContentContainer>
           <G.NcutCreateHeader>촬영 부스 참가</G.NcutCreateHeader>
           <G.NcutCreateDescription>
@@ -149,6 +145,7 @@ const ParticipationSession: React.FC = () => {
                   value={digit}
                   onChange={(e) => handleCodeChange(e, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
+                  onPaste={handleCodePaste}
                   ref={(el) => {
                     inputRefs.current[index] = el
                   }}
