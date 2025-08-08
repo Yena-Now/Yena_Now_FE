@@ -485,7 +485,7 @@ export const Session: React.FC = () => {
       <S.mainContent>
         <S.SessionLayoutContainer id="layout-container">
           <S.CanvasContainer
-            customCursor={cursor}
+            $customCursor={cursor}
             ref={mainCanvasRef}
             width={1280}
             height={720}
@@ -524,7 +524,7 @@ export const Session: React.FC = () => {
             </S.BrightnessContainer>
             <S.TakeContainer>
               <S.TakeVideoButton
-                isActive={isRecording}
+                $isActive={isRecording}
                 onClick={isRecording ? stopRecording : startRecording}
                 disabled={!canCapture}
               >

@@ -53,10 +53,10 @@ export const SessionLayoutContainer = styled.div`
   align-items: center;
 `
 
-export const CanvasContainer = styled.canvas<{ customCursor?: string }>`
+export const CanvasContainer = styled.canvas<{ $customCursor: string }>`
   height: 90%;
   object-fit: contain;
-  cursor: ${(props) => props.customCursor || 'default'};
+  cursor: ${(props) => props.$customCursor || 'default'};
   background: transparent;
   margin-bottom: 10px;
 `
@@ -135,23 +135,27 @@ export const TakeContainer = styled.div`
   justify-content: center;
 `
 
-export const TakePhotoButton = styled.button`
-  background-color: #4caf50;
+export const TakePhotoButton = styled.button<{ disabled?: boolean }>`
+  background-color: ${(props) => (props.disabled ? '#ccc' : '#4caf50')};
   color: white;
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
   margin-left: 2rem;
 `
 
-export const TakeVideoButton = styled.button<{ isActive?: boolean }>`
-  background-color: ${(props) => (props.isActive ? '#f44336' : '#9e9e9e')};
+export const TakeVideoButton = styled.button<{
+  $isActive: boolean
+  disabled?: boolean
+}>`
+  background-color: ${(props) =>
+    props.$isActive ? '#f44336' : props.disabled ? '#ccc' : '#36F4A2'};
   color: white;
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
 `
 
 export const GoToEditPage = styled.button<{ disabled?: boolean }>`
