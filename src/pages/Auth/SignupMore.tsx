@@ -35,7 +35,7 @@ const SignupMore: React.FC = () => {
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
-  const [uploadUrl, setUploadUrl] = useState<string | null>(null)
+  const [fileUrl, setFileUrl] = useState<string | null>(null)
 
   const [formBirth, setFormBirth] = useState({
     birthYear: '',
@@ -49,14 +49,13 @@ const SignupMore: React.FC = () => {
       setSelectedImage(file)
       setIsUploading(true)
       try {
-        const { fileUrl } = await s3API.upload({
-          type: 'profile',
+        const fileUrl = await s3API.uploadSignup({
           file,
         })
-        setUploadUrl(fileUrl)
+        setFileUrl(fileUrl)
       } catch (e) {
         error('이미지 업로드에 실패했습니다.')
-        setUploadUrl(null)
+        setFileUrl(null)
       } finally {
         setIsUploading(false)
       }
@@ -100,8 +99,7 @@ const SignupMore: React.FC = () => {
 
     setIsUploading(true)
 
-    // 이미지 업로드는 handleFileChange에서 바로 처리되므로 필요 없음
-    const finalUrl = uploadUrl || defaultProfileImage
+    const finalUrl = fileUrl || defaultProfileImage
 
     const submitData = {
       ...formData,
@@ -162,8 +160,8 @@ const SignupMore: React.FC = () => {
         <S2.ProfileImageWrapper>
           <ProfileImage
             src={
-              uploadUrl
-                ? uploadUrl
+              fileUrl
+                ? fileUrl
                 : selectedImage
                   ? URL.createObjectURL(selectedImage)
                   : formData.profileUrl
