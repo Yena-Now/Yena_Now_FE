@@ -232,9 +232,9 @@ const CreateSession: React.FC = () => {
       <G.NcutCreateContainer>
         {pages[currentIndex]}
         <G.ProgressBar>
-          {pages.slice(0, pages.length - 1).map((page) => (
+          {pages.slice(0, pages.length - 1).map((page, idx) => (
             <G.ProgressBarItem
-              key={page.key}
+              key={idx}
               isActive={pages.indexOf(page) === currentIndex}
             />
           ))}
