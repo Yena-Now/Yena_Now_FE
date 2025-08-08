@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const LogoWrapper = styled.div<{ marginTop?: string }>`
-  width: 100%;
+  //width: 100%;
   height: 90px;
   display: flex;
   align-items: center;
@@ -12,7 +12,7 @@ export const LogoWrapper = styled.div<{ marginTop?: string }>`
 
 export const LogoImage = styled.img`
   max-height: 80px;
-  max-width: 100%;
+  //max-width: 100%;
   object-fit: contain;
   margin: 0 auto;
   display: block;
