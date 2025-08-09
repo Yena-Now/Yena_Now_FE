@@ -1,15 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import * as S from '@styles/components/Header/HeaderStyle'
+import { authAPI } from '@/api/auth'
+import { userAPI } from '@/api/user'
+import { useToast } from '@/hooks/useToast'
+import type { UserMeResponse } from '@/types/User'
 import Logo from '@components/Common/Logo'
 import ProfileImage from '@components/Common/ProfileImage'
-import { authAPI } from '@/api/auth'
-import { useToast } from '@/hooks/useToast'
+import * as S from '@styles/components/Header/HeaderStyle'
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const [myInfo, setMyInfo] = useState<UserMeResponse | null>()
   const { error } = useToast()
   const navigate = useNavigate()
 
@@ -38,6 +41,19 @@ const Header: React.FC = () => {
   }
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen)
+
+  const fetchMyInfo = useCallback(async () => {
+    try {
+      const myData = await userAPI.getUserMeInfo()
+      setMyInfo(myData)
+    } catch {
+      error('내 정보를 불러오는 데 실패했습니다.')
+    }
+  }, [error, setMyInfo])
+
+  useEffect(() => {
+    fetchMyInfo()
+  }, [fetchMyInfo])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -97,7 +113,7 @@ const Header: React.FC = () => {
             />
           </S.SearchBox>
           <S.ProfileContainer ref={dropdownRef}>
-            <ProfileImage onClick={toggleDropdown} />
+            <ProfileImage onClick={toggleDropdown} src={myInfo?.profileUrl} />
             {isDropdownOpen && (
               <S.ProfileDropdown>
                 <S.ProfileDropdownTail />
