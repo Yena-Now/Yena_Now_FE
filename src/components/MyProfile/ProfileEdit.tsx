@@ -81,6 +81,10 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
     const patchData = getPatchPayload()
     try {
       await userAPI.patchUserMeInfo(patchData)
+      console.log('patchData', patchData)
+      if (patchData.nickname) {
+        localStorage.setItem('nickname', patchData.nickname)
+      }
       success('회원 정보 수정이 완료되었습니다.')
       navigate('/my-profile')
     } catch {
@@ -144,6 +148,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
       try {
         await userAPI.patchUserImage({ imageUrl: fileUrl })
         success('프로필 사진이 등록되었습니다.')
+        localStorage.setItem('profileUrl', fileUrl)
         await fetchMyInfo()
       } catch {
         error('다시 시도해 주세요.')
@@ -155,6 +160,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
     try {
       await userAPI.deleteUserImage()
       setImagePreview(null)
+      localStorage.setItem('profileUrl', 'null')
       await fetchMyInfo()
       success('프로필 사진이 삭제되었습니다.')
     } catch {
