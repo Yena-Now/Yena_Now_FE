@@ -39,7 +39,7 @@ export const CloseButton = styled.button`
 export const SearchInput = styled.input`
   width: 70%;
   height: 45px;
-  padding: 0 40px 0 36px;
+  padding: 0 40px 0 20px;
   border: none;
   border-radius: 8px;
   background-color: white;
@@ -94,4 +94,38 @@ export const Name = styled.div`
   font-size: 14px;
   color: #666;
   margin-top: 2px;
+`
+
+export const Empty = styled.p`
+  text-align: center;
+  padding: 24px 0;
+  font-size: 14px;
+  color: #6b7280; /* gray-500 */
+  user-select: none;
+`
+
+export const Error = styled.p`
+  margin: 12px 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #fecdca; /* red-200 */
+  background: #fef3f2; /* red-50 */
+  color: #d92d20; /* red-600 */
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.35;
+`
+
+export const Badge = styled.span`
+  margin-left: auto; /* 오른쪽 끝으로 밀기 */
+  align-self: center;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 9999px; /* pill */
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #e0e7ff; /* indigo-100 */
+  background: #eef2ff; /* indigo-50 */
+  color: #3538cd; /* indigo-700 */
+  white-space: nowrap;
 `

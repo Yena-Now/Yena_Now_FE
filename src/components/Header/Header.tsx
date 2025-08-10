@@ -7,6 +7,7 @@ import type { UserMeResponse } from '@/types/User'
 import Logo from '@components/Common/Logo'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/Header/HeaderStyle'
+import SearchModal from '@components/Common/SearchModal'
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -15,22 +16,30 @@ const Header: React.FC = () => {
   const [myInfo, setMyInfo] = useState<UserMeResponse | null>()
   const { error } = useToast()
   const navigate = useNavigate()
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [modalKeyword, setModalKeyword] = useState('')
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
   }
 
-  const handleSearchSubmit = (searchQuery: string) => {
-    console.log(searchQuery)
+  const openSearchModal = (keyword: string) => {
+    const kw = keyword.trim()
+    if (!kw) return
+    setModalKeyword(kw)
+    setIsSearchOpen(true)
+  }
+
+  const handleSearchSubmit = (keyword: string) => {
+    openSearchModal(keyword)
+    setSearchQuery('')
   }
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearchSubmit(searchQuery)
-      setSearchQuery('')
     }
   }
-
   const handleLogout = async () => {
     try {
       await authAPI.logout()
@@ -137,6 +146,16 @@ const Header: React.FC = () => {
           </S.ProfileContainer>
         </S.NavigationRightSection>
       </S.NavigationContainer>
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        type="search"
+        initialKeyword={modalKeyword}
+        onSelect={(user) => {
+          navigate(`/users/profile/${user.userUuid}`)
+          setIsSearchOpen(false)
+        }}
+      />
     </S.HeaderContainer>
   )
 }
