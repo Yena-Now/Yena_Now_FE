@@ -23,7 +23,7 @@ export const nCutDetail = {
   ): Promise<UpdateContentResponse> => {
     const reqBody: UpdateContentRequest = { content }
     const res = await apiClient.patch<UpdateContentResponse>(
-      `/gallery/ncuts/${ncutUuid}`,
+      `/gallery/ncuts/${ncutUuid}/content`,
       reqBody,
     )
     return res.data
@@ -40,8 +40,10 @@ export const nCutDetail = {
     )
     return res.data
   },
-
-  deleteNCut: async (ncutUuid: string): Promise<void> => {
-    await apiClient.delete(`/gallery/ncuts/${ncutUuid}`)
+  deleteNCut: async (ncutUuid: string) => {
+    const res = await apiClient.delete(`/gallery/ncuts/${ncutUuid}`, {
+      withCredentials: true,
+    })
+    return res.data
   },
 }

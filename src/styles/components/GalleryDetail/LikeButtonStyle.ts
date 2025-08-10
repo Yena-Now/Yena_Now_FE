@@ -15,4 +15,5 @@ export const LikeButton = styled.span`
 
 export const LikeCount = styled.span`
   font-weight: 600;
+  cursor: pointer;
 `

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+// GalleryDetailPage.tsx
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import UserInfo from '@components/GalleryDetail/UserInfo'
 import PhotoSection from '@components/GalleryDetail/PhotoSection'
@@ -17,8 +18,6 @@ import type { NCutDetailType } from '@/types/NCutDetail'
 import type { Comment } from '@/types/Comment'
 import { commentAPI } from '@/api/comment'
 
-const myUuid = 'user-01'
-
 const GalleryDetailPage: React.FC = () => {
   const { ncutUuid } = useParams<{ ncutUuid: string }>()
   const { success, error } = useToast()
@@ -32,64 +31,29 @@ const GalleryDetailPage: React.FC = () => {
   )
   const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState('')
+  const lastCommentRef = useRef<HTMLDivElement | null>(null)
+  const [myUuid, setMyUuid] = useState<string | null>(null)
 
-  const USE_DUMMY = true
+  const sortByCreatedAtAsc = (list: Comment[]) =>
+    [...list].sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    )
+
+  useEffect(() => {
+    setMyUuid(localStorage.getItem('userUuid'))
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (USE_DUMMY) {
-          const dummy: NCutDetailType = {
-            ncutUuid: 'dummy-uuid',
-            ncutUrl:
-              'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
-            userUuid: 'user-01',
-            nickname: '더미유저',
-            profileUrl: 'https://picsum.photos/50/50',
-            content: '🐰 테스트용 더미 게시글입니다.',
-            createdAt: new Date().toISOString(),
-            likeCount: 10,
-            commentCount: 0,
-            isRelay: false,
-            visibility: 'PUBLIC',
-            isMine: true,
-          }
-
-          const dummyComments: Comment[] = [
-            {
-              commentUuid: 'comment-1',
-              comment: '첫 번째 더미 댓글입니다.',
-              userUuid: 'user-02',
-              nickname: '댓글유저1',
-              profileUrl: 'https://picsum.photos/seed/c1/40/40',
-              createdAt: new Date().toISOString(),
-            },
-            {
-              commentUuid: 'comment-2',
-              comment: '두 번째 댓글은 나야!',
-              userUuid: 'user-01',
-              nickname: '나',
-              profileUrl: 'https://picsum.photos/seed/c2/40/40',
-              createdAt: new Date().toISOString(),
-            },
-          ]
-
-          setDetailData(dummy)
-          setPostContent(dummy.content)
-          setVisibility(dummy.visibility)
-          setComments(dummyComments)
-          return
-        }
-
         if (!ncutUuid) return
-
         const detail = await nCutDetail.getNCutDetail(ncutUuid)
         const commentRes = await commentAPI.getComments(ncutUuid)
-
         setDetailData(detail)
         setPostContent(detail.content)
         setVisibility(detail.visibility)
-        setComments(commentRes.comments)
+        setComments(sortByCreatedAtAsc(commentRes.comments))
       } catch {
         error('데이터 불러오기 실패')
       }
@@ -102,7 +66,6 @@ const GalleryDetailPage: React.FC = () => {
     try {
       await nCutDetail.updateNCut(detailData.ncutUuid, newContent)
       setPostContent(newContent)
-      success('게시글이 수정되었습니다.')
     } catch {
       error('게시글 수정 실패')
     }
@@ -121,22 +84,45 @@ const GalleryDetailPage: React.FC = () => {
     }
   }
 
+  const deletingRef = useRef(false)
+
   const handleDeletePost = async () => {
-    if (!detailData) return
+    if (!detailData || deletingRef.current) return
+    deletingRef.current = true
     try {
+      console.log('[NCUT_DELETE] call', detailData.ncutUuid)
       await nCutDetail.deleteNCut(detailData.ncutUuid)
-      success('게시글이 삭제되었습니다.')
-      navigate('/gallery')
-    } catch {
-      error('게시글 삭제 실패')
+      navigate('/gallery', { replace: true })
+    } catch (e) {
+      console.error('[NCUT_DELETE_ERR]', e)
+      error('N컷 삭제 실패')
+    } finally {
+      deletingRef.current = false
     }
   }
 
   const handleAddComment = async () => {
     if (!ncutUuid || !newComment.trim()) return
     try {
-      const comment = await commentAPI.addComment(ncutUuid, newComment)
-      setComments((prev) => [...prev, comment])
+      const res = await commentAPI.addComment(ncutUuid, newComment)
+      const raw = res && 'data' in res ? (res as any).data : res
+
+      if (raw?.commentUuid) {
+        const created: Comment = {
+          commentUuid: raw.commentUuid,
+          ncutUuid,
+          userUuid: raw.userUuid ?? (localStorage.getItem('userUuid') || ''),
+          nickname: raw.nickname ?? detailData?.nickname ?? '',
+          profileUrl: raw.profileUrl ?? detailData?.profileUrl ?? '',
+          comment: raw.comment ?? raw.content ?? newComment,
+          createdAt: raw.createdAt ?? new Date().toISOString(),
+        }
+        setComments((prev) => sortByCreatedAtAsc([...prev, created]))
+      } else {
+        const sync = await commentAPI.getComments(ncutUuid)
+        setComments(sortByCreatedAtAsc(sync.comments))
+      }
+
       setNewComment('')
       success('댓글이 작성되었습니다.')
     } catch {
@@ -144,26 +130,48 @@ const GalleryDetailPage: React.FC = () => {
     }
   }
 
-  const handleEditComment = async (commentUuid: string, newContent: string) => {
+  useEffect(() => {
+    lastCommentRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [comments])
+
+  const handleEditComment = async (
+    commentUuid: string,
+    newContent: string,
+    ncutUuid: string,
+  ) => {
     try {
-      await commentAPI.updateComment(commentUuid, newContent)
+      await commentAPI.updateComment(ncutUuid, commentUuid, newContent)
       setComments((prev) =>
         prev.map((c) =>
           c.commentUuid === commentUuid ? { ...c, comment: newContent } : c,
         ),
       )
-      success('댓글이 수정되었습니다.')
     } catch {
       error('댓글 수정 실패')
     }
   }
 
   const handleDeleteComment = async (commentUuid: string) => {
+    const targetNcutUuid = detailData?.ncutUuid || ncutUuid
+    console.log('[HANDLE_DELETE] start', {
+      commentUuid,
+      ncutUuid: targetNcutUuid,
+    })
+    if (!commentUuid || !targetNcutUuid) {
+      console.warn('[HANDLE_DELETE] early-return', {
+        commentUuid,
+        ncutUuid: targetNcutUuid,
+      })
+      return
+    }
     try {
-      await commentAPI.deleteComment(commentUuid)
+      await commentAPI.deleteComment(targetNcutUuid, commentUuid)
       setComments((prev) => prev.filter((c) => c.commentUuid !== commentUuid))
+      const latest = await commentAPI.getComments(targetNcutUuid)
+      setComments(sortByCreatedAtAsc(latest.comments))
       success('댓글이 삭제되었습니다.')
-    } catch {
+    } catch (e) {
+      console.error('[DELETE_ERR]', e)
       error('댓글 삭제 실패')
     }
   }
@@ -196,7 +204,7 @@ const GalleryDetailPage: React.FC = () => {
       <S.RightColumn>
         <S.CommentBox>
           <S.PostHeader>
-            <LikeButton data={detailData} />
+            {detailData ? <LikeButton data={detailData} /> : null}
             <S.ButtonBox>
               <VisibilityIcon visibility={visibility} />
               {detailData.isMine && (
@@ -220,22 +228,28 @@ const GalleryDetailPage: React.FC = () => {
 
           <S.Divider />
           <S.CommentContainer>
-            {comments.map((c) => (
-              <CommentSection
-                key={c.commentUuid}
-                profileUrl={c.profileUrl}
-                nickname={c.nickname}
-                comment={c.comment}
-                isMyComment={c.userUuid === myUuid}
-                isMine={detailData.isMine}
-                onEdit={(newComment) =>
-                  handleEditComment(c.commentUuid, newComment)
-                }
-                onDelete={() => handleDeleteComment(c.commentUuid)}
-                onOwnerDelete={() => handleDeleteComment(c.commentUuid)}
-              />
+            {comments.map((c, idx) => (
+              <div
+                key={c.commentUuid || `temp-${idx}`}
+                ref={idx === comments.length - 1 ? lastCommentRef : null}
+              >
+                <CommentSection
+                  profileUrl={c.profileUrl}
+                  nickname={c.nickname}
+                  ncutUuid={c.ncutUuid}
+                  comment={c.comment}
+                  isMyComment={c.userUuid === myUuid}
+                  isMine={detailData.userUuid === myUuid}
+                  onEdit={(newComment) =>
+                    handleEditComment(c.commentUuid, newComment, c.ncutUuid)
+                  }
+                  onDelete={() => handleDeleteComment(c.commentUuid)}
+                  onOwnerDelete={() => handleDeleteComment(c.commentUuid)}
+                />
+              </div>
             ))}
           </S.CommentContainer>
+
           <S.InputBox>
             <Input
               value={newComment}

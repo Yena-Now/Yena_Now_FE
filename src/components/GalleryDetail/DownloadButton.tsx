@@ -17,34 +17,35 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
-  const extension = fileUrl.split('.').pop()?.toLowerCase()
-  const isVideo = ['mp4'].includes(extension || '')
-  const isImage = ['jpg', 'png'].includes(extension || '')
+  const ext = fileUrl.split('.').pop()?.toLowerCase() || ''
+  const isVideo = ['mp4', 'mov', 'webm'].includes(ext)
+  const isImage = ['jpg', 'jpeg', 'png'].includes(ext)
 
   const downloadFile = async (url: string, filename: string) => {
     try {
-      const response = await fetch(url)
-      if (!response.ok) throw new Error()
-      const blob = await response.blob()
-      const blobUrl = window.URL.createObjectURL(blob)
+      const res = await fetch(url)
+      if (!res.ok) throw new Error('fetch failed')
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
 
-      const link = document.createElement('a')
-      link.href = blobUrl
-      link.download = filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(blobUrl)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
 
       success('다운로드 완료!')
-    } catch {
+    } catch (e) {
+      console.error('[download error]', e)
       error('다운로드 실패!')
     }
   }
 
   const handleImageSave = () => {
-    if (!isImage) return error('사진 저장은 jpg, png만 가능해요')
-    downloadFile(fileUrl, `${ncutUuid}.${extension}`)
+    if (!isImage) return error('사진만 가능해요')
+    downloadFile(fileUrl, `${ncutUuid}.${ext || 'png'}`)
     setOpen(false)
   }
 
@@ -56,7 +57,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
 
   const handleVideoSave = () => {
     if (!isVideo) return error('영상만 저장 가능해요')
-    downloadFile(fileUrl, `${ncutUuid}.${extension}`)
+    downloadFile(fileUrl, `${ncutUuid}.${ext || 'mp4'}`)
     setOpen(false)
   }
 
@@ -64,7 +65,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     <S.Container>
       <S.DownloadButton
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => setOpen((v) => !v)}
         size={24}
       />
       {open && (

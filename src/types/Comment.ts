@@ -5,6 +5,7 @@ export interface Comment {
   nickname: string
   profileUrl: string
   createdAt: string
+  ncutUuid: string
 }
 
 export interface CommentListResponse {

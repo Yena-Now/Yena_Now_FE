@@ -19,7 +19,7 @@ const PostEditButton: React.FC<PostEditButtonProps> = ({
   onEdit,
   initialVisibility,
   onChangeVisibility,
-  // onDelete,
+  onDelete,
 }) => {
   const [open, setOpen] = useState(false)
   const [visibilityModalOpen, setVisibilityModalOpen] = useState(false)
@@ -39,7 +39,11 @@ const PostEditButton: React.FC<PostEditButtonProps> = ({
   return (
     <S.Container ref={menuRef}>
       {/* 옵션 버튼 */}
-      <S.IconButton onClick={() => setOpen((prev) => !prev)}>
+      <S.IconButton
+        as="button"
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+      >
         <SlOptions size={20} />
       </S.IconButton>
 
@@ -77,7 +81,6 @@ const PostEditButton: React.FC<PostEditButtonProps> = ({
         </OptionModal>
       )}
 
-      {/* 게시글 삭제 모달 */}
       {deleteModalOpen && (
         <OptionModal
           title="글을 삭제하시겠습니까?"
@@ -85,7 +88,7 @@ const PostEditButton: React.FC<PostEditButtonProps> = ({
         >
           <DeletePostContent
             onDelete={() => {
-              console.log('게시글 삭제 실행')
+              onDelete()
               setDeleteModalOpen(false)
             }}
             onCancel={() => setDeleteModalOpen(false)}

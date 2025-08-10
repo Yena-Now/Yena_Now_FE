@@ -11,7 +11,14 @@ const PhotoSection: React.FC<PhotoSectionProps> = ({ ncutUrl }) => {
     <S.PhotoContainer>
       <S.PhotoFrame>
         {isVideo ? (
-          <S.Video src={ncutUrl} muted autoPlay loop controls />
+          <S.Video
+            src={ncutUrl}
+            muted
+            autoPlay
+            loop
+            controls
+            controlsList="nodownload"
+          />
         ) : (
           <S.Photo src={ncutUrl} alt="N컷 이미지" />
         )}

@@ -1,6 +1,6 @@
 export interface LikeUser {
   userUuid: string
-  name: string
+  name?: string
   nickname: string
   profileUrl: string
 }

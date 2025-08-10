@@ -5,18 +5,18 @@ import * as S from '@styles/components/GalleryDetail/CommentStyle'
 import { MdOutlineModeEdit } from 'react-icons/md'
 import { RiDeleteBin6Line } from 'react-icons/ri'
 import { RxCross2 } from 'react-icons/rx'
-import { useToast } from '@/hooks/useToast'
 
 interface CommentSectionProps {
   profileUrl: string
   nickname: string
   comment: string
-  userUuid?: string // 댓글 작성자의 UUID
+  userUuid?: string
+  ncutUuid: string
   isMyComment?: boolean
   isMine?: boolean
   onEdit?: (newComment: string) => void
-  onDelete?: () => void
-  onOwnerDelete?: () => void
+  onDelete?: () => void // 부모에서 실제 삭제 API 호출
+  onOwnerDelete?: () => void // (게시글 소유자용)
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({
@@ -30,8 +30,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   onDelete,
   onOwnerDelete,
 }) => {
-  const { success } = useToast()
-
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(comment)
   const navigate = useNavigate()
@@ -44,17 +42,20 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   const handleSave = () => {
     if (onEdit) onEdit(editValue)
     setIsEditing(false)
-    success('댓글이 수정되었습니다.')
   }
 
-  const handleDelete = () => {
-    if (onDelete) onDelete()
-    success('댓글이 삭제되었습니다.')
+  // ✅ 버튼 클릭 시 폼 제출 막고 부모 콜백만 호출
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onDelete?.()
   }
 
-  const handleOwnerDelete = () => {
-    if (onOwnerDelete) onOwnerDelete()
-    success('댓글이 제거되었습니다.')
+  const handleOwnerDelete = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('[CS] owner delete clicked')
+    onOwnerDelete?.()
   }
 
   return (
@@ -84,21 +85,29 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
       <S.ActionButtons>
         {isMyComment && !isEditing && (
-          <S.IconButton onClick={() => setIsEditing(true)}>
+          <S.IconButton
+            as="button"
+            type="button"
+            onClick={() => setIsEditing(true)}
+          >
             <MdOutlineModeEdit size={23} />
           </S.IconButton>
         )}
         {isMyComment && !isEditing && (
-          <S.IconButton onClick={handleDelete}>
+          <S.IconButton as="button" type="button" onClick={handleDelete}>
             <RiDeleteBin6Line size={23} />
           </S.IconButton>
         )}
         {isMine && !isMyComment && (
-          <S.IconButton onClick={handleOwnerDelete}>
+          <S.IconButton as="button" type="button" onClick={handleOwnerDelete}>
             <RxCross2 size={23} />
           </S.IconButton>
         )}
-        {isEditing && <S.SaveButton onClick={handleSave}>저장</S.SaveButton>}
+        {isEditing && (
+          <S.SaveButton as="button" type="button" onClick={handleSave}>
+            저장
+          </S.SaveButton>
+        )}
       </S.ActionButtons>
     </S.CommentWrapper>
   )

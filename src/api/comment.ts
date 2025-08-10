@@ -20,17 +20,23 @@ export const commentAPI = {
   },
 
   updateComment: async (
+    ncutUuid: string,
     commentUuid: string,
     content: string,
   ): Promise<Comment> => {
-    const res = await apiClient.put(`/gallery/comments/${commentUuid}`, {
-      content,
-    })
+    const res = await apiClient.put(
+      `/gallery/ncuts/${ncutUuid}/comments/${commentUuid}`,
+      {
+        content,
+      },
+    )
     return res.data
   },
 
-  deleteComment: async (commentUuid: string) => {
-    const res = await apiClient.delete(`/gallery/comments/${commentUuid}`)
+  deleteComment: async (ncutUuid: string, commentUuid: string) => {
+    const res = await apiClient.delete(
+      `/gallery/ncuts/${ncutUuid}/comments/${commentUuid}`,
+    )
     return res.data
   },
 }
