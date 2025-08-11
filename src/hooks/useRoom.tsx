@@ -11,6 +11,7 @@ import {
 } from 'livekit-client'
 import { useToast } from '@hooks/useToast'
 import type { ChatMessage } from '@/types/Chat'
+import { useAuthStore } from '@/store/authStore'
 
 type TrackInfo = {
   track: RemoteVideoTrack
@@ -34,6 +35,8 @@ export const useRoom = () => {
   const connectionAttemptRef = useRef<boolean>(false)
   const roomRef = useRef<Room | undefined>(undefined)
   const { error } = useToast()
+
+  const user = useAuthStore((state) => state.user)
 
   const handleDataReceived = useCallback(
     (payload: Uint8Array, participant?: RemoteParticipant) => {
@@ -211,7 +214,7 @@ export const useRoom = () => {
 
   const sendChatMessage = useCallback((message: string) => {
     if (roomRef.current && message.trim()) {
-      const nickname = localStorage.getItem('nickname') || 'Anonymous'
+      const nickname = user?.nickname || 'Anonymous'
 
       const chatData = {
         type: 'chatMessage',
