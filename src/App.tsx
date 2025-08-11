@@ -1,59 +1,53 @@
+import { useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { userAPI } from '@/api/user'
+import { reissueToken } from '@api/client'
+import { useAuthStore } from '@/store/authStore'
 import Header from '@components/Header/Header'
-import GlobalStyle from '@styles/GlobalStyle'
 import Landing from '@pages/Landing/Landing'
-import { useState, useEffect } from 'react'
 import Login from '@pages/Auth/Login'
 import Signup from '@pages/Auth/Signup'
 import SignupMore from '@pages/Auth/SignupMore'
 import SocialCallback from '@pages/Auth/SocialCallback'
 import ResetPassword from '@pages/Auth/ResetPassword'
-import MyProfileInfo from './pages/MyProfile/MyProfileInfo'
+import MyProfileInfo from '@pages/MyProfile/MyProfileInfo'
 import ChangePassword from '@pages/MyProfile/ChangePassword'
-import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import NCutMain from '@pages/NCut/NCutMain'
 import CreateSession from '@pages/NCut/CreateSession'
 import ParticipationSession from '@pages/NCut/ParticipationSession'
 import Session from '@pages/NCut/Session'
 import GalleryPage from '@pages/Gallery/Gallery'
-import Moment from '@pages/Moment'
+import GlobalStyle from '@styles/GlobalStyle'
+import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import 'react-datepicker/dist/react-datepicker.css'
+import GalleryDetailPage from '@pages/Gallery/GalleryDetail'
+import Moment from '@pages/Moment'
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const location = useLocation()
+  const setAuth = useAuthStore((state) => state.setAuth)
+  const setAuthChecked = useAuthStore((state) => state.setAuthChecked)
+  const logout = useAuthStore((state) => state.logout)
+  const isAuthChecking = useAuthStore((state) => state.isAuthChecking)
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
 
   useEffect(() => {
-    const checkAuthStatus = () => {
-      const token = localStorage.getItem('accessToken')
-      setIsLoggedIn(!!token)
-      setIsLoading(false)
+    const handleInitialRefresh = async () => {
+      try {
+        const response = await reissueToken()
+        const me = await userAPI.getUserMeInfo()
+        const accessToken = response.accessToken
+        setAuth(accessToken, me)
+      } catch {
+        logout()
+      } finally {
+        setAuthChecked(false)
+      }
     }
+    handleInitialRefresh()
+  }, [setAuth, logout, setAuthChecked])
 
-    checkAuthStatus()
-
-    const handleStorageChange = () => {
-      const token = localStorage.getItem('accessToken')
-      setIsLoggedIn(!!token)
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-
-    const handleCustomStorageChange = () => {
-      const token = localStorage.getItem('accessToken')
-      setIsLoggedIn(!!token)
-    }
-
-    window.addEventListener('authChange', handleCustomStorageChange)
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener('authChange', handleCustomStorageChange)
-    }
-  }, [])
-
-  if (isLoading) {
+  if (isAuthChecking) {
     return <div>로딩 중...</div>
   }
 
@@ -160,6 +154,16 @@ function App() {
               element={
                 isLoggedIn ? (
                   <ChangePassword />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/gallery/:ncutUuid"
+              element={
+                isLoggedIn ? (
+                  <GalleryDetailPage />
                 ) : (
                   <Navigate to="/login" replace />
                 )
