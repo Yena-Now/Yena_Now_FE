@@ -7,7 +7,7 @@ import type {
   VisibilityType,
 } from '@/types/NCutDetail'
 
-import apiClient from './client'
+import apiClient from '@/api/client'
 
 export const nCutDetail = {
   getNCutDetail: async (ncutUuid: string): Promise<NCutDetailType> => {

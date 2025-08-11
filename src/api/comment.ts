@@ -4,7 +4,7 @@ import type {
   // AddCommentRequest,
   // UpdateCommentRequest,
 } from '@/types/Comment'
-import apiClient from './client'
+import apiClient from '@/api/client'
 
 export const commentAPI = {
   getComments: async (ncutUuid: string): Promise<CommentListResponse> => {

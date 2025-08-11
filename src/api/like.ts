@@ -1,4 +1,4 @@
-import apiClient from './client'
+import apiClient from '@/api/client'
 import type { LikeDetailResponse } from '@/types/Like'
 
 export const likeAPI = {
@@ -13,8 +13,7 @@ export const likeAPI = {
     })
     return {
       isLiked: !!data.isLiked,
-      likeCount:
-        data.likeCount ?? (Array.isArray(data.likes) ? data.likes.length : 0),
+      likeCount: data.likeCount ?? 0,
       likes: Array.isArray(data.likes) ? data.likes : [],
     }
   },

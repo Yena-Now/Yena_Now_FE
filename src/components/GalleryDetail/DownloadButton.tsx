@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useToast } from '@/hooks/useToast'
 import { useNavigate } from 'react-router-dom'
 import * as S from '@/styles/components/GalleryDetail/DownloadButtonStyle'
-import DownloadMenu from './DownloadMenu'
+import DownloadMenu from '@components/GalleryDetail/DownloadMenu'
 
 interface DownloadButtonProps {
   fileUrl: string
@@ -19,7 +19,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
 
   const ext = fileUrl.split('.').pop()?.toLowerCase() || ''
   const isVideo = ['mp4', 'mov', 'webm'].includes(ext)
-  const isImage = ['jpg', 'jpeg', 'png'].includes(ext)
+  const isImage = ['jpg', 'jpeg', 'png', 'webp'].includes(ext)
 
   const downloadFile = async (url: string, filename: string) => {
     try {
