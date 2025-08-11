@@ -16,9 +16,9 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
   nickname,
   // ncut_uuid,
   thumbnailUrl,
-  ncutURL,
+  ncutUrl,
   likeCount,
-  isRelay,
+  relay,
   onClick,
 }) => {
   const navigate = useNavigate()
@@ -28,18 +28,18 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
     navigate(`/profile/${userUuid}`)
   }
 
-  const isVideo = /\.(mp4|webm|ogg|m4v)$/i.test(ncutURL)
+  const isVideo = /\.(mp4|webm|ogg|m4v)$/i.test(ncutUrl)
 
   return (
     <>
       <S.Conainter onClick={onClick}>
         <S.RelayIcon>
-          {isRelay && <FaRotate style={{ color: 'white' }} />}
+          {relay && <FaRotate style={{ color: 'white' }} />}
         </S.RelayIcon>
         <S.PhotoWrapper>
           {isVideo ? (
             <HoverVideoPlayer
-              videoSrc={ncutURL}
+              videoSrc={ncutUrl}
               pausedOverlay={<S.Photo src={thumbnailUrl} alt="썸네일" />}
               loadingOverlay={<LoadingSpinner />}
               muted
@@ -48,7 +48,7 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
               // restartOnPaused // 일시정지 재시작
             />
           ) : (
-            <S.Photo src={ncutURL} alt="썸네일" />
+            <S.Photo src={ncutUrl} alt="썸네일" />
           )}
         </S.PhotoWrapper>
         <S.InfoWrapper>
@@ -63,7 +63,7 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
             <S.UserName onClick={handleProfileClick}>{nickname}</S.UserName>
           </S.Box>
           <S.Box>
-            <GoHeartFill size={12} />
+            <GoHeartFill size={12} color="red" />
             <S.likeText>{likeCount}</S.likeText>
           </S.Box>
         </S.InfoWrapper>

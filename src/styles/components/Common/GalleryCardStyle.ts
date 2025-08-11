@@ -32,18 +32,20 @@ export const PhotoWrapper = styled.div`
 
   img,
   video {
-    width: 400px;
-    height: 100%;
+    display: block;
+    width: 100%;
+    height: auto;
     object-fit: contain;
   }
 `
 
 export const Photo = styled.img`
-  width: 400px;
-  height: 100%;
+  display: block;
+  background-color: #2c2c2c;
+  width: 100%; /* 카드 폭에 맞춤 */
+  height: auto; /* 원본 비율 유지 */
   object-fit: contain;
 `
-
 export const RelayIcon = styled.span`
   position: absolute;
   margin: 10px;
