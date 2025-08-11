@@ -1,4 +1,4 @@
-import apiClient from './client'
+import apiClient from '@/api/client'
 import type { UserSearchResponse } from '@/types/UserSearchModal'
 
 export const searchAPI = {
