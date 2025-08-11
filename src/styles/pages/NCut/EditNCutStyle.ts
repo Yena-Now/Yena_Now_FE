@@ -32,3 +32,10 @@ export const EditNCutNextButton = styled.button`
   background-color: #f9be08;
   color: white;
 `
+
+export const HostIndicator = styled.div`
+  position: absolute;
+  top: 20px;
+  font-size: 16px;
+  font-weight: bold;
+`

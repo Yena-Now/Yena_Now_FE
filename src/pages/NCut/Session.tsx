@@ -8,7 +8,6 @@ import { Chat } from '@components/NCut/Chat'
 import { useToast } from '@hooks/useToast'
 import { useDragAndDrop } from '@hooks/useDragAndDrop'
 import * as S from '@styles/pages/NCut/SessionStyle'
-import { s3API } from '@/api/s3'
 import {
   IoCameraOutline,
   IoVideocamOffOutline,
@@ -344,16 +343,10 @@ export const Session: React.FC = () => {
         return
       }
 
-      const fileName = `session-capture-${new Date().getTime()}.png`
-      const file = new File([blob], fileName, { type: 'image/png' })
-
-      const fileUrl = await s3API.upload({
-        file,
-        type: 'profile',
-      })
+      const localUrl = URL.createObjectURL(blob)
 
       success('캡처된 이미지를 저장했습니다.')
-      sendUrls([...sharedUrls, fileUrl as unknown as string])
+      sendUrls([...sharedUrls, localUrl as unknown as string])
 
       sendChatMessage('촬영 완료!')
     } catch (err) {
@@ -388,17 +381,11 @@ export const Session: React.FC = () => {
           type: 'video/mp4',
         })
 
-        const fileName = `session-recording-${new Date().getTime()}.mp4`
-        const file = new File([blob], fileName, { type: 'video/mp4' })
+        const localUrl = URL.createObjectURL(blob)
 
-        const fileUrl = s3API.upload({
-          file,
-          type: 'profile',
-        })
-
-        console.log('영상 녹화 성공:', fileUrl)
+        console.log('영상 녹화 성공:', localUrl)
         success('녹화된 영상을 저장했습니다.')
-        sendUrls([...sharedUrls, fileUrl as unknown as string])
+        sendUrls([...sharedUrls, localUrl as unknown as string])
         recordedChunksRef.current = [] // 녹화가 끝나면 청소
       }
 
@@ -530,6 +517,7 @@ export const Session: React.FC = () => {
       sharedUrls,
       cutCount,
       roomCode: location.state?.roomCode,
+      isHost: location.state?.isHost,
     }
 
     sendNavigateToEdit(location.state?.roomCode, editData)

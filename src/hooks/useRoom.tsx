@@ -40,6 +40,8 @@ export const useRoom = () => {
   const [allUsersSelections, setAllUsersSelections] = useState<{
     [userId: string]: string[]
   }>({})
+  const [currentEditPage, setCurrentEditPage] = useState<number>(0)
+  const [isHost, setIsHost] = useState<boolean>(false)
 
   const connectionAttemptRef = useRef<boolean>(false)
   const roomRef = useRef<Room | undefined>(undefined)
@@ -87,9 +89,65 @@ export const useRoom = () => {
           ...prev,
           [participant.identity]: data.selectedUrls,
         }))
+      } else if (data.type === 'pageSync') {
+        setCurrentEditPage(data.page)
+      } else if (data.type === 'decorateUpdate') {
+        window.dispatchEvent(
+          new CustomEvent('decorateUpdate', { detail: data }),
+        )
       }
     },
     [],
+  )
+
+  const broadcastPageChange = useCallback(
+    (page: number) => {
+      if (room && isHost) {
+        const encoder = new TextEncoder()
+        const data = encoder.encode(
+          JSON.stringify({
+            type: 'pageSync',
+            page,
+          }),
+        )
+        room.localParticipant
+          .publishData(
+            data,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            DataPacket_Kind.RELIABLE,
+          )
+          .then(() => {
+            setCurrentEditPage(page)
+          })
+      }
+    },
+    [room, isHost],
+  )
+
+  const broadcastDecorateUpdate = useCallback(
+    (decorateData: unknown) => {
+      if (room) {
+        const encoder = new TextEncoder()
+        const data = encoder.encode(
+          JSON.stringify({
+            type: 'decorateUpdate',
+            ...(typeof decorateData === 'object' && decorateData !== null
+              ? decorateData
+              : {}),
+          }),
+        )
+        room.localParticipant
+          .publishData(
+            data,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            DataPacket_Kind.RELIABLE,
+          )
+          .then(() => {})
+      }
+    },
+    [room],
   )
 
   const broadcastSelection = useCallback(
@@ -379,5 +437,11 @@ export const useRoom = () => {
     sendNavigateToEdit,
     allUsersSelections,
     broadcastSelection,
+    currentEditPage,
+    setCurrentEditPage,
+    isHost,
+    setIsHost,
+    broadcastPageChange,
+    broadcastDecorateUpdate,
   }
 }
