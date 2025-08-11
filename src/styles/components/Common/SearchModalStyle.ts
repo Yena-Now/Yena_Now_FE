@@ -40,6 +40,7 @@ export const SearchInput = styled.input`
   width: 70%;
   height: 45px;
   padding: 0 40px 0 20px;
+  margin-bottom: 10px;
   border: none;
   border-radius: 8px;
   background-color: white;
@@ -52,10 +53,9 @@ export const SearchInput = styled.input`
 `
 
 export const UserList = styled.div`
-  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  height: 470px;
+  height: 100%;
   overflow-y: auto;
 `
 
@@ -89,11 +89,11 @@ export const Nickname = styled.div`
   color: #222;
 `
 
-export const Name = styled.div`
-  padding: 7px 1px;
+export const Name = styled.span`
   font-size: 14px;
   color: #666;
-  margin-top: 2px;
+  margin-right: 5px;
+  font-weight: 500;
 `
 
 export const Empty = styled.p`
@@ -116,16 +116,17 @@ export const Error = styled.p`
   line-height: 1.35;
 `
 
-export const Badge = styled.span`
-  margin-left: auto; /* 오른쪽 끝으로 밀기 */
+export const Following = styled.span`
   align-self: center;
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 9999px; /* pill */
+  color: #9b9b9bff;
   font-size: 12px;
-  font-weight: 600;
-  border: 1px solid #e0e7ff; /* indigo-100 */
-  background: #eef2ff; /* indigo-50 */
-  color: #3538cd; /* indigo-700 */
-  white-space: nowrap;
+  font-weight: 500;
+`
+
+export const UserState = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  /* flex-direction: row; */
 `

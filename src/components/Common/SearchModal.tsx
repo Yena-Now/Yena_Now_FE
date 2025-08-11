@@ -45,7 +45,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
         setItems((prev) =>
           replace ? res.userSearches : [...prev, ...res.userSearches],
         )
-      } catch (e) {
+      } catch {
         setError('검색 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.')
       } finally {
         setIsFetching(false)
@@ -119,6 +119,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
 
   const handleClick = (user: User) => {
     if (type === 'search') {
+      onClose()
       navigate(`/users/profile/${user.userUuid}`)
     } else if (type === 'invite' && onSelect) {
       onSelect(user)
@@ -156,9 +157,11 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
                 />
                 <S.UserInfo>
                   <S.Nickname>{user.nickname}</S.Nickname>
-                  {user.name && <S.Name>{user.name}</S.Name>}
+                  <S.UserState>
+                    {user.name && <S.Name>{user.name}</S.Name>}
+                    {user.isFollowing && <S.Following> · 팔로잉</S.Following>}
+                  </S.UserState>
                 </S.UserInfo>
-                {user.isFollowing && <S.Badge>팔로잉</S.Badge>}
               </S.UserItem>
               {idx < items.length - 1 && <S.Divider />}
             </React.Fragment>
