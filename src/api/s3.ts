@@ -19,7 +19,6 @@ export const s3API = {
         fileName: request.file.name,
         contentType: request.file.type,
         relayUuid: request?.relayUuid || null,
-        nCutUuid: request?.nCutUuid || null,
       },
       {
         withCredentials: true,
