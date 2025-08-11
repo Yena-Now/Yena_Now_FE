@@ -334,7 +334,7 @@ export const Session: React.FC = () => {
           (blob) => {
             if (blob) resolve(blob)
           },
-          'image/webp',
+          'image/png',
           1,
         )
       })
@@ -344,8 +344,8 @@ export const Session: React.FC = () => {
         return
       }
 
-      const fileName = `session-capture-${new Date().getTime()}.webp`
-      const file = new File([blob], fileName, { type: 'image/webp' })
+      const fileName = `session-capture-${new Date().getTime()}.png`
+      const file = new File([blob], fileName, { type: 'image/png' })
 
       const fileUrl = await s3API.upload({
         file,
@@ -372,7 +372,7 @@ export const Session: React.FC = () => {
 
       // MediaRecorder 설정
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm;codecs=vp9',
+        mimeType: 'video/mp4;codecs=vp9',
       })
 
       recordedChunksRef.current = []
@@ -385,11 +385,11 @@ export const Session: React.FC = () => {
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(recordedChunksRef.current, {
-          type: 'video/webm',
+          type: 'video/mp4',
         })
 
-        const fileName = `session-recording-${new Date().getTime()}.webm`
-        const file = new File([blob], fileName, { type: 'video/webm' })
+        const fileName = `session-recording-${new Date().getTime()}.mp4`
+        const file = new File([blob], fileName, { type: 'video/mp4' })
 
         const fileUrl = s3API.upload({
           file,
