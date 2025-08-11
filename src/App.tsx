@@ -16,6 +16,7 @@ import CreateSession from '@pages/NCut/CreateSession'
 import ParticipationSession from '@pages/NCut/ParticipationSession'
 import Session from '@pages/NCut/Session'
 import GalleryPage from '@pages/Gallery/Gallery'
+import Moment from '@pages/Moment'
 import 'react-datepicker/dist/react-datepicker.css'
 
 function App() {
@@ -56,8 +57,7 @@ function App() {
     return <div>로딩 중...</div>
   }
 
-  const showHeader =
-    isLoggedIn && !location.pathname.startsWith('/film/room/')
+  const showHeader = isLoggedIn && !location.pathname.startsWith('/film/room/')
 
   return (
     <>
@@ -163,6 +163,12 @@ function App() {
                 ) : (
                   <Navigate to="/login" replace />
                 )
+              }
+            />
+            <Route
+              path="/daily-moment"
+              element={
+                isLoggedIn ? <Moment /> : <Navigate to="/login" replace />
               }
             />
           </Routes>

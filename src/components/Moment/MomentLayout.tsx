@@ -1,0 +1,122 @@
+import { useCallback, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import type { RankingResponse } from '@/types/moment'
+import MomentCut from '@components/Moment/MomentCut'
+import { IoIosArrowForward } from 'react-icons/io'
+import { IoIosArrowBack } from 'react-icons/io'
+import * as S from '@styles/components/Moment/MomentLayoutStyle'
+
+interface MomentLayoutProps {
+  nCuts: RankingResponse
+}
+
+const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const weekly = searchParams.has('weekly')
+
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const imgRef = useRef<HTMLImageElement | null>(null)
+
+  const [orient, setOrient] = useState<'portrait' | 'landscape'>('landscape')
+  const handleVideoLoad = useCallback(() => {
+    const v = videoRef.current
+    if (!v) return
+    const { videoWidth, videoHeight } = v
+    setOrient(videoWidth >= videoHeight ? 'landscape' : 'portrait')
+  }, [])
+
+  const handleImageLoad = useCallback(() => {
+    const i = imgRef.current
+    if (!i) return
+    setOrient(i.naturalWidth >= i.naturalHeight ? 'landscape' : 'portrait')
+  }, [])
+
+  const getExt = (url: string): string => {
+    const clean = url.split('#')[0].split('?')[0]
+    const i = clean.lastIndexOf('.')
+    return i >= 0 ? clean.slice(i + 1).toLowerCase() : ''
+  }
+
+  const getType = (url: string): 'video' | 'image' => {
+    const ext = getExt(url)
+    if (ext === 'mp4') {
+      return 'video'
+    }
+    if (ext === 'webp' || ext === 'png' || ext === 'jpg') return 'image'
+    return 'image'
+  }
+
+  const hasCuts = Array.isArray(nCuts) && nCuts.length > 0
+  const url = hasCuts && nCuts ? nCuts[0].ncutUrl : ''
+  const mediaType = getType(url)
+
+  return (
+    <>
+      {hasCuts ? (
+        <>
+          <S.MainWrapper weekly={weekly}>
+            <S.Left weekly={weekly}>
+              {weekly ? (
+                <>
+                  <div>
+                    <S.TitleWrapper weekly={weekly}>
+                      <S.SubTitle>가장 많이 머물렀던 순간이에요</S.SubTitle>
+                      <S.Title>지난주의 순간</S.Title>
+                    </S.TitleWrapper>
+                    <S.MoveText
+                      weekly={weekly}
+                      onClick={() => navigate('/daily-moment')}
+                    >
+                      <IoIosArrowBack /> 어제의 가장 빛났던 순간도 놓치지 마세요
+                    </S.MoveText>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <S.TitleWrapper weekly={weekly}>
+                      <S.SubTitle>지난 일주일의 하이라이트</S.SubTitle>
+                      <S.Title>어제의 순간</S.Title>
+                    </S.TitleWrapper>
+                    <S.MoveText
+                      weekly={weekly}
+                      onClick={() => navigate('/daily-moment?weekly')}
+                    >
+                      지난 주엔 어떤 순간들이 있었을까요?
+                      <IoIosArrowForward />
+                    </S.MoveText>
+                  </div>
+                </>
+              )}
+            </S.Left>
+            <S.FirstNCut className={orient} weekly={weekly}>
+              {mediaType === 'video' ? (
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  onLoadedMetadata={handleVideoLoad}
+                />
+              ) : (
+                <img ref={imgRef} src={url} onLoad={handleImageLoad} />
+              )}
+            </S.FirstNCut>
+          </S.MainWrapper>
+
+          {nCuts.map((cut) => (
+            <MomentCut key={cut.ncutUuid} nCut={cut} />
+          ))}
+        </>
+      ) : (
+        <S.EmptyText>
+          <p> 아직 등록된 N컷이 없습니다</p>
+        </S.EmptyText>
+      )}
+    </>
+  )
+}
+
+export default MomentLayout
