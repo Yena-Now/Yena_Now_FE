@@ -1,6 +1,9 @@
 export interface StateProps {
   backgroundImageUrl: string
-  takeCnt: number
-  cutCnt: number
+  takeCount: number
+  cutCount: number
   timeLimit: number
+  cuts?: {
+    cutUrl: string
+  }[]
 }

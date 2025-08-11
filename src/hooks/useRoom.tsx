@@ -21,6 +21,11 @@ type TrackInfo = {
   brightness: number
 }
 
+export type CountdownInfo = {
+  action: 'capture' | 'record'
+  initiator: string
+}
+
 export const useRoom = () => {
   const [room, setRoom] = useState<Room | undefined>(undefined)
   const [localTrack, setLocalTrack] = useState<LocalVideoTrack | undefined>(
@@ -30,6 +35,11 @@ export const useRoom = () => {
   const [isConnecting, setIsConnecting] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<string>('준비 중...')
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  const [sharedUrls, setSharedUrls] = useState<string[]>([])
+  const [countdownInfo, setCountdownInfo] = useState<CountdownInfo | null>(null)
+  const [allUsersSelections, setAllUsersSelections] = useState<{
+    [userId: string]: string[]
+  }>({})
 
   const connectionAttemptRef = useRef<boolean>(false)
   const roomRef = useRef<Room | undefined>(undefined)
@@ -61,9 +71,48 @@ export const useRoom = () => {
           timestamp: Date.now(),
         }
         setChatMessages((prev) => [...prev, newMessage])
+      } else if (data.type === 'urlsUpdate') {
+        setSharedUrls(data.urls)
+      } else if (data.type === 'countdownStart') {
+        setCountdownInfo({
+          action: data.action,
+          initiator: participant.identity,
+        })
+        setTimeout(() => setCountdownInfo(null), 3500)
+      } else if (data.type === 'navigateToEdit') {
+        sessionStorage.setItem('editData', JSON.stringify(data.editData))
+        window.location.href = `/film/room/${data.roomCode}/edit`
+      } else if (data.type === 'userSelection') {
+        setAllUsersSelections((prev) => ({
+          ...prev,
+          [participant.identity]: data.selectedUrls,
+        }))
       }
     },
     [],
+  )
+
+  const broadcastSelection = useCallback(
+    (selectedUrls: string[]) => {
+      if (room) {
+        const encoder = new TextEncoder()
+        const data = encoder.encode(
+          JSON.stringify({
+            type: 'userSelection',
+            selectedUrls,
+          }),
+        )
+        room.localParticipant
+          .publishData(
+            data,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            DataPacket_Kind.RELIABLE,
+          )
+          .then((r) => console.log(r))
+      }
+    },
+    [room],
   )
 
   const handleTrackSubscribed = useCallback(
@@ -241,6 +290,76 @@ export const useRoom = () => {
     }
   }, [])
 
+  const sendUrls = useCallback((urls: string[]) => {
+    if (roomRef.current) {
+      const encoder = new TextEncoder()
+      const data = encoder.encode(
+        JSON.stringify({
+          type: 'urlsUpdate',
+          urls,
+        }),
+      )
+      roomRef.current.localParticipant
+        .publishData(
+          data,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {
+          setSharedUrls(urls)
+        })
+    }
+  }, [])
+
+  const sendNavigateToEdit = useCallback(
+    (roomCode: string, editData: unknown) => {
+      if (roomRef.current) {
+        const encoder = new TextEncoder()
+        const data = encoder.encode(
+          JSON.stringify({
+            type: 'navigateToEdit',
+            roomCode,
+            editData,
+          }),
+        )
+        roomRef.current.localParticipant
+          .publishData(
+            data,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            DataPacket_Kind.RELIABLE,
+          )
+          .then(() => {
+            console.log('Navigate to edit sent')
+          })
+      }
+    },
+    [],
+  )
+
+  const startSharedCountdown = useCallback((action: 'capture' | 'record') => {
+    if (roomRef.current) {
+      const data = { type: 'countdownStart', action }
+      const encoder = new TextEncoder()
+      const encodedData = encoder.encode(JSON.stringify(data))
+      roomRef.current.localParticipant
+        .publishData(
+          encodedData,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {
+          setCountdownInfo({
+            action,
+            initiator: roomRef.current!.localParticipant.identity,
+          })
+          setTimeout(() => setCountdownInfo(null), 3500)
+        })
+    }
+  }, [])
+
   return {
     room,
     localTrack,
@@ -253,5 +372,12 @@ export const useRoom = () => {
     sendData,
     chatMessages,
     sendChatMessage,
+    sharedUrls,
+    sendUrls,
+    countdownInfo,
+    startSharedCountdown,
+    sendNavigateToEdit,
+    allUsersSelections,
+    broadcastSelection,
   }
 }

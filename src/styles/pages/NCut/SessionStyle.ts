@@ -27,12 +27,28 @@ export const SessionHeader = styled.div`
   padding: 20px;
 `
 
+export const SessionRoomCode = styled.span`
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  margin-left: 0.5rem;
+`
+
+export const CopyIcon = styled.div`
+  cursor: pointer;
+  padding-left: 10px;
+  color: #666;
+  &:hover {
+    color: #333;
+  }
+`
+
 export const RemainingTakesCnt = styled.span`
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
   display: flex;
-  margin-left: calc(50% - 1.5rem);
 `
 
 export const LeaveSessionButton = styled.button`
@@ -51,6 +67,27 @@ export const SessionLayoutContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+`
+
+export const CanvasWrapper = styled.div`
+  position: relative;
+`
+
+export const CountDownOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15rem;
+  font-weight: bold;
+  color: white;
+  -webkit-text-stroke: 4px black;
+  z-index: 10;
+  pointer-events: none;
 `
 
 export const CanvasContainer = styled.canvas<{ $customCursor: string }>`

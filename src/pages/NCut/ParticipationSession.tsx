@@ -79,9 +79,10 @@ const ParticipationSession: React.FC = () => {
       sessionStorage.setItem('sessionToken', response.token)
       sessionStorage.setItem('sessionRoomCode', sessionId)
       sessionStorage.setItem('backgroundUrl', response.backgroundUrl)
-      sessionStorage.setItem('takeCnt', response.takeCnt.toString())
-      sessionStorage.setItem('cutCnt', response.cutCnt.toString())
+      sessionStorage.setItem('takeCount', response.takeCount.toString())
+      sessionStorage.setItem('cutCount', response.cutCount.toString())
       sessionStorage.setItem('timeLimit', response.timeLimit.toString())
+      sessionStorage.setItem('cuts', JSON.stringify(response.cuts))
     } catch {
       setIsExist(false)
       setIsModalOpen(true)
@@ -94,21 +95,23 @@ const ParticipationSession: React.FC = () => {
     const token = sessionStorage.getItem('sessionToken')
     const roomCode = sessionStorage.getItem('sessionRoomCode')
     const backgroundUrl = sessionStorage.getItem('backgroundUrl')
-    const takeCnt = sessionStorage.getItem('takeCnt')
-    const cutCnt = sessionStorage.getItem('cutCnt')
+    const takeCount = sessionStorage.getItem('takeCount')
+    const cutCount = sessionStorage.getItem('cutCount')
     const timeLimit = sessionStorage.getItem('timeLimit')
+    const cuts = sessionStorage.getItem('cuts')
 
     if (token && roomCode) {
       // Session 페이지로 이동
       navigate('/film/room/' + roomCode, {
         state: {
           roomCode: roomCode,
+          isHost: false,
           token: token,
           backgroundImageUrl: backgroundUrl || '',
-          takeCnt: takeCnt ? parseInt(takeCnt, 10) : 0,
-          cutCnt: cutCnt ? parseInt(cutCnt, 10) : 0,
+          takeCount: takeCount ? parseInt(takeCount, 10) : 0,
+          cutCount: cutCount ? parseInt(cutCount, 10) : 0,
           timeLimit: timeLimit ? parseInt(timeLimit, 10) : 0,
-          isHost: false,
+          cuts: cuts ? JSON.parse(cuts) : [],
         },
       })
     }

@@ -24,8 +24,8 @@ const CreateSession: React.FC = () => {
     backgroundImageUrl: null as string | null,
     selectedFilter: 'basic',
     isImageUploaded: false,
-    takeCnt: 6,
-    cutCnt: 2,
+    takeCount: 6,
+    cutCount: 2,
     timeLimit: 10,
   })
   const [originalImage, setOriginalImage] = useState<{
@@ -103,8 +103,8 @@ const CreateSession: React.FC = () => {
 
       const response = await nCutAPI.createSession({
         backgroundUrl: fileUrl as unknown as string,
-        takeCnt: formData.takeCnt,
-        cutCnt: formData.cutCnt,
+        takeCount: formData.takeCount,
+        cutCount: formData.cutCount,
         timeLimit: formData.timeLimit,
       })
 
@@ -188,8 +188,8 @@ const CreateSession: React.FC = () => {
           token: sessionToken,
           isHost: true,
           backgroundImageUrl: backgroundUrl,
-          takeCnt: formData.takeCnt,
-          cutCnt: formData.cutCnt,
+          takeCount: formData.takeCount,
+          cutCount: formData.cutCount,
           timeLimit: formData.timeLimit,
         },
       })

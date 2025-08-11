@@ -19,6 +19,7 @@
     "@types/axios": "^0.14.4",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.11.0",
+    "html2canvas": "^1.4.1",
     "livekit-client": "^2.15.3",
     "openvidu-browser": "^2.31.0",
     "react": "^19.1.0",
