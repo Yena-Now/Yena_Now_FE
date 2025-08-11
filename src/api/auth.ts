@@ -65,6 +65,8 @@ export const authAPI = {
     localStorage.setItem('accessToken', response.data.accessToken)
     localStorage.setItem('nickname', response.data.nickname)
     localStorage.setItem('profileUrl', response.data.profileUrl)
+    localStorage.setItem('userUuid', response.data.userUuid)
+
     apiClient.defaults.headers.common['Authorization'] =
       `Bearer ${response.data.accessToken}`
 
