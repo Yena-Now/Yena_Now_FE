@@ -20,6 +20,7 @@ import GalleryPage from '@pages/Gallery/Gallery'
 import GlobalStyle from '@styles/GlobalStyle'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import 'react-datepicker/dist/react-datepicker.css'
+import GalleryDetailPage from './pages/Gallery/GalleryDetail'
 
 function App() {
   const location = useLocation()
@@ -152,6 +153,16 @@ function App() {
               element={
                 isLoggedIn ? (
                   <ChangePassword />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/gallery/:ncutUuid"
+              element={
+                isLoggedIn ? (
+                  <GalleryDetailPage />
                 ) : (
                   <Navigate to="/login" replace />
                 )

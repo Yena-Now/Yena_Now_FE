@@ -6,7 +6,6 @@ export const InputContainer = styled.div`
   background-color: #eeeeee;
   border-radius: 8px;
   padding: 10px 12px;
-  width: 360px;
 `
 
 export const InputField = styled.input`
@@ -15,6 +14,7 @@ export const InputField = styled.input`
   outline: none;
   background-color: transparent;
   font-size: 14px;
+  width: 100%;
 `
 
 export const SendButton = styled.button`
