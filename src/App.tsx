@@ -17,6 +17,7 @@ import ParticipationSession from '@pages/NCut/ParticipationSession'
 import Session from '@pages/NCut/Session'
 import GalleryPage from '@pages/Gallery/Gallery'
 import 'react-datepicker/dist/react-datepicker.css'
+import GalleryDetailPage from './pages/Gallery/GalleryDetail'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -56,8 +57,7 @@ function App() {
     return <div>로딩 중...</div>
   }
 
-  const showHeader =
-    isLoggedIn && !location.pathname.startsWith('/film/room/')
+  const showHeader = isLoggedIn && !location.pathname.startsWith('/film/room/')
 
   return (
     <>
@@ -160,6 +160,16 @@ function App() {
               element={
                 isLoggedIn ? (
                   <ChangePassword />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/gallery/:ncutUuid"
+              element={
+                isLoggedIn ? (
+                  <GalleryDetailPage />
                 ) : (
                   <Navigate to="/login" replace />
                 )
