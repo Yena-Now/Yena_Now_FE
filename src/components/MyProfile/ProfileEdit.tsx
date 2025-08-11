@@ -5,6 +5,7 @@ import { s3API } from '@/api/s3'
 import type { UserMeResponse, UserMeInfoPatchRequest } from '@/types/User'
 import { useToast } from '@/hooks/useToast'
 import { validator } from '@/utils/validators'
+import { useAuthStore } from '@/store/authStore'
 import DatePicker from 'react-datepicker'
 import { FiUpload } from 'react-icons/fi'
 import { FaRegTrashCan } from 'react-icons/fa6'
@@ -28,6 +29,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null) // 프로필 사진을 눌렀을 때도 변경 로직 동작하도록
+  const logout = useAuthStore((state) => state.logout)
 
   // 1. 입력/수정
   const [userData, setUserData] = useState<UserMeInfoPatchRequest>({
@@ -95,6 +97,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
   const deleteUser = async () => {
     try {
       await userAPI.deleteUser()
+      logout()
       success('회원 탈퇴가 완료되었습니다.')
     } catch {
       error('다시 시도해 주세요.')

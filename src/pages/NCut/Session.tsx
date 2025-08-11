@@ -15,6 +15,7 @@ import {
   IoVideocamOutline,
 } from 'react-icons/io5'
 import type { StateProps } from '@/types/Session'
+import { useAuthStore } from '@/store/authStore'
 
 export const Session: React.FC = () => {
   const location = useLocation()
@@ -38,6 +39,9 @@ export const Session: React.FC = () => {
   const recordedChunksRef = useRef<Blob[]>([])
 
   const mainCanvasRef = useRef<HTMLCanvasElement>(null)
+
+  const user = useAuthStore((state) => state.user)
+  const nickname = user?.nickname || 'Anonymous'
 
   const {
     room,
@@ -561,9 +565,7 @@ export const Session: React.FC = () => {
             <Chat
               messages={chatMessages}
               onSendMessage={sendChatMessage}
-              currentUserIdentity={
-                localStorage.getItem('nickname') || 'Anonymous'
-              }
+              currentUserIdentity={nickname}
             />
           </S.ChatContainer>
         </S.OtherContainer>

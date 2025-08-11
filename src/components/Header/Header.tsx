@@ -4,6 +4,7 @@ import { authAPI } from '@/api/auth'
 import { userAPI } from '@/api/user'
 import { useToast } from '@/hooks/useToast'
 import type { UserMeResponse } from '@/types/User'
+import { useAuthStore } from '@/store/authStore'
 import Logo from '@components/Common/Logo'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/Header/HeaderStyle'
@@ -15,6 +16,7 @@ const Header: React.FC = () => {
   const [myInfo, setMyInfo] = useState<UserMeResponse | null>()
   const { error } = useToast()
   const navigate = useNavigate()
+  const logout = useAuthStore((state) => state.logout)
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -35,6 +37,7 @@ const Header: React.FC = () => {
     try {
       await authAPI.logout()
       navigate('/login')
+      logout()
     } catch {
       error('로그아웃에 실패했습니다. 다시 시도해주세요.')
     }
