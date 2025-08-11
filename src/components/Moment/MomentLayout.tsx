@@ -48,8 +48,11 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
   }
 
   const hasCuts = Array.isArray(nCuts) && nCuts.length > 0
-  const url = hasCuts && nCuts ? nCuts[0].ncutUrl : ''
+  // const url = hasCuts && nCuts ? nCuts[0].ncutUrl : ''
+  const url =
+    'https://yenanow.s3.ap-northeast-2.amazonaws.com/profile/299dc466-5d28-4705-83a8-5909e157883f.jpg'
   const mediaType = getType(url)
+  console.log('url', url)
 
   return (
     <>
@@ -105,10 +108,18 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
               )}
             </S.FirstNCut>
           </S.MainWrapper>
-
-          {nCuts.map((cut) => (
-            <MomentCut key={cut.ncutUuid} nCut={cut} />
-          ))}
+          <S.SubWrapper>
+            {nCuts.map((cut, index) => (
+              // <MomentCut key={cut.ncutUuid} nCut={cut} idx={index} />
+              <MomentCut
+                key={cut.ncutUuid}
+                ncutUrl={cut.ncutUrl}
+                ncutUuid={cut.ncutUuid}
+                likeCount={cut.likeCount}
+                idx={index}
+              />
+            ))}
+          </S.SubWrapper>
         </>
       ) : (
         <S.EmptyText>

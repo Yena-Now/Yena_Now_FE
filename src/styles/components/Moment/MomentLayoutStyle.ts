@@ -161,3 +161,11 @@ export const EmptyText = styled.div`
   gap: '0.5rem';
   text-align: 'center';
 `
+
+export const SubWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  place-items: center;
+  width: 100%;
+`
