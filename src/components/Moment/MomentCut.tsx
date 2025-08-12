@@ -6,6 +6,7 @@ import * as S from '@styles/components/Moment/MomentCutStyle'
 interface MomentCutProps {
   nCut: RankingNCut
 }
+
 const MomentCut: React.FC<MomentCutProps> = ({ nCut }) => {
   const { ncutUrl, ncutUuid, likeCount } = nCut
   const navigate = useNavigate()
@@ -30,16 +31,9 @@ const MomentCut: React.FC<MomentCutProps> = ({ nCut }) => {
   return (
     <S.Container onClick={() => navigate(`/gallery/${ncutUuid}`)}>
       {mediaType === 'image' ? (
-        <S.Image
-          src={`https://yenanow.s3.ap-northeast-2.amazonaws.com/${ncutUrl}`}
-        />
+        <S.Image src={ncutUrl} />
       ) : (
-        <S.Video
-          src={`https://yenanow.s3.ap-northeast-2.amazonaws.com/${ncutUrl}`}
-          autoPlay
-          muted
-          loop
-        />
+        <S.Video src={ncutUrl} autoPlay muted loop />
       )}
       <S.Overlay>
         <S.LikeCount>

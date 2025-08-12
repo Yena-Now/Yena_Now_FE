@@ -106,11 +106,12 @@ export const FirstNCut = styled.div<{ weekly?: boolean }>`
       ? css`
           margin-left: 5rem;
         `
-      : css``}
+      : css`
+          margin-left: 5rem;
+        `}
 
-  /* ✅ Container 스타일 반영 */
   position: relative;
-  display: inline-block; /* MomentCut.Container와 동일 */
+  display: inline-block;
   width: 80%;
   max-width: 100%;
   grid-area: right;
@@ -124,11 +125,9 @@ export const FirstNCut = styled.div<{ weekly?: boolean }>`
     0 24px 60px rgba(0, 0, 0, 0.15),
     0 8px 20px rgba(0, 0, 0, 0.06);
 
-  /* 높이 제어 변수 */
   --base-h: clamp(260px, 48vh, 520px);
   --thumb-h: var(--base-h);
 
-  /* 가로/세로 비율에 따른 높이 가변 */
   &.portrait {
     --thumb-h: calc(var(--base-h) * 1.3);
   }
@@ -146,10 +145,12 @@ export const FirstNCut = styled.div<{ weekly?: boolean }>`
     z-index: -1;
   }
 
+  max-width: fit-content;
+
   video,
   img {
     display: block;
-    width: auto;
+    width: 100%;
     max-width: 100%;
     height: var(--thumb-h);
     object-fit: contain;
@@ -161,12 +162,24 @@ export const FirstNCut = styled.div<{ weekly?: boolean }>`
   }
 `
 
-export const EmptyText = styled.div`
-  min-height: '60vh';
-  display: 'grid';
-  place-items: 'center';
-  gap: '0.5rem';
-  text-align: 'center';
+export const EmptyContainer = styled.div`
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  color: #555;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  padding: 2rem;
+`
+
+export const EmptyText = styled.p`
+  color: #555;
+  font-size: 0.8rem;
+  cursor: pointer;
 `
 
 export const SubWrapper = styled.div``

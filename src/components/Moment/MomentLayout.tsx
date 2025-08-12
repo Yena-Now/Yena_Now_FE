@@ -5,6 +5,7 @@ import MomentCut from '@components/Moment/MomentCut'
 import { IoIosArrowForward } from 'react-icons/io'
 import { IoIosArrowBack } from 'react-icons/io'
 import { FaRegHeart } from 'react-icons/fa'
+import { FaRegImage } from 'react-icons/fa'
 import * as S from '@styles/components/Moment/MomentLayoutStyle'
 import * as T from '@styles/components/Moment/MomentCutStyle'
 
@@ -58,7 +59,7 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
     for (let i = 0; i < arr.length; i += 3) out.push(arr.slice(i, i + 3))
     return out
   }
-  const rows = useMemo(() => chunk3(nCuts.slice(1)), [nCuts]) // 1등제외 2등~10등
+  const rows = useMemo(() => chunk3(nCuts.slice(1)), [nCuts]) // 1등 제외 2등~10등
 
   const rowRefs = useRef<HTMLDivElement[]>([])
   const [visibleRow, setVisibleRow] = useState<Record<number, boolean>>({})
@@ -135,11 +136,7 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
                   onLoadedMetadata={handleVideoLoad}
                 />
               ) : (
-                <T.Image
-                  ref={imgRef}
-                  src={`https://yenanow.s3.ap-northeast-2.amazonaws.com/${url}`}
-                  onLoad={handleImageLoad}
-                />
+                <T.Image ref={imgRef} src={url} onLoad={handleImageLoad} />
               )}
               <T.Overlay>
                 <T.LikeCount>
@@ -169,9 +166,19 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
           </S.SubWrapper>
         </>
       ) : (
-        <S.EmptyText>
+        <S.EmptyContainer>
+          <FaRegImage color="#ccc" size="3rem" />
           <p> 아직 등록된 N컷이 없습니다</p>
-        </S.EmptyText>
+          {weekly ? (
+            <S.EmptyText onClick={() => navigate('/daily-moment')}>
+              어제의 순간 보러가기
+            </S.EmptyText>
+          ) : (
+            <S.EmptyText onClick={() => navigate('/daily-moment?weekly')}>
+              지난주의 순간 보러가기
+            </S.EmptyText>
+          )}
+        </S.EmptyContainer>
       )}
     </S.Container>
   )
