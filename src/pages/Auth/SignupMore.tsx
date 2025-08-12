@@ -16,7 +16,7 @@ const SignupMore: React.FC = () => {
   const { success, error, warning } = useToast()
   const location = useLocation()
   const navigate = useNavigate()
-
+  const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { email, password } = location.state as {
     email: string
@@ -26,42 +26,40 @@ const SignupMore: React.FC = () => {
     email,
     password,
     nickname: '',
-    profileUrl: defaultProfileImage as string,
+    profileUrl: null,
     name: null,
     gender: null,
     birthdate: null,
     phoneNumber: null,
   })
 
-  const [selectedImage, setSelectedImage] = useState<File | null>(null)
-  const [isUploading, setIsUploading] = useState(false)
-  const [uploadUrl, setUploadUrl] = useState<string | null>(null)
-
   const [formBirth, setFormBirth] = useState({
     birthYear: '',
     birthMonth: '',
     birthDay: '',
   })
+  const [fileUrl, setFileUrl] = useState<string | null>(null) // 서버 전송용
+  const [selectedImage, setSelectedImage] = useState<File | null>(null) // 미리보기용
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0]
-      setSelectedImage(file)
-      setIsUploading(true)
-      try {
-        const { fileUrl } = await s3API.upload({
-          type: 'profile',
-          file,
-        })
-        setUploadUrl(fileUrl)
-      } catch (e) {
-        error('이미지 업로드에 실패했습니다.')
-        setUploadUrl(null)
-      } finally {
-        setIsUploading(false)
-      }
-    }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setSelectedImage(file)
+    setFileUrl(null)
   }
+
+  const previewObjectUrl = React.useMemo(() => {
+    if (!selectedImage) return undefined
+    return URL.createObjectURL(selectedImage)
+  }, [selectedImage])
+
+  useEffect(() => {
+    return () => {
+      if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl)
+    }
+  }, [previewObjectUrl])
+
+  const previewUrl = fileUrl ?? previewObjectUrl ?? defaultProfileImage
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -99,16 +97,25 @@ const SignupMore: React.FC = () => {
     }
 
     setIsUploading(true)
-
-    // 이미지 업로드는 handleFileChange에서 바로 처리되므로 필요 없음
-    const finalUrl = uploadUrl || defaultProfileImage
+    let uploadedUrl: string | null = null
+    try {
+      if (selectedImage) {
+        uploadedUrl = await s3API.uploadSignup({ file: selectedImage })
+        setFileUrl(uploadedUrl)
+      }
+    } catch {
+      setIsUploading(false)
+      error('이미지 업로드에 실패했습니다.')
+      return
+    }
 
     const submitData = {
       ...formData,
       birthdate: birthDate,
-      profileUrl: finalUrl,
+      profileUrl: uploadedUrl,
     }
 
+    // 회원가입 요청 보내는 부분
     const result = await authAPI.signup(submitData)
     if (result.userUuid) {
       await authAPI.login({
@@ -127,6 +134,8 @@ const SignupMore: React.FC = () => {
       }
     }
   }
+
+  // 닉네임
   const verifyNickname = async (nickname: string) => {
     try {
       const response = await userAPI.verifyNickname({ nickname })
@@ -161,13 +170,7 @@ const SignupMore: React.FC = () => {
         </S.LogoWrapper>
         <S2.ProfileImageWrapper>
           <ProfileImage
-            src={
-              uploadUrl
-                ? uploadUrl
-                : selectedImage
-                  ? URL.createObjectURL(selectedImage)
-                  : formData.profileUrl
-            }
+            src={previewUrl}
             width="140px"
             height="140px"
             alt="프로필 이미지"

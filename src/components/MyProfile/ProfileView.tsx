@@ -35,7 +35,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ myInfo, fetchMyInfo }) => {
     <T.Container>
       <T.TitleText>회원 정보</T.TitleText>
       <T.ProfileSection>
-        <ProfileImage width="150" height="150" />
+        <ProfileImage width="150" height="150" src={myInfo.profileUrl} />
       </T.ProfileSection>
       <T.Box>
         <S.Title>이름</S.Title>

@@ -12,6 +12,7 @@ import {
 import { useToast } from '@hooks/useToast'
 import type { ChatMessage } from '@/types/Chat'
 import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/store/authStore'
 
 type TrackInfo = {
   track: RemoteVideoTrack
@@ -74,7 +75,6 @@ export const useRoom = () => {
           type: 'pageSync',
           page: page,
           timestamp: Date.now(),
-          // 현재 선택된 데이터도 함께 전송
           currentSelections: {
             selectedUrls: selectedUrls,
             selectedFrame: selectedFrame,
@@ -202,6 +202,7 @@ export const useRoom = () => {
     },
     [room],
   )
+  const user = useAuthStore((state) => state.user)
 
   const handleDataReceived = useCallback(
     (payload: Uint8Array, participant?: RemoteParticipant) => {
@@ -488,8 +489,6 @@ export const useRoom = () => {
             // @ts-expect-error
             DataPacket_Kind.RELIABLE,
           )
-          // 이것도 .then을 사용하여 성공적으로 전송되었는지 확인할 수 있습니다.
-          // 안쓰면 빨간줄 뜸!
           .then(() => {})
       }
     },
@@ -498,7 +497,7 @@ export const useRoom = () => {
 
   const sendChatMessage = useCallback((message: string) => {
     if (roomRef.current && message.trim()) {
-      const nickname = localStorage.getItem('nickname') || 'Anonymous'
+      const nickname = user?.nickname || 'Anonymous'
 
       const chatData = {
         type: 'chatMessage',

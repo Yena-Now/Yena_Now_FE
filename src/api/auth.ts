@@ -26,6 +26,7 @@ export const authAPI = {
       )
       return response
     } catch (err) {
+      console.log(err)
       throw err
     }
   },
@@ -61,14 +62,11 @@ export const authAPI = {
   },
 
   login: async (loginData: LoginRequest): Promise<LoginResponse> => {
-    const response = await apiClient.post('/auth/login', loginData)
-    localStorage.setItem('accessToken', response.data.accessToken)
-    localStorage.setItem('nickname', response.data.nickname)
-    localStorage.setItem('profileUrl', response.data.profileUrl)
+    const response = await apiClient.post('/auth/login', loginData, {
+      withCredentials: true,
+    })
     apiClient.defaults.headers.common['Authorization'] =
       `Bearer ${response.data.accessToken}`
-
-    window.dispatchEvent(new Event('authChange'))
     return response.data
   },
 
