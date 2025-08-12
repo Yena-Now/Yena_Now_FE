@@ -56,7 +56,6 @@ export const useRoom = () => {
       const currentRoom = roomRef.current || room
 
       if (!currentRoom || currentRoom.state !== 'connected') {
-        console.log('Room not connected, cannot broadcast page change')
         error('연결이 끊어진 상태에서는 페이지를 변경할 수 없습니다.')
         return
       }
@@ -90,11 +89,8 @@ export const useRoom = () => {
           // @ts-expect-error
           DataPacket_Kind.RELIABLE,
         )
-        .then(() => {
-          console.log('Page change broadcasted successfully:', page)
-        })
-        .catch((err) => {
-          console.error('Failed to broadcast page change:', err)
+        .then(() => {})
+        .catch(() => {
           error('페이지 변경 브로드캐스트에 실패했습니다.')
         })
     },
@@ -105,14 +101,11 @@ export const useRoom = () => {
     (data: { selectedUrls?: string[]; selectedFrame?: string }) => {
       const currentRoom = roomRef.current || room
       if (!currentRoom) {
-        console.error('Failed to broadcast host selection: No room connection')
         return
       }
       if (!isHost) {
-        console.error('Failed to broadcast host selection: Not host')
         return
-      } // 호스트 본인의 상태 먼저 업데이트
-      console.log(data)
+      }
       if (data.selectedUrls !== undefined) {
         setSelectedUrls(data.selectedUrls)
       }
@@ -135,51 +128,50 @@ export const useRoom = () => {
           // @ts-expect-error
           DataPacket_Kind.RELIABLE,
         )
-        .then(() => {
-          console.log('Host selection broadcasted successfully:', data)
-        })
-        .catch((err) => {
-          console.error('Failed to broadcast host selection:', err)
-        })
+        .then(() => {})
+        .catch(() => {})
     },
     [isHost, room],
   )
 
   const broadcastDecorateUpdate = useCallback(
     (decorateData: unknown) => {
-      console.log('Broadcasting decorate update:', decorateData)
+      const currentRoom = roomRef.current || room
 
-      if (!room) {
-        console.warn('Room not available for broadcasting decorate update')
+      if (!currentRoom) {
         return
       }
 
-      if (room.state !== 'connected' || room.engine.isClosed) {
-        console.warn('Room not connected for broadcasting decorate update')
+      if (currentRoom.state !== 'connected' || currentRoom.engine.isClosed) {
         return
       }
 
       const encoder = new TextEncoder()
+
+      const decorateObj = decorateData as {
+        type: string
+        data: unknown
+        imageIndex: number
+      }
+
       const message = encoder.encode(
         JSON.stringify({
           type: 'decorateUpdate',
-          ...(decorateData as Record<string, unknown>),
+          actionType: decorateObj.type,
+          data: decorateObj.data,
+          imageIndex: decorateObj.imageIndex,
         }),
       )
 
-      room.localParticipant
+      currentRoom.localParticipant
         .publishData(
           message,
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-expect-error
           DataPacket_Kind.RELIABLE,
         )
-        .then(() => {
-          console.log('Decorate update broadcasted successfully:', decorateData)
-        })
-        .catch((err) => {
-          console.error('Failed to broadcast decorate update:', err)
-        })
+        .then(() => {})
+        .catch(() => {})
     },
     [room],
   )
@@ -264,17 +256,9 @@ export const useRoom = () => {
       } else if (data.type === 'pageSync') {
         if (data.currentSelections) {
           if (data.currentSelections.selectedUrls) {
-            console.log(
-              'Updating selectedUrls from pageSync:',
-              data.currentSelections.selectedUrls,
-            )
             setSelectedUrls(data.currentSelections.selectedUrls)
           }
           if (data.currentSelections.selectedFrame) {
-            console.log(
-              'Updating selectedFrame from pageSync:',
-              data.currentSelections.selectedFrame,
-            )
             setSelectedFrame(data.currentSelections.selectedFrame)
           }
         }
@@ -308,7 +292,9 @@ export const useRoom = () => {
         window.dispatchEvent(
           new CustomEvent('decorateUpdate', {
             detail: {
-              ...data,
+              type: data.actionType || data.type,
+              data: data.data,
+              imageIndex: data.imageIndex,
               participantId: participant.identity,
             },
           }),
@@ -443,14 +429,13 @@ export const useRoom = () => {
         setLocalTrack(bgRemovedTrack)
         setConnectionStatus('연결 완료')
       } catch (err) {
-        console.error('Connection error:', err)
         error(`세션 연결 실패: ${err}`)
         setConnectionStatus(`연결 실패: ${String(err)}`)
         if (roomRef.current) {
           try {
             await roomRef.current.disconnect()
-          } catch (disconnectError) {
-            console.error('Error during cleanup disconnect:', disconnectError)
+          } catch {
+            /* empty */
           }
 
           roomRef.current = undefined
@@ -588,9 +573,7 @@ export const useRoom = () => {
             // @ts-expect-error
             DataPacket_Kind.RELIABLE,
           )
-          .then(() => {
-            console.log('Navigate to edit sent')
-          })
+          .then(() => {})
       }
     },
     [],
@@ -615,9 +598,7 @@ export const useRoom = () => {
             // @ts-expect-error
             DataPacket_Kind.RELIABLE,
           )
-          .then(() => {
-            console.log('Navigate to next page sent')
-          })
+          .then(() => {})
       }
     },
     [],

@@ -76,22 +76,13 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
     }>({})
 
     useEffect(() => {
-      if (!isCollaborative) return
-
       const handleCollaborativeUpdate = (event: CustomEvent) => {
         const { type, data, imageIndex, participantId } = event.detail
 
-        console.log('Collaborative update received:', {
-          type,
-          data,
-          imageIndex,
-          participantId,
-        })
+        if (participantId === 'self') {
+          return
+        }
 
-        // 자신이 보낸 이벤트는 무시
-        if (participantId === 'self') return
-
-        // 사용자 활동 업데이트
         setOtherUsersActivity((prev) => ({
           ...prev,
           [participantId]: {
@@ -111,19 +102,9 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
 
         switch (type) {
           case 'changeImage':
-            // 다른 사용자가 이미지를 변경했을 때 활동 상태만 업데이트
-            console.log(
-              `User ${participantId} changed to image ${data?.imageIndex}`,
-            )
             break
 
           case 'addSticker':
-            console.log(
-              'Adding sticker from collaboration:',
-              data,
-              'to image',
-              imageIndex,
-            )
             if (typeof imageIndex === 'number' && data) {
               setImageDecorations((prev) => {
                 const updated = {
@@ -133,22 +114,12 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                     stickers: [...(prev[imageIndex]?.stickers || []), data],
                   },
                 }
-                console.log(
-                  'Updated decorations after adding sticker:',
-                  updated,
-                )
                 return updated
               })
             }
             break
 
           case 'addText':
-            console.log(
-              'Adding text from collaboration:',
-              data,
-              'to image',
-              imageIndex,
-            )
             if (typeof imageIndex === 'number' && data) {
               setImageDecorations((prev) => {
                 const updated = {
@@ -161,19 +132,12 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                     ],
                   },
                 }
-                console.log('Updated decorations after adding text:', updated)
                 return updated
               })
             }
             break
 
           case 'moveElement':
-            console.log(
-              'Moving element from collaboration:',
-              data,
-              'in image',
-              imageIndex,
-            )
             if (typeof imageIndex === 'number' && data) {
               setImageDecorations((prev) => {
                 const updated = {
@@ -194,22 +158,12 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                       ) || [],
                   },
                 }
-                console.log(
-                  'Updated decorations after moving element:',
-                  updated,
-                )
                 return updated
               })
             }
             break
 
           case 'delete':
-            console.log(
-              'Deleting element from collaboration:',
-              data,
-              'in image',
-              imageIndex,
-            )
             if (typeof imageIndex === 'number' && data?.id) {
               setImageDecorations((prev) => {
                 const updated = {
@@ -226,27 +180,15 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                       ) || [],
                   },
                 }
-                console.log(
-                  'Updated decorations after deleting element:',
-                  updated,
-                )
                 return updated
               })
             }
             break
 
           case 'selectElement':
-            console.log(
-              'Element selected by another user:',
-              data?.id,
-              'in image',
-              imageIndex,
-            )
-            // 다른 사용자가 선택한 요소 표시 (이미 otherUsersActivity에서 처리됨)
             break
 
           default:
-            console.log('Unhandled collaboration event type:', type)
             break
         }
       }
@@ -262,7 +204,7 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
           handleCollaborativeUpdate as EventListener,
         )
       }
-    }, [isCollaborative])
+    }, [])
 
     useEffect(() => {
       const interval = setInterval(() => {
@@ -324,8 +266,7 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
 
           const blob = await response.blob()
           return URL.createObjectURL(blob)
-        } catch (error) {
-          console.error('Failed to convert URL to blob:', error)
+        } catch {
           return url
         }
       },
@@ -341,19 +282,17 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
 
         try {
           const blobUrls = await Promise.all(
-            selectedUrls.map(async (url, index) => {
+            selectedUrls.map(async (url) => {
               try {
                 return await convertUrlToBlob(url)
-              } catch (error) {
-                console.warn(`Failed to load image ${index}:`, error)
+              } catch {
                 return url
               }
             }),
           )
 
           setImageBlobUrls(blobUrls)
-        } catch (error) {
-          console.error('Failed to load images:', error)
+        } catch {
           setImageBlobUrls(selectedUrls)
         } finally {
           setIsImagesLoading(false)
@@ -392,17 +331,59 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
     const gridLayout = getGridLayout(selectedUrls.length)
 
     // 편집 영역 크기 계산
+    const BASE_WIDTH = 400
+    const BASE_HEIGHT = 400
+
+    // 편집 영역 크기 계산을 더 정확하게
     const getEditAreaSize = useCallback(() => {
       const editArea = document.querySelector('[data-edit-area]') as HTMLElement
-      if (!editArea) return { width: 400, height: 400 }
+      if (!editArea) return { width: BASE_WIDTH, height: BASE_HEIGHT }
       const rect = editArea.getBoundingClientRect()
-      return { width: rect.width, height: rect.height }
+      return {
+        width: rect.width || BASE_WIDTH,
+        height: rect.height || BASE_HEIGHT,
+      }
     }, [])
+
+    // 좌표 변환 함수들 추가
+    const convertToRelativePosition = useCallback(
+      (x: number, y: number) => {
+        const editSize = getEditAreaSize()
+        return {
+          x: (x / editSize.width) * 100,
+          y: (y / editSize.height) * 100,
+        }
+      },
+      [getEditAreaSize],
+    )
+
+    const convertToAbsolutePosition = useCallback(
+      (xPercent: number, yPercent: number) => {
+        const editSize = getEditAreaSize()
+        return {
+          x: (xPercent / 100) * editSize.width,
+          y: (yPercent / 100) * editSize.height,
+        }
+      },
+      [getEditAreaSize],
+    )
+
+    // 미리보기용 크기 계산 함수 추가
+    const getPreviewScale = useCallback(() => {
+      const editSize = getEditAreaSize()
+      // 미리보기 영역의 실제 크기 (그리드 내 각 컷의 크기)
+      const previewCutWidth = 80 // 대략적인 미리보기 컷 크기
+      const previewCutHeight = 80
+
+      return {
+        scaleX: previewCutWidth / editSize.width,
+        scaleY: previewCutHeight / editSize.height,
+      }
+    }, [getEditAreaSize])
 
     // S3 업로드 함수
     const uploadDecoratedImages = useCallback(async (): Promise<string[]> => {
       if (isImagesLoading || !imageBlobUrls.length) {
-        console.warn('Images not ready')
         return selectedUrls
       }
 
@@ -520,9 +501,7 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
             })
 
             decoratedUrls.push(s3Response as unknown as string)
-          } catch (error) {
-            console.error(`Failed to process image ${i}:`, error)
-            // 실패 시 원본 업로드 시도
+          } catch {
             try {
               if (imageBlobUrls[i].startsWith('blob:')) {
                 const response = await fetch(imageBlobUrls[i])
@@ -541,8 +520,7 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
               } else {
                 decoratedUrls.push(imageBlobUrls[i])
               }
-            } catch (fallbackError) {
-              console.error(`Fallback failed for image ${i}:`, fallbackError)
+            } catch {
               decoratedUrls.push(selectedUrls[i])
             }
           }
@@ -625,45 +603,22 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
         const newSticker: Sticker = {
           id: `sticker-${Date.now()}-${Math.random()}`,
           src: emoji,
-          x: 50 + Math.random() * 100,
-          y: 50 + Math.random() * 100,
+          x: 10 + Math.random() * 70,
+          y: 10 + Math.random() * 70,
           size: 30,
           rotation: 0,
         }
-
-        console.log(
-          'Adding sticker locally:',
-          newSticker,
-          'to image',
-          currentImageIndex,
-        )
-
         updateCurrentDecorations((prev) => ({
           ...prev,
           stickers: [...prev.stickers, newSticker],
         }))
 
         if (isCollaborative && onDecorateUpdate) {
-          console.log('Broadcasting sticker add:', newSticker)
           onDecorateUpdate({
             type: 'addSticker',
             data: newSticker,
             imageIndex: currentImageIndex,
           })
-
-          // 테스트용: 자신의 이벤트도 시뮬레이션 (실제 프로덕션에서는 제거)
-          setTimeout(() => {
-            window.dispatchEvent(
-              new CustomEvent('decorateUpdate', {
-                detail: {
-                  type: 'addSticker',
-                  data: newSticker,
-                  imageIndex: currentImageIndex,
-                  participantId: 'test-user', // 'self'가 아닌 다른 ID 사용
-                },
-              }),
-            )
-          }, 100)
         }
       },
       [
@@ -681,19 +636,12 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
       const newTextElement: TextElement = {
         id: `text-${Date.now()}-${Math.random()}`,
         text: newText,
-        x: 50 + Math.random() * 100,
-        y: 50 + Math.random() * 100,
+        x: 10 + Math.random() * 60, // 10% ~ 70% 범위 (텍스트는 더 여유있게)
+        y: 10 + Math.random() * 70, // 10% ~ 80% 범위
         fontSize: fontSize,
         color: textColor,
         fontFamily: 'Arial, sans-serif',
       }
-
-      console.log(
-        'Adding text locally:',
-        newTextElement,
-        'to image',
-        currentImageIndex,
-      )
 
       updateCurrentDecorations((prev) => ({
         ...prev,
@@ -703,7 +651,6 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
       setNewText('')
 
       if (isCollaborative && onDecorateUpdate) {
-        console.log('Broadcasting text add:', newTextElement)
         onDecorateUpdate({
           type: 'addText',
           data: newTextElement,
@@ -727,7 +674,6 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
         e.stopPropagation()
         setSelectedElement(elementId)
 
-        // 선택 이벤트 브로드캐스트
         if (isCollaborative && onDecorateUpdate) {
           onDecorateUpdate({
             type: 'selectElement',
@@ -750,8 +696,12 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
 
         if (!element) return
 
-        const initialX = element.x
-        const initialY = element.y
+        const editSize = getEditAreaSize()
+        // 상대적 좌표를 절대 좌표로 변환
+        const initialAbsolutePos = convertToAbsolutePosition(
+          element.x,
+          element.y,
+        )
 
         const handlePointerMove = (e: MouseEvent | TouchEvent) => {
           const moveClientX = 'touches' in e ? e.touches[0].clientX : e.clientX
@@ -759,18 +709,33 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
 
           const deltaX = moveClientX - startX
           const deltaY = moveClientY - startY
-          const newX = Math.max(10, Math.min(initialX + deltaX, 350))
-          const newY = Math.max(10, Math.min(initialY + deltaY, 350))
+
+          const newAbsoluteX = Math.max(
+            10,
+            Math.min(initialAbsolutePos.x + deltaX, editSize.width - 10),
+          )
+          const newAbsoluteY = Math.max(
+            10,
+            Math.min(initialAbsolutePos.y + deltaY, editSize.height - 10),
+          )
+
+          // 절대 좌표를 상대 좌표로 변환
+          const newRelativePos = convertToRelativePosition(
+            newAbsoluteX,
+            newAbsoluteY,
+          )
 
           updateCurrentDecorations((prev) => ({
             ...prev,
             stickers: prev.stickers.map((sticker) =>
               sticker.id === elementId
-                ? { ...sticker, x: newX, y: newY }
+                ? { ...sticker, x: newRelativePos.x, y: newRelativePos.y }
                 : sticker,
             ),
             textElements: prev.textElements.map((text) =>
-              text.id === elementId ? { ...text, x: newX, y: newY } : text,
+              text.id === elementId
+                ? { ...text, x: newRelativePos.x, y: newRelativePos.y }
+                : text,
             ),
           }))
         }
@@ -778,7 +743,6 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
         const handlePointerUp = () => {
           setIsDragging(false)
 
-          // 이동 완료 이벤트 브로드캐스트
           if (isCollaborative && onDecorateUpdate) {
             const currentDecorations = getCurrentDecorations()
             const movedElement = [
@@ -826,6 +790,9 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
         isCollaborative,
         onDecorateUpdate,
         currentImageIndex,
+        getEditAreaSize,
+        convertToRelativePosition,
+        convertToAbsolutePosition,
       ],
     )
 
@@ -888,23 +855,17 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
       <S.DecorateContainer>
         <S.MainLayout>
           {/* 왼쪽: 전체 네컷 결과 미리보기 */}
-          <S.PreviewSection>
+          <S.PreviewSection $cutCount={selectedUrls.length}>
             <S.NCutPreview ref={canvasRef}>
               <S.NCutBackground
-                gridRows={gridLayout.rows}
-                gridCols={gridLayout.cols}
+                $gridRows={gridLayout.rows}
+                $gridCols={gridLayout.cols}
               >
                 {imageBlobUrls.map((url, index) => {
                   const decorations = imageDecorations[index] || {
                     stickers: [],
                     textElements: [],
                   }
-
-                  const editSize = getEditAreaSize()
-
-                  const isBeingEditedByOthers = Object.values(
-                    otherUsersActivity,
-                  ).some((activity) => activity.currentImageIndex === index)
 
                   return (
                     <S.CutImageContainer key={index} data-image-index={index}>
@@ -919,9 +880,9 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                         <S.CutSticker
                           key={sticker.id}
                           style={{
-                            left: `${Math.min((sticker.x / editSize.width) * 100, 95)}%`,
-                            top: `${Math.min((sticker.y / editSize.height) * 100, 95)}%`,
-                            fontSize: `${Math.max(sticker.size * 0.3, 8)}px`,
+                            left: `${Math.max(2, Math.min(sticker.x, 90))}%`, // 2% ~ 90% 범위로 제한
+                            top: `${Math.max(2, Math.min(sticker.y, 90))}%`, // 2% ~ 90% 범위로 제한
+                            fontSize: `${Math.max(sticker.size * 0.25, 6)}px`, // 미리보기용 크기 조정
                             transform: `rotate(${sticker.rotation}deg)`,
                             pointerEvents: 'none',
                             position: 'absolute',
@@ -934,27 +895,29 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                       ))}
 
                       {/* 미리보기에서 텍스트 표시 */}
-                      {decorations.textElements.map((textEl) => (
-                        <S.CutText
-                          key={textEl.id}
-                          style={{
-                            left: `${Math.min((textEl.x / editSize.width) * 100, 90)}%`,
-                            top: `${Math.min((textEl.y / editSize.height) * 100, 90)}%`,
-                            fontSize: `${Math.max(textEl.fontSize * 0.3, 6)}px`,
-                            color: textEl.color,
-                            fontFamily: textEl.fontFamily,
-                            pointerEvents: 'none',
-                            position: 'absolute',
-                            zIndex: 10,
-                            userSelect: 'none',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {textEl.text}
-                        </S.CutText>
-                      ))}
+                      {decorations.textElements.map((textEl) => {
+                        const scale = getPreviewScale()
+                        return (
+                          <S.CutText
+                            key={textEl.id}
+                            style={{
+                              left: `${Math.min(textEl.x, 90)}%`,
+                              top: `${Math.min(textEl.y, 90)}%`,
+                              fontSize: `${Math.max(textEl.fontSize * scale.scaleX, 6)}px`,
+                              color: textEl.color,
+                              fontFamily: textEl.fontFamily,
+                              pointerEvents: 'none',
+                              position: 'absolute',
+                              zIndex: 10,
+                              userSelect: 'none',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {textEl.text}
+                          </S.CutText>
+                        )
+                      })}
 
-                      {/* 현재 편집 중인 이미지 표시 */}
                       {index === currentImageIndex && (
                         <div
                           style={{
@@ -971,25 +934,6 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                           }}
                         >
                           편집 중
-                        </div>
-                      )}
-
-                      {isBeingEditedByOthers && index !== currentImageIndex && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '4px',
-                            right: '4px',
-                            background: '#ff6b6b',
-                            color: 'white',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            fontSize: '10px',
-                            fontWeight: 500,
-                            zIndex: 20,
-                          }}
-                        >
-                          다른 사용자 편집 중
                         </div>
                       )}
                     </S.CutImageContainer>
@@ -1076,7 +1020,12 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                 />
 
                 {currentDecorations.stickers.map((sticker) => {
-                  // 다른 사용자가 선택 중인 요소인지 확인
+                  // 상대적 좌표를 절대 좌표로 변환
+                  const absolutePos = convertToAbsolutePosition(
+                    sticker.x,
+                    sticker.y,
+                  )
+
                   const isSelectedByOthers = Object.values(
                     otherUsersActivity,
                   ).some(
@@ -1089,8 +1038,8 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                     <S.EditableSticker
                       key={sticker.id}
                       style={{
-                        left: `${sticker.x}px`,
-                        top: `${sticker.y}px`,
+                        left: `${Math.max(0, Math.min(absolutePos.x, getEditAreaSize().width - 40))}px`,
+                        top: `${Math.max(0, Math.min(absolutePos.y, getEditAreaSize().height - 40))}px`,
                         fontSize: `${sticker.size}px`,
                         transform: `rotate(${sticker.rotation}deg)`,
                         border:
@@ -1113,6 +1062,12 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                 })}
 
                 {currentDecorations.textElements.map((textEl) => {
+                  // 상대적 좌표를 절대 좌표로 변환
+                  const absolutePos = convertToAbsolutePosition(
+                    textEl.x,
+                    textEl.y,
+                  )
+
                   const isSelectedByOthers = Object.values(
                     otherUsersActivity,
                   ).some(
@@ -1125,8 +1080,8 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                     <S.EditableText
                       key={textEl.id}
                       style={{
-                        left: `${textEl.x}px`,
-                        top: `${textEl.y}px`,
+                        left: `${absolutePos.x}px`, // 절대 좌표 사용
+                        top: `${absolutePos.y}px`,
                         fontSize: `${textEl.fontSize}px`,
                         color: textEl.color,
                         fontFamily: textEl.fontFamily,
@@ -1200,13 +1155,13 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
             <S.EditToolsContainer>
               <S.EditTabs>
                 <S.TabButton
-                  active={activeTab === 'sticker'}
+                  $active={activeTab === 'sticker'}
                   onClick={() => setActiveTab('sticker')}
                 >
                   스티커
                 </S.TabButton>
                 <S.TabButton
-                  active={activeTab === 'text'}
+                  $active={activeTab === 'text'}
                   onClick={() => setActiveTab('text')}
                 >
                   텍스트
@@ -1244,23 +1199,25 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                         value={textColor}
                         onChange={(e) => setTextColor(e.target.value)}
                       />
-                      <S.FontSizeInfo>크기: {fontSize}px</S.FontSizeInfo>
                     </S.TextControls>
                     <S.FontSizeSlider
                       type="range"
                       min="12"
-                      max="48"
+                      max="72"
                       value={fontSize}
                       onChange={(e) => setFontSize(Number(e.target.value))}
                     />
-                    <S.AddButton onClick={addText} disabled={!newText.trim()}>
-                      텍스트 추가
-                    </S.AddButton>
+                    <S.FontSizeInfo>크기: {fontSize}px</S.FontSizeInfo>
                   </S.TextPanel>
                 )}
               </S.EditPanel>
 
               <S.ActionButtons>
+                <S.AddButton
+                  onClick={activeTab === 'sticker' ? undefined : addText}
+                >
+                  {activeTab === 'sticker' ? '스티커 추가' : '텍스트 추가'}
+                </S.AddButton>
                 <S.DeleteButton
                   onClick={deleteElement}
                   disabled={!selectedElement}

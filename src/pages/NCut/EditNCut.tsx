@@ -104,11 +104,8 @@ const EditNCut: React.FC = () => {
       setIsConnectionEstablished(false)
 
       try {
-        console.log('Initializing room connection...')
-
         // 기존 연결이 있다면 먼저 정리
         if (room && room.state !== 'disconnected') {
-          console.log('Cleaning up existing connection...')
           await room.disconnect()
           // 잠시 대기하여 완전히 정리되도록 함
           await new Promise((resolve) => setTimeout(resolve, 500))
@@ -124,9 +121,8 @@ const EditNCut: React.FC = () => {
         setIsConnectionEstablished(true)
         setIsReconnecting(false)
         success('방에 연결되었습니다.')
-      } catch (connectError) {
-        console.error('Connection failed:', connectError)
-
+      } catch {
+        
         if (!isMounted) return
 
         setIsConnectionEstablished(false)
@@ -134,7 +130,6 @@ const EditNCut: React.FC = () => {
 
         // 재시도 로직
         if (connectionRetries < 3) {
-          console.log(`Retrying connection... (${connectionRetries + 1}/3)`)
           setConnectionRetries((prev) => prev + 1)
 
           // 지수적 백오프: 5초, 10초, 15초
@@ -180,22 +175,17 @@ const EditNCut: React.FC = () => {
     let reconnectTimeout: NodeJS.Timeout
 
     const handleConnectionStateChanged = (state: string) => {
-      console.log(`Room state changed: ${state}`)
-
       if (state === 'connected') {
         setIsReconnecting(false)
         setIsConnectionEstablished(true)
         // 연결 성공 시 재시도 카운터 리셋
         setConnectionRetries(0)
       } else if (state === 'disconnected') {
-        console.log('Room disconnected')
         setIsConnectionEstablished(false)
 
-        // 의도적인 disconnection이 아닌 경우에만 재연결 시도
         if (sessionData && connectionRetries < 3) {
-          console.log('Attempting to reconnect...')
           reconnectTimeout = setTimeout(() => {
-            setConnectionAttempted(false) // 재연결을 위해 리셋
+            setConnectionAttempted(false)
           }, 3000)
         }
       } else if (state === 'reconnecting') {
@@ -204,10 +194,8 @@ const EditNCut: React.FC = () => {
     }
 
     const handleDisconnected = (reason?: string) => {
-      console.log('Room disconnected with reason:', reason)
       setIsConnectionEstablished(false)
 
-      // 특정 에러가 아닌 경우에만 재연결 시도
       if (
         reason !== 'CLIENT_INITIATED' &&
         sessionData &&
@@ -274,9 +262,8 @@ const EditNCut: React.FC = () => {
             isHostUser: parsed.isHost || false,
             token: parsed.token || '',
           })
-        } catch (error) {
-          console.error('Failed to parse session data:', error)
-          navigate('/')
+        } catch  {
+           navigate('/')
         }
       } else {
         navigate('/')
@@ -373,13 +360,10 @@ const EditNCut: React.FC = () => {
     if (!room) return
 
     const handleConnectionStateChanged = (state: string) => {
-      console.log(`Room state changed: ${state}`)
-
       if (state === 'connected') {
         setIsReconnecting(false)
         setIsConnectionEstablished(true)
       } else if (state === 'disconnected' && sessionData) {
-        console.log('Room disconnected')
         setIsConnectionEstablished(false)
       }
     }
@@ -414,8 +398,6 @@ const EditNCut: React.FC = () => {
 
         if (room && room.state === 'connected' && !room.engine.isClosed) {
           broadcastHostSelection({ selectedUrls: newSelection })
-        } else {
-          console.log('Room is not connected or engine is closed')
         }
 
         window.dispatchEvent(
@@ -532,6 +514,16 @@ const EditNCut: React.FC = () => {
     setCurrentEditPage(prevPage)
   }, [isHost, currentPage, error, broadcastPageChange, setCurrentEditPage])
 
+  const handleDecorateUpdate = useCallback(
+    (decorateData: unknown) => {
+      
+      if (broadcastDecorateUpdate) {
+         broadcastDecorateUpdate(decorateData)
+      }
+    },
+    [broadcastDecorateUpdate],
+  )
+
   const handleDecorateComplete = useCallback(async () => {
     if (!sessionData) return
 
@@ -577,9 +569,8 @@ const EditNCut: React.FC = () => {
       const nextPage = currentPage + 1
       setCurrentPage(nextPage)
       broadcastPageChange(nextPage)
-    } catch (err) {
-      console.error('Merge failed:', err)
-      error('병합 중 오류가 발생했습니다. 다시 시도해주세요.')
+    } catch {
+       error('병합 중 오류가 발생했습니다. 다시 시도해주세요.')
     }
   }, [
     sessionData,
@@ -682,7 +673,7 @@ const EditNCut: React.FC = () => {
       selectedUrls={selectedUrls}
       selectedFrame={selectedFrame}
       onDecoratedImageReady={handleDecoratedImageReady}
-      onDecorateUpdate={broadcastDecorateUpdate}
+      onDecorateUpdate={handleDecorateUpdate}
       isCollaborative={true}
       roomCode={sessionData.roomCode}
     />,

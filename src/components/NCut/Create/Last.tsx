@@ -14,8 +14,7 @@ function LastStep({ sessionId, onJoinSession }: LastStepProps) {
       .then(() => {
         alert('촬영 코드가 클립보드에 복사되었습니다.')
       })
-      .catch((err) => {
-        console.error('Failed to copy: ', err)
+      .catch(() => {
         alert('촬영 코드 복사에 실패했습니다.')
       })
   }

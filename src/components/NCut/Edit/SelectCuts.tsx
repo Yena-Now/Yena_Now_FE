@@ -27,8 +27,6 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
         if (hostSelectedIndex !== -1) {
           setCurrentImageIndex(hostSelectedIndex)
         }
-
-        console.log(hostSelectedUrls)
       }
     }
 

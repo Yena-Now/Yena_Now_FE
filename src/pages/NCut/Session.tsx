@@ -408,7 +408,6 @@ export const Session: React.FC = () => {
           roomCode: roomCode,
         })
 
-        console.log('영상 녹화 성공:', fileUrl)
         success('녹화된 영상을 저장했습니다.')
         sendUrls([...sharedUrls, fileUrl as unknown as string])
         recordedChunksRef.current = [] // 녹화가 끝나면 청소
@@ -466,7 +465,7 @@ export const Session: React.FC = () => {
         countdownInfo.initiator === room.localParticipant.identity
       ) {
         if (countdownInfo.action === 'capture') {
-          captureCanvas().then((r) => console.log(r))
+          captureCanvas().then(() => {})
         } else if (countdownInfo.action === 'record') {
           startRecording()
         }
@@ -505,11 +504,7 @@ export const Session: React.FC = () => {
     return () => {
       cleanup()
       if (room) {
-        // .then()을 사용하여 leaveRoom이 완료된 후에 로그를 출력
-        // 안하니까 빨간줄 뜸!
-        leaveRoom().then((r) => {
-          console.log('세션에서 나갔습니다:', r)
-        })
+        leaveRoom().then(() => {})
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
