@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { RankingResponse } from '@/types/moment'
 import MomentCut from '@components/Moment/MomentCut'
@@ -52,50 +52,77 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
   const url =
     'https://yenanow.s3.ap-northeast-2.amazonaws.com/profile/299dc466-5d28-4705-83a8-5909e157883f.jpg'
   const mediaType = getType(url)
-  console.log('url', url)
+
+  const chunk3 = <T,>(arr: T[]) => {
+    const out: T[][] = []
+    for (let i = 0; i < arr.length; i += 3) out.push(arr.slice(i, i + 3))
+    return out
+  }
+  const rows = useMemo(() => chunk3(nCuts), [nCuts])
+
+  const rowRefs = useRef<HTMLDivElement[]>([])
+  const [visibleRow, setVisibleRow] = useState<Record<number, boolean>>({})
+
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          const idx = Number((e.target as HTMLElement).dataset.index)
+          if (e.isIntersecting) {
+            setVisibleRow((prev) => ({ ...prev, [idx]: true }))
+          }
+        })
+      },
+      {
+        root: null,
+        threshold: 0.55,
+      },
+    )
+
+    rowRefs.current.forEach((el) => el && io.observe(el))
+    return () => io.disconnect()
+  }, [rows.length])
 
   return (
-    <>
+    <S.Container>
       {hasCuts ? (
         <>
           <S.MainWrapper weekly={weekly}>
             <S.Left weekly={weekly}>
               {weekly ? (
-                <>
-                  <div>
-                    <S.TitleWrapper weekly={weekly}>
-                      <S.SubTitle>가장 많이 머물렀던 순간이에요</S.SubTitle>
-                      <S.Title>지난주의 순간</S.Title>
-                    </S.TitleWrapper>
-                    <S.MoveText
-                      weekly={weekly}
-                      onClick={() => navigate('/daily-moment')}
-                    >
-                      <IoIosArrowBack /> 어제의 가장 빛났던 순간도 놓치지 마세요
-                    </S.MoveText>
-                  </div>
-                </>
+                <div>
+                  <S.TitleWrapper weekly={weekly}>
+                    <S.SubTitle>가장 많이 머물렀던 순간이에요</S.SubTitle>
+                    <S.Title>지난주의 순간</S.Title>
+                  </S.TitleWrapper>
+                  <S.MoveText
+                    weekly={weekly}
+                    onClick={() => navigate('/daily-moment')}
+                  >
+                    <IoIosArrowBack /> 어제의 가장 빛났던 순간도 놓치지 마세요
+                  </S.MoveText>
+                </div>
               ) : (
-                <>
-                  <div>
-                    <S.TitleWrapper weekly={weekly}>
-                      <S.SubTitle>지난 일주일의 하이라이트</S.SubTitle>
-                      <S.Title>어제의 순간</S.Title>
-                    </S.TitleWrapper>
-                    <S.MoveText
-                      weekly={weekly}
-                      onClick={() => navigate('/daily-moment?weekly')}
-                    >
-                      지난 주엔 어떤 순간들이 있었을까요?
-                      <IoIosArrowForward />
-                    </S.MoveText>
-                  </div>
-                </>
+                <div>
+                  <S.TitleWrapper weekly={weekly}>
+                    <S.SubTitle>지난 일주일의 하이라이트</S.SubTitle>
+                    <S.Title>어제의 순간</S.Title>
+                  </S.TitleWrapper>
+                  <S.MoveText
+                    weekly={weekly}
+                    onClick={() => navigate('/daily-moment?weekly')}
+                  >
+                    지난 주엔 어떤 순간들이 있었을까요?
+                    <IoIosArrowForward />
+                  </S.MoveText>
+                </div>
               )}
             </S.Left>
+
             <S.FirstNCut className={orient} weekly={weekly}>
               {mediaType === 'video' ? (
                 <video
+                  ref={videoRef}
                   autoPlay
                   muted
                   loop
@@ -109,15 +136,25 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
             </S.FirstNCut>
           </S.MainWrapper>
           <S.SubWrapper>
-            {nCuts.map((cut, index) => (
-              // <MomentCut key={cut.ncutUuid} nCut={cut} idx={index} />
-              <MomentCut
-                key={cut.ncutUuid}
-                ncutUrl={cut.ncutUrl}
-                ncutUuid={cut.ncutUuid}
-                likeCount={cut.likeCount}
-                idx={index}
-              />
+            {rows.map((row, rIdx) => (
+              <S.Row
+                key={`row-${rIdx}`}
+                data-index={rIdx}
+                ref={(el) => {
+                  if (el) rowRefs.current[rIdx] = el
+                }}
+                className={visibleRow[rIdx] ? 'in' : ''}
+              >
+                {row.map((cut, cIdx) => (
+                  <MomentCut
+                    key={cut.ncutUuid}
+                    ncutUrl={cut.ncutUrl}
+                    ncutUuid={cut.ncutUuid}
+                    likeCount={cut.likeCount}
+                    idx={rIdx * 3 + cIdx}
+                  />
+                ))}
+              </S.Row>
             ))}
           </S.SubWrapper>
         </>
@@ -126,7 +163,7 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
           <p> 아직 등록된 N컷이 없습니다</p>
         </S.EmptyText>
       )}
-    </>
+    </S.Container>
   )
 }
 

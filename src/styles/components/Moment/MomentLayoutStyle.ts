@@ -1,15 +1,29 @@
 import styled, { css } from 'styled-components'
 
+export const Container = styled.div`
+  width: 100%;
+  height: 100svh;
+  margin: 0 auto;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+`
+
 export const MainWrapper = styled.div<{ weekly?: boolean }>`
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 4rem;
   max-width: 1200px;
   width: 100%;
-  height: calc(100vh - 200px);
+  min-height: 100svh;
   margin: 0 auto;
   padding: 2rem;
+
   ${({ weekly }) =>
     weekly
       ? css`
@@ -162,10 +176,41 @@ export const EmptyText = styled.div`
   text-align: 'center';
 `
 
-export const SubWrapper = styled.div`
+export const SubWrapper = styled.div``
+
+export const Row = styled.div`
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: 100svh;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
   gap: 1rem;
   place-items: center;
-  width: 100%;
+
+  & > * {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 420ms ease,
+      transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: transform, opacity;
+  }
+
+  &.in > * {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  &.in > *:nth-child(1) {
+    transition-delay: 60ms;
+  }
+  &.in > *:nth-child(2) {
+    transition-delay: 140ms;
+  }
+  &.in > *:nth-child(3) {
+    transition-delay: 220ms;
+  }
 `

@@ -17,8 +17,10 @@ export const Overlay = styled.div`
 
 export const Container = styled.div`
   position: relative;
-  width: 200px;
-  aspect-ratio: 1 / 1; /* 정사각형 카드 */
+  width: 100%;
+  height: 600px;
+  scroll-snap-align: start;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,21 +35,20 @@ export const Container = styled.div`
 export const Image = styled.img`
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain; /* 크롭 없이 가운데 배치 */
+  object-fit: contain;
   display: block;
 `
 
 export const Video = styled.video`
-  border: 1px solid red;
   width: auto;
   max-height: 100%;
-  object-fit: contain; /* 크롭 없이 가운데 배치 */
+  object-fit: contain;
   display: block;
 `
 
 export const LikeCount = styled.span`
   display: flex;
-  align-items: center; /* 세로 가운데 정렬 */
+  align-items: center;
 `
 export const LikeIcon = styled.span`
   line-height: 1;

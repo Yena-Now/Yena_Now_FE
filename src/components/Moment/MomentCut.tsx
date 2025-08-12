@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import type { RankingNCut } from '@/types/moment'
 import { FaRegHeart } from 'react-icons/fa'
 import * as S from '@styles/components/Moment/MomentCutStyle'
@@ -12,6 +13,7 @@ const MomentCut: React.FC<MomentCutProps> = ({
   likeCount,
   idx,
 }) => {
+  const navigate = useNavigate()
   const getExt = (url: string): string => {
     const clean = url.split('#')[0].split('?')[0]
     const i = clean.lastIndexOf('.')
@@ -30,7 +32,7 @@ const MomentCut: React.FC<MomentCutProps> = ({
   const mediaType = getType(ncutUrl)
 
   return (
-    <S.Container>
+    <S.Container onClick={() => navigate(`/gallery/${ncutUuid}`)}>
       {mediaType === 'image' ? (
         <S.Image
           src="https://yenanow.s3.ap-northeast-2.amazonaws.com/ncut/0158ceb1-c448-4d20-b691-0e1502155a0d.png"
