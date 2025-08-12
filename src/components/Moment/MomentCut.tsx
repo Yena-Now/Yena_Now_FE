@@ -3,17 +3,13 @@ import type { RankingNCut } from '@/types/moment'
 import { FaRegHeart } from 'react-icons/fa'
 import * as S from '@styles/components/Moment/MomentCutStyle'
 
-interface MomentCutProps extends RankingNCut {
-  // nCut: RankingNCut
-  idx: number
+interface MomentCutProps {
+  nCut: RankingNCut
 }
-const MomentCut: React.FC<MomentCutProps> = ({
-  ncutUrl,
-  ncutUuid,
-  likeCount,
-  idx,
-}) => {
+const MomentCut: React.FC<MomentCutProps> = ({ nCut }) => {
+  const { ncutUrl, ncutUuid, likeCount } = nCut
   const navigate = useNavigate()
+
   const getExt = (url: string): string => {
     const clean = url.split('#')[0].split('?')[0]
     const i = clean.lastIndexOf('.')
@@ -35,12 +31,11 @@ const MomentCut: React.FC<MomentCutProps> = ({
     <S.Container onClick={() => navigate(`/gallery/${ncutUuid}`)}>
       {mediaType === 'image' ? (
         <S.Image
-          src="https://yenanow.s3.ap-northeast-2.amazonaws.com/ncut/0158ceb1-c448-4d20-b691-0e1502155a0d.png"
-          alt={`ncut-${idx}`}
+          src={`https://yenanow.s3.ap-northeast-2.amazonaws.com/${ncutUrl}`}
         />
       ) : (
         <S.Video
-          src="https://yenanow.s3.ap-northeast-2.amazonaws.com/ncut/5f5dc74b-4ac9-4016-bfff-089f71f2177f.mp4"
+          src={`https://yenanow.s3.ap-northeast-2.amazonaws.com/${ncutUrl}`}
           autoPlay
           muted
           loop

@@ -4,6 +4,7 @@ import type { RankingResponse } from '@/types/moment'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/hooks/useToast'
 import MomentLayout from '@components/Moment/MomentLayout'
+import * as S from '@styles/pages/Moment/MomentStyle'
 
 const Moment = () => {
   const [searchParams] = useSearchParams()
@@ -29,13 +30,13 @@ const Moment = () => {
   }, [])
 
   return (
-    <div>
+    <S.Container>
       {weekly ? (
         <MomentLayout nCuts={weeklyMoment} />
       ) : (
         <MomentLayout nCuts={dailyMoment} />
       )}
-    </div>
+    </S.Container>
   )
 }
 

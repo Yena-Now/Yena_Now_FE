@@ -3,7 +3,7 @@ import styled from 'styled-components'
 export const Overlay = styled.div`
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,16 +16,19 @@ export const Overlay = styled.div`
 `
 
 export const Container = styled.div`
+  --thumb-h: 240px;
   position: relative;
-  width: 100%;
-  height: 600px;
-  scroll-snap-align: start;
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
+  margin: 0 1rem 1rem 0;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.15),
+    0 8px 20px rgba(0, 0, 0, 0.06);
 
   &:hover ${Overlay} {
     opacity: 1;
@@ -33,21 +36,23 @@ export const Container = styled.div`
 `
 
 export const Image = styled.img`
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
   display: block;
+  height: var(--thumb-h);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
 `
 
 export const Video = styled.video`
-  width: auto;
-  max-height: 100%;
-  object-fit: contain;
   display: block;
+  height: var(--thumb-h);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
 `
 
 export const LikeCount = styled.span`
-  display: flex;
+  display: inline-flex;
   align-items: center;
 `
 export const LikeIcon = styled.span`

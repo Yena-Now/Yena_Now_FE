@@ -1,13 +1,10 @@
 import styled, { css } from 'styled-components'
+import { Overlay } from '@styles/components/Moment/MomentCutStyle'
 
 export const Container = styled.div`
   width: 100%;
-  height: 100svh;
+  height: 100%;
   margin: 0 auto;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
 `
 
 export const MainWrapper = styled.div<{ weekly?: boolean }>`
@@ -20,7 +17,7 @@ export const MainWrapper = styled.div<{ weekly?: boolean }>`
   gap: 4rem;
   max-width: 1200px;
   width: 100%;
-  min-height: 100svh;
+  min-height: 100%;
   margin: 0 auto;
   padding: 2rem;
 
@@ -102,6 +99,7 @@ export const MoveText = styled.button<{ weekly?: boolean }>`
   font-size: 1rem;
   width: 100%;
 `
+
 export const FirstNCut = styled.div<{ weekly?: boolean }>`
   ${({ weekly }) =>
     weekly
@@ -110,19 +108,30 @@ export const FirstNCut = styled.div<{ weekly?: boolean }>`
         `
       : css``}
 
+  /* ✅ Container 스타일 반영 */
+  position: relative;
+  display: inline-block; /* MomentCut.Container와 동일 */
   width: 80%;
+  max-width: 100%;
   grid-area: right;
-  display: block;
+
   background: #fff;
   padding: 0;
   border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.15),
     0 8px 20px rgba(0, 0, 0, 0.06);
-  position: relative;
-  overflow: hidden;
 
+  /* 높이 제어 변수 */
   --base-h: clamp(260px, 48vh, 520px);
+  --thumb-h: var(--base-h);
+
+  /* 가로/세로 비율에 따른 높이 가변 */
+  &.portrait {
+    --thumb-h: calc(var(--base-h) * 1.3);
+  }
 
   &::after {
     content: '';
@@ -140,34 +149,18 @@ export const FirstNCut = styled.div<{ weekly?: boolean }>`
   video,
   img {
     display: block;
-    width: 100%;
-    height: auto;
-    border-radius: inherit;
-    background: transparent;
-    margin: 0;
-    padding: 0;
-  }
-
-  video {
+    width: auto;
+    max-width: 100%;
+    height: var(--thumb-h);
     object-fit: contain;
+    margin: 0 auto;
   }
 
-  &.landscape video {
-    height: var(--base-h);
-    width: 100%;
-  }
-
-  &.portrait video {
-    height: calc(var(--base-h) * 1.3);
-  }
-  display: flex;
-  flex-direction: column;
-
-  & > * {
-    margin: 0;
-    padding: 0;
+  &:hover ${Overlay} {
+    opacity: 1;
   }
 `
+
 export const EmptyText = styled.div`
   min-height: '60vh';
   display: 'grid';
@@ -181,14 +174,22 @@ export const SubWrapper = styled.div``
 export const Row = styled.div`
   scroll-snap-align: start;
   scroll-snap-stop: always;
-  min-height: 100svh;
+  min-height: calc(100svh - 150px);
+  box-sizing: border-box;
+
   max-width: 1100px;
   margin: 0 auto;
   padding: 2rem;
+
   display: grid;
   grid-template-columns: repeat(3, minmax(220px, 1fr));
-  gap: 1rem;
-  place-items: center;
+  grid-template-rows: 1fr;
+  column-gap: 1.5rem;
+  row-gap: 0;
+
+  justify-items: center;
+  align-items: center;
+  place-content: center;
 
   & > * {
     opacity: 0;

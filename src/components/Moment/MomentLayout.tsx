@@ -4,7 +4,9 @@ import type { RankingResponse } from '@/types/moment'
 import MomentCut from '@components/Moment/MomentCut'
 import { IoIosArrowForward } from 'react-icons/io'
 import { IoIosArrowBack } from 'react-icons/io'
+import { FaRegHeart } from 'react-icons/fa'
 import * as S from '@styles/components/Moment/MomentLayoutStyle'
+import * as T from '@styles/components/Moment/MomentCutStyle'
 
 interface MomentLayoutProps {
   nCuts: RankingResponse
@@ -48,9 +50,7 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
   }
 
   const hasCuts = Array.isArray(nCuts) && nCuts.length > 0
-  // const url = hasCuts && nCuts ? nCuts[0].ncutUrl : ''
-  const url =
-    'https://yenanow.s3.ap-northeast-2.amazonaws.com/profile/299dc466-5d28-4705-83a8-5909e157883f.jpg'
+  const url = hasCuts && nCuts ? nCuts[0].ncutUrl : ''
   const mediaType = getType(url)
 
   const chunk3 = <T,>(arr: T[]) => {
@@ -58,7 +58,7 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
     for (let i = 0; i < arr.length; i += 3) out.push(arr.slice(i, i + 3))
     return out
   }
-  const rows = useMemo(() => chunk3(nCuts), [nCuts])
+  const rows = useMemo(() => chunk3(nCuts.slice(1)), [nCuts]) // 1등제외 2등~10등
 
   const rowRefs = useRef<HTMLDivElement[]>([])
   const [visibleRow, setVisibleRow] = useState<Record<number, boolean>>({})
@@ -118,10 +118,14 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
                 </div>
               )}
             </S.Left>
-
-            <S.FirstNCut className={orient} weekly={weekly}>
+            <S.FirstNCut
+              className={orient}
+              weekly={weekly}
+              onClick={() => navigate(`/gallery/${nCuts[0].ncutUuid}`)}
+            >
               {mediaType === 'video' ? (
-                <video
+                <T.Video
+                  src={`https://yenanow.s3.ap-northeast-2.amazonaws.com/${url}`}
                   ref={videoRef}
                   autoPlay
                   muted
@@ -131,28 +135,34 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
                   onLoadedMetadata={handleVideoLoad}
                 />
               ) : (
-                <img ref={imgRef} src={url} onLoad={handleImageLoad} />
+                <T.Image
+                  ref={imgRef}
+                  src={`https://yenanow.s3.ap-northeast-2.amazonaws.com/${url}`}
+                  onLoad={handleImageLoad}
+                />
               )}
+              <T.Overlay>
+                <T.LikeCount>
+                  <T.LikeIcon>
+                    <FaRegHeart />
+                  </T.LikeIcon>
+                  <T.LikeNumber>{nCuts[0].likeCount}</T.LikeNumber>
+                </T.LikeCount>
+              </T.Overlay>
             </S.FirstNCut>
           </S.MainWrapper>
           <S.SubWrapper>
-            {rows.map((row, rIdx) => (
+            {rows.map((row, idx) => (
               <S.Row
-                key={`row-${rIdx}`}
-                data-index={rIdx}
+                key={idx}
+                data-index={idx}
                 ref={(el) => {
-                  if (el) rowRefs.current[rIdx] = el
+                  if (el) rowRefs.current[idx] = el
                 }}
-                className={visibleRow[rIdx] ? 'in' : ''}
+                className={visibleRow[idx] ? 'in' : ''}
               >
-                {row.map((cut, cIdx) => (
-                  <MomentCut
-                    key={cut.ncutUuid}
-                    ncutUrl={cut.ncutUrl}
-                    ncutUuid={cut.ncutUuid}
-                    likeCount={cut.likeCount}
-                    idx={rIdx * 3 + cIdx}
-                  />
+                {row.map((cut) => (
+                  <MomentCut key={cut.ncutUuid} nCut={cut} />
                 ))}
               </S.Row>
             ))}
