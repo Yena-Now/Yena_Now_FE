@@ -6,4 +6,6 @@ export interface StateProps {
   cuts?: {
     cutUrl: string
   }[]
+  roomCode: string
+  isHost?: boolean
 }

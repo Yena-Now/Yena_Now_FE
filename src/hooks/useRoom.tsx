@@ -11,6 +11,7 @@ import {
 } from 'livekit-client'
 import { useToast } from '@hooks/useToast'
 import type { ChatMessage } from '@/types/Chat'
+import { useNavigate } from 'react-router-dom'
 
 type TrackInfo = {
   track: RemoteVideoTrack
@@ -27,6 +28,7 @@ export type CountdownInfo = {
 }
 
 export const useRoom = () => {
+  const navigate = useNavigate()
   const [room, setRoom] = useState<Room | undefined>(undefined)
   const [localTrack, setLocalTrack] = useState<LocalVideoTrack | undefined>(
     undefined,
@@ -42,10 +44,172 @@ export const useRoom = () => {
   }>({})
   const [currentEditPage, setCurrentEditPage] = useState<number>(0)
   const [isHost, setIsHost] = useState<boolean>(false)
-
+  const [selectedUrls, setSelectedUrls] = useState<string[]>([])
+  const [selectedFrame, setSelectedFrame] = useState<string>('')
+  const [mergedUrl, setMergedUrl] = useState<string>('')
   const connectionAttemptRef = useRef<boolean>(false)
   const roomRef = useRef<Room | undefined>(undefined)
   const { error } = useToast()
+
+  const broadcastPageChange = useCallback(
+    (page: number) => {
+      const currentRoom = roomRef.current || room
+
+      if (!currentRoom || currentRoom.state !== 'connected') {
+        console.log('Room not connected, cannot broadcast page change')
+        error('연결이 끊어진 상태에서는 페이지를 변경할 수 없습니다.')
+        return
+      }
+
+      if (!isHost) {
+        error('호스트만 페이지를 변경할 수 있습니다.')
+        return
+      }
+
+      // 로컬 상태 업데이트
+      setCurrentEditPage(page)
+
+      const encoder = new TextEncoder()
+      const message = encoder.encode(
+        JSON.stringify({
+          type: 'pageSync',
+          page: page,
+          timestamp: Date.now(),
+          // 현재 선택된 데이터도 함께 전송
+          currentSelections: {
+            selectedUrls: selectedUrls,
+            selectedFrame: selectedFrame,
+          },
+        }),
+      )
+
+      currentRoom.localParticipant
+        .publishData(
+          message,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {
+          console.log('Page change broadcasted successfully:', page)
+        })
+        .catch((err) => {
+          console.error('Failed to broadcast page change:', err)
+          error('페이지 변경 브로드캐스트에 실패했습니다.')
+        })
+    },
+    [room, isHost, error, setCurrentEditPage, selectedUrls, selectedFrame],
+  )
+
+  const broadcastHostSelection = useCallback(
+    (data: { selectedUrls?: string[]; selectedFrame?: string }) => {
+      const currentRoom = roomRef.current || room
+      if (!currentRoom) {
+        console.error('Failed to broadcast host selection: No room connection')
+        return
+      }
+      if (!isHost) {
+        console.error('Failed to broadcast host selection: Not host')
+        return
+      } // 호스트 본인의 상태 먼저 업데이트
+      console.log(data)
+      if (data.selectedUrls !== undefined) {
+        setSelectedUrls(data.selectedUrls)
+      }
+      if (data.selectedFrame !== undefined) {
+        setSelectedFrame(data.selectedFrame)
+      }
+
+      const encoder = new TextEncoder()
+      const message = encoder.encode(
+        JSON.stringify({
+          type: 'hostSelection',
+          ...data,
+        }),
+      )
+
+      currentRoom.localParticipant
+        .publishData(
+          message,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {
+          console.log('Host selection broadcasted successfully:', data)
+        })
+        .catch((err) => {
+          console.error('Failed to broadcast host selection:', err)
+        })
+    },
+    [isHost, room],
+  )
+
+  const broadcastDecorateUpdate = useCallback(
+    (decorateData: unknown) => {
+      console.log('Broadcasting decorate update:', decorateData)
+
+      if (!room) {
+        console.warn('Room not available for broadcasting decorate update')
+        return
+      }
+
+      if (room.state !== 'connected' || room.engine.isClosed) {
+        console.warn('Room not connected for broadcasting decorate update')
+        return
+      }
+
+      const encoder = new TextEncoder()
+      const message = encoder.encode(
+        JSON.stringify({
+          type: 'decorateUpdate',
+          ...(decorateData as Record<string, unknown>),
+        }),
+      )
+
+      room.localParticipant
+        .publishData(
+          message,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {
+          console.log('Decorate update broadcasted successfully:', decorateData)
+        })
+        .catch((err) => {
+          console.error('Failed to broadcast decorate update:', err)
+        })
+    },
+    [room],
+  )
+
+  const broadcastSelection = useCallback(
+    (selectedUrls: string[]) => {
+      const currentRoom = roomRef.current || room
+
+      if (currentRoom) {
+        const encoder = new TextEncoder()
+
+        const data = encoder.encode(
+          JSON.stringify({
+            type: 'userSelection',
+            selectedUrls,
+          }),
+        )
+
+        currentRoom.localParticipant
+          .publishData(
+            data,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            DataPacket_Kind.RELIABLE,
+          )
+          .then(() => {})
+      }
+    },
+    [room],
+  )
 
   const handleDataReceived = useCallback(
     (payload: Uint8Array, participant?: RemoteParticipant) => {
@@ -82,95 +246,87 @@ export const useRoom = () => {
         })
         setTimeout(() => setCountdownInfo(null), 3500)
       } else if (data.type === 'navigateToEdit') {
-        sessionStorage.setItem('editData', JSON.stringify(data.editData))
-        window.location.href = `/film/room/${data.roomCode}/edit`
+        const userToken =
+          sessionStorage.getItem('userToken') ||
+          localStorage.getItem('userToken') ||
+          ''
+        const editDataWithToken = {
+          ...data.editData,
+          token: userToken,
+        }
+        sessionStorage.setItem('editData', JSON.stringify(editDataWithToken))
+        navigate(`/film/room/${data.roomCode}/edit`)
       } else if (data.type === 'userSelection') {
         setAllUsersSelections((prev) => ({
           ...prev,
           [participant.identity]: data.selectedUrls,
         }))
       } else if (data.type === 'pageSync') {
+        if (data.currentSelections) {
+          if (data.currentSelections.selectedUrls) {
+            console.log(
+              'Updating selectedUrls from pageSync:',
+              data.currentSelections.selectedUrls,
+            )
+            setSelectedUrls(data.currentSelections.selectedUrls)
+          }
+          if (data.currentSelections.selectedFrame) {
+            console.log(
+              'Updating selectedFrame from pageSync:',
+              data.currentSelections.selectedFrame,
+            )
+            setSelectedFrame(data.currentSelections.selectedFrame)
+          }
+        }
+
         setCurrentEditPage(data.page)
+
+        window.dispatchEvent(
+          new CustomEvent('pageSync', {
+            detail: {
+              page: data.page,
+              currentSelections: data.currentSelections,
+            },
+          }),
+        )
+      } else if (data.type === 'hostSelection') {
+        if (data.selectedUrls) {
+          setSelectedUrls(data.selectedUrls)
+        }
+        if (data.selectedFrame) {
+          setSelectedFrame(data.selectedFrame)
+        }
+        window.dispatchEvent(
+          new CustomEvent('hostSelection', {
+            detail: {
+              selectedUrls: data.selectedUrls,
+              selectedFrame: data.selectedFrame,
+            },
+          }),
+        )
       } else if (data.type === 'decorateUpdate') {
         window.dispatchEvent(
-          new CustomEvent('decorateUpdate', { detail: data }),
-        )
-      }
-    },
-    [],
-  )
-
-  const broadcastPageChange = useCallback(
-    (page: number) => {
-      if (room && isHost) {
-        const encoder = new TextEncoder()
-        const data = encoder.encode(
-          JSON.stringify({
-            type: 'pageSync',
-            page,
+          new CustomEvent('decorateUpdate', {
+            detail: {
+              ...data,
+              participantId: participant.identity,
+            },
           }),
         )
-        room.localParticipant
-          .publishData(
-            data,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            DataPacket_Kind.RELIABLE,
-          )
-          .then(() => {
-            setCurrentEditPage(page)
-          })
-      }
-    },
-    [room, isHost],
-  )
-
-  const broadcastDecorateUpdate = useCallback(
-    (decorateData: unknown) => {
-      if (room) {
-        const encoder = new TextEncoder()
-        const data = encoder.encode(
-          JSON.stringify({
-            type: 'decorateUpdate',
-            ...(typeof decorateData === 'object' && decorateData !== null
-              ? decorateData
-              : {}),
-          }),
+      } else if (data.type === 'navigateToNextPage') {
+        if (data.editData) {
+          setSelectedUrls(data.editData.selectedUrls)
+        }
+        if (data.editData.selectedFrame) {
+          setSelectedFrame(data.editData.selectedFrame)
+        }
+        window.dispatchEvent(
+          new CustomEvent('navigateToNextPage', { detail: data.editData }),
         )
-        room.localParticipant
-          .publishData(
-            data,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            DataPacket_Kind.RELIABLE,
-          )
-          .then(() => {})
       }
     },
-    [room],
-  )
 
-  const broadcastSelection = useCallback(
-    (selectedUrls: string[]) => {
-      if (room) {
-        const encoder = new TextEncoder()
-        const data = encoder.encode(
-          JSON.stringify({
-            type: 'userSelection',
-            selectedUrls,
-          }),
-        )
-        room.localParticipant
-          .publishData(
-            data,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            DataPacket_Kind.RELIABLE,
-          )
-          .then((r) => console.log(r))
-      }
-    },
-    [room],
+    [navigate],
   )
 
   const handleTrackSubscribed = useCallback(
@@ -184,7 +340,6 @@ export const useRoom = () => {
       const element = track.attach()
       element.style.display = 'none'
       document.body.appendChild(element)
-
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       setRemoteTracks((prev) => [
@@ -223,12 +378,22 @@ export const useRoom = () => {
       token: string,
       createBackgroundRemovedTrack: () => Promise<LocalVideoTrack>,
     ) => {
+      if (roomRef.current) return
       if (connectionAttemptRef.current) return
+
       connectionAttemptRef.current = true
       setConnectionStatus('룸 생성 중...')
 
       try {
-        const newRoom = new Room()
+        const newRoom = new Room({
+          audioCaptureDefaults: {
+            autoGainControl: false,
+            echoCancellation: false,
+            noiseSuppression: false,
+          },
+        })
+        roomRef.current = newRoom
+        setRoom(newRoom)
         newRoom.on(RoomEvent.Connected, () => setConnectionStatus('연결 완료'))
         newRoom.on(RoomEvent.Disconnected, (reason) =>
           setConnectionStatus(`연결 끊김: ${reason}`),
@@ -236,6 +401,7 @@ export const useRoom = () => {
         newRoom.on(RoomEvent.ConnectionStateChanged, (state) =>
           setConnectionStatus(`연결 상태: ${state}`),
         )
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         newRoom.on(RoomEvent.TrackSubscribed, handleTrackSubscribed)
@@ -244,14 +410,35 @@ export const useRoom = () => {
         newRoom.on(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed)
         newRoom.on(RoomEvent.DataReceived, handleDataReceived)
 
-        setRoom(newRoom)
-        roomRef.current = newRoom
         setConnectionStatus('서버 연결 중...')
-        await newRoom.connect(import.meta.env.VITE_LIVEKIT_URL, token)
+
+        const connectPromise = newRoom.connect(
+          import.meta.env.VITE_LIVEKIT_URL,
+          token,
+        )
+
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Connection timeout')), 15000),
+        )
+
+        await Promise.race([connectPromise, timeoutPromise])
+
+        // 연결 안정화를 위한 대기 시간 추가
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+
+        setConnectionStatus('마이크 활성화 중...')
+        await newRoom.localParticipant.setMicrophoneEnabled(true)
+
+        // 마이크 활성화 후 추가 대기
+        await new Promise((resolve) => setTimeout(resolve, 500))
 
         setConnectionStatus('배경 제거 카메라 설정 중...')
-        await newRoom.localParticipant.setMicrophoneEnabled(true)
         const bgRemovedTrack = await createBackgroundRemovedTrack()
+
+        if (newRoom.state !== 'connected') {
+          throw new Error('Room is not connected before publishing track')
+        }
+
         await newRoom.localParticipant.publishTrack(bgRemovedTrack)
         setLocalTrack(bgRemovedTrack)
         setConnectionStatus('연결 완료')
@@ -260,8 +447,18 @@ export const useRoom = () => {
         error(`세션 연결 실패: ${err}`)
         setConnectionStatus(`연결 실패: ${String(err)}`)
         if (roomRef.current) {
-          await roomRef.current.disconnect()
+          try {
+            await roomRef.current.disconnect()
+          } catch (disconnectError) {
+            console.error('Error during cleanup disconnect:', disconnectError)
+          }
+
+          roomRef.current = undefined
+
+          setRoom(undefined)
         }
+
+        throw err
       } finally {
         connectionAttemptRef.current = false
       }
@@ -308,9 +505,7 @@ export const useRoom = () => {
           )
           // 이것도 .then을 사용하여 성공적으로 전송되었는지 확인할 수 있습니다.
           // 안쓰면 빨간줄 뜸!
-          .then((r) => {
-            console.log('Position data sent:', r)
-          })
+          .then(() => {})
       }
     },
     [],
@@ -374,11 +569,16 @@ export const useRoom = () => {
     (roomCode: string, editData: unknown) => {
       if (roomRef.current) {
         const encoder = new TextEncoder()
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { token, ...editDataWithoutToken } = editData as {
+          token?: string
+          [key: string]: unknown
+        }
         const data = encoder.encode(
           JSON.stringify({
             type: 'navigateToEdit',
             roomCode,
-            editData,
+            editData: editDataWithoutToken,
           }),
         )
         roomRef.current.localParticipant
@@ -390,6 +590,33 @@ export const useRoom = () => {
           )
           .then(() => {
             console.log('Navigate to edit sent')
+          })
+      }
+    },
+    [],
+  )
+
+  const sendNavigateToNextPage = useCallback(
+    (roomCode: string, editData: unknown) => {
+      if (roomRef.current) {
+        const encoder = new TextEncoder()
+        const data = encoder.encode(
+          JSON.stringify({
+            type: 'navigateToNextPage',
+            roomCode,
+            editData,
+          }),
+        )
+
+        roomRef.current.localParticipant
+          .publishData(
+            data,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            DataPacket_Kind.RELIABLE,
+          )
+          .then(() => {
+            console.log('Navigate to next page sent')
           })
       }
     },
@@ -443,5 +670,13 @@ export const useRoom = () => {
     setIsHost,
     broadcastPageChange,
     broadcastDecorateUpdate,
+    broadcastHostSelection,
+    sendNavigateToNextPage,
+    selectedUrls,
+    selectedFrame,
+    setSelectedUrls,
+    setSelectedFrame,
+    mergedUrl,
+    setMergedUrl,
   }
 }

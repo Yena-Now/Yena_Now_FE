@@ -8,6 +8,7 @@ interface SelectFrameProps {
   selectedUrls: string[]
   selectedFrame: string
   onSelectFrame: (frameId: string) => void
+  isHost: boolean
 }
 
 const SelectFrame: React.FC<SelectFrameProps> = ({
@@ -15,6 +16,7 @@ const SelectFrame: React.FC<SelectFrameProps> = ({
   selectedUrls,
   selectedFrame,
   onSelectFrame,
+  isHost,
 }) => {
   const [frames, setFrames] = useState<FrameCutResponse[]>([])
 
@@ -43,20 +45,27 @@ const SelectFrame: React.FC<SelectFrameProps> = ({
     <S.FrameCutContainer>
       <S.FrameImageContainer>{combinedImage}</S.FrameImageContainer>
 
-      <S.FrameSelectionContainer>
-        {frames.map((frame, idx) => (
-          <S.FrameImageBox
-            key={idx}
-            onClick={() => onSelectFrame(frame.frameUuid)}
-            isSelected={selectedFrame === frame.frameUuid}
-          >
-            <S.FrameImage
-              src={frame.frameUrl}
-              alt={`Frame ${frame.frameUuid}`}
-            />
-          </S.FrameImageBox>
-        ))}
-      </S.FrameSelectionContainer>
+      <div
+        style={{
+          pointerEvents: isHost ? 'auto' : 'none',
+          opacity: isHost ? 1 : 0.7,
+        }}
+      >
+        <S.FrameSelectionContainer>
+          {frames.map((frame, idx) => (
+            <S.FrameImageBox
+              key={idx}
+              onClick={() => onSelectFrame(frame.frameUuid)}
+              isSelected={selectedFrame === frame.frameUuid}
+            >
+              <S.FrameImage
+                src={frame.frameUrl}
+                alt={`Frame ${frame.frameUuid}`}
+              />
+            </S.FrameImageBox>
+          ))}
+        </S.FrameSelectionContainer>
+      </div>
     </S.FrameCutContainer>
   )
 }

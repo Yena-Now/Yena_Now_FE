@@ -15,13 +15,21 @@ import {
 } from 'react-icons/io5'
 import type { StateProps } from '@/types/Session'
 import { FaRegCopy } from 'react-icons/fa6'
+import { s3API } from '@/api/s3'
 
 export const Session: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { success, error } = useToast()
-  const { backgroundImageUrl, takeCount, cutCount, timeLimit, cuts } =
-    location.state as StateProps
+  const {
+    backgroundImageUrl,
+    takeCount,
+    cutCount,
+    timeLimit,
+    cuts,
+    roomCode,
+    isHost,
+  } = location.state as StateProps
 
   const [showInteractionPrompt, setShowInteractionPrompt] = useState(true)
   const [hasAttemptedConnection, setHasAttemptedConnection] = useState(false)
@@ -298,6 +306,8 @@ export const Session: React.FC = () => {
       return
     }
 
+    sessionStorage.setItem('userToken', token)
+
     setIsConnecting(true)
     setHasAttemptedConnection(true)
     try {
@@ -343,10 +353,18 @@ export const Session: React.FC = () => {
         return
       }
 
-      const localUrl = URL.createObjectURL(blob)
+      const fileName = `session-capture-${new Date().getTime()}.png`
+      const file = new File([blob], fileName, { type: 'image/png' })
+
+      const fileUrl = await s3API.upload({
+        file,
+        type: 'cut',
+        roomCode: roomCode,
+      })
 
       success('캡처된 이미지를 저장했습니다.')
-      sendUrls([...sharedUrls, localUrl as unknown as string])
+
+      sendUrls([...sharedUrls, fileUrl as unknown as string])
 
       sendChatMessage('촬영 완료!')
     } catch (err) {
@@ -354,7 +372,7 @@ export const Session: React.FC = () => {
     } finally {
       setIsProcessing(false)
     }
-  }, [error, success, sendUrls, sharedUrls, sendChatMessage])
+  }, [error, success, sendUrls, sendChatMessage, sharedUrls, roomCode])
 
   const startRecording = useCallback(() => {
     const mainCanvas = mainCanvasRef.current
@@ -365,7 +383,7 @@ export const Session: React.FC = () => {
 
       // MediaRecorder 설정
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/mp4;codecs=vp9',
+        mimeType: 'video/webm;codecs=vp9',
       })
 
       recordedChunksRef.current = []
@@ -378,21 +396,27 @@ export const Session: React.FC = () => {
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(recordedChunksRef.current, {
-          type: 'video/mp4',
+          type: 'video/webm',
         })
 
-        const localUrl = URL.createObjectURL(blob)
+        const fileName = `session-recording-${new Date().getTime()}.webm`
+        const file = new File([blob], fileName, { type: 'video/webm' })
 
-        console.log('영상 녹화 성공:', localUrl)
+        const fileUrl = s3API.upload({
+          file,
+          type: 'cut',
+          roomCode: roomCode,
+        })
+
+        console.log('영상 녹화 성공:', fileUrl)
         success('녹화된 영상을 저장했습니다.')
-        sendUrls([...sharedUrls, localUrl as unknown as string])
+        sendUrls([...sharedUrls, fileUrl as unknown as string])
         recordedChunksRef.current = [] // 녹화가 끝나면 청소
       }
 
       mediaRecorderRef.current = mediaRecorder
       mediaRecorder.start()
       setIsRecording(true)
-      setIsProcessing(false)
 
       setTimeout(() => {
         if (
@@ -407,9 +431,10 @@ export const Session: React.FC = () => {
       }, timeLimit * 1000)
     } catch (err) {
       error(`녹화 시작 실패: ${err}`)
+    } finally {
       setIsProcessing(false)
     }
-  }, [error, sendUrls, sharedUrls, success, timeLimit])
+  }, [error, success, sendUrls, sharedUrls, timeLimit, roomCode])
 
   const startCountDown = useCallback(
     (action: 'capture' | 'record') => {
@@ -516,13 +541,16 @@ export const Session: React.FC = () => {
     const editData = {
       sharedUrls,
       cutCount,
-      roomCode: location.state?.roomCode,
-      isHost: location.state?.isHost,
+      roomCode,
+      isHost,
+      token: location.state?.token || '',
     }
 
-    sendNavigateToEdit(location.state?.roomCode, editData)
+    sessionStorage.setItem('editData', JSON.stringify(editData))
 
-    navigate(`/film/room/${location.state?.roomCode}/edit`, {
+    sendNavigateToEdit(roomCode, { ...editData, isHost: false })
+
+    navigate(`/film/room/${roomCode}/edit`, {
       state: editData,
     })
   }
@@ -629,7 +657,7 @@ export const Session: React.FC = () => {
             </S.TakeContainer>
             <S.GoToEditPage
               onClick={handleFinishTakes}
-              disabled={canCapture || isRecording || isProcessing}
+              disabled={canCapture || isRecording || isProcessing || !isHost}
             >
               다음
             </S.GoToEditPage>

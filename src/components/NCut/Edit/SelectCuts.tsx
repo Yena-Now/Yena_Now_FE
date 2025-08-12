@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import * as S from '@styles/components/NCut/Edit/SelectCutsStyle'
 
 interface SelectCutsProps {
@@ -7,6 +7,7 @@ interface SelectCutsProps {
   onSelectCut: (url: string) => void
   cutCount: number
   allUsersSelections?: { [userId: string]: string[] }
+  isHost: boolean
 }
 
 const SelectCuts: React.FC<SelectCutsProps> = ({
@@ -15,8 +16,51 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
   onSelectCut,
   cutCount,
   allUsersSelections = {},
+  isHost,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  useEffect(() => {
+    const handleHostSelection = (event: CustomEvent) => {
+      const { selectedUrls: hostSelectedUrls } = event.detail
+      if (hostSelectedUrls && !isHost) {
+        const hostSelectedIndex = sharedUrls.indexOf(hostSelectedUrls[0])
+        if (hostSelectedIndex !== -1) {
+          setCurrentImageIndex(hostSelectedIndex)
+        }
+
+        console.log(hostSelectedUrls)
+      }
+    }
+
+    const handleNavigateToNextPage = (event: CustomEvent) => {
+      const { selectedUrls: hostSelectedUrls } = event.detail
+      if (hostSelectedUrls && !isHost) {
+        const hostSelectedIndex = sharedUrls.indexOf(hostSelectedUrls[0])
+        if (hostSelectedIndex !== -1) {
+          setCurrentImageIndex(hostSelectedIndex)
+        }
+      }
+    }
+
+    window.addEventListener(
+      'hostSelection',
+      handleHostSelection as EventListener,
+    )
+    window.addEventListener(
+      'navigateToNextPage',
+      handleNavigateToNextPage as EventListener,
+    )
+    return () => {
+      window.removeEventListener(
+        'hostSelection',
+        handleHostSelection as EventListener,
+      )
+      window.removeEventListener(
+        'navigateToNextPage',
+        handleNavigateToNextPage as EventListener,
+      )
+    }
+  }, [isHost, sharedUrls])
 
   const getSelectionCount = (url: string) => {
     return Object.values(allUsersSelections).filter((urls) =>
@@ -45,6 +89,19 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
   const handleSelectCurrent = () => {
     if (currentImageUrl) {
       onSelectCut(currentImageUrl)
+
+      const newSelection = selectedUrls.includes(currentImageUrl)
+        ? selectedUrls.filter((url) => url !== currentImageUrl)
+        : [...selectedUrls, currentImageUrl]
+
+      // 선택 상태 변경을 다른 컴포넌트에 알림
+      window.dispatchEvent(
+        new CustomEvent('hostSelection', {
+          detail: {
+            selectedUrl: newSelection,
+          },
+        }),
+      )
     }
   }
 
@@ -68,6 +125,7 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
         <S.SliderImageContainer>
           {sharedUrls.map((url, index) => {
             const selectionCount = getSelectionCount(url)
+
             return (
               <S.ThumbnailWrapper
                 key={index}
@@ -106,8 +164,14 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
         <S.SelectButton
           onClick={handleSelectCurrent}
           $isSelected={!!isCurrentImageSelected}
-          $disabled={!isCurrentImageSelected && selectedUrls.length >= cutCount}
-          disabled={!isCurrentImageSelected && selectedUrls.length >= cutCount}
+          $disabled={
+            (!isCurrentImageSelected && selectedUrls.length >= cutCount) ||
+            !isHost
+          }
+          disabled={
+            (!isCurrentImageSelected && selectedUrls.length >= cutCount) ||
+            !isHost
+          }
         >
           {isCurrentImageSelected ? '선택 해제' : '이 이미지 선택'}
         </S.SelectButton>
