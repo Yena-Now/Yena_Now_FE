@@ -17,6 +17,7 @@ import { nCutDetail } from '@/api/ncutdetail'
 import type { NCutDetailType } from '@/types/NCutDetail'
 import type { Comment } from '@/types/Comment'
 import { commentAPI } from '@/api/comment'
+import { toAbsS3 } from '@/utils/url'
 
 const GalleryDetailPage: React.FC = () => {
   const { ncutUuid } = useParams<{ ncutUuid: string }>()
@@ -48,12 +49,24 @@ const GalleryDetailPage: React.FC = () => {
     const fetchData = async () => {
       try {
         if (!ncutUuid) return
+
         const detail = await nCutDetail.getNCutDetail(ncutUuid)
         const commentRes = await commentAPI.getComments(ncutUuid)
-        setDetailData(detail)
-        setPostContent(detail.content)
-        setVisibility(detail.visibility)
-        setComments(sortByCreatedAtAsc(commentRes.comments))
+
+        const resolvedDetail: NCutDetailType = {
+          ...detail,
+          ncutUrl: toAbsS3(detail.ncutUrl),
+          profileUrl: toAbsS3(detail.profileUrl),
+        }
+        const resolvedComments = commentRes.comments.map((c) => ({
+          ...c,
+          profileUrl: toAbsS3(c.profileUrl),
+        }))
+
+        setDetailData(resolvedDetail)
+        setPostContent(resolvedDetail.content)
+        setVisibility(resolvedDetail.visibility)
+        setComments(sortByCreatedAtAsc(resolvedComments))
       } catch {
         error('데이터 불러오기 실패')
       }
@@ -146,6 +159,7 @@ const GalleryDetailPage: React.FC = () => {
           c.commentUuid === commentUuid ? { ...c, comment: newContent } : c,
         ),
       )
+      success('댓글이 수정되었습니다.')
     } catch {
       error('댓글 수정 실패')
     }

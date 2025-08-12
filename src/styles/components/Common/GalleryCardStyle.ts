@@ -20,8 +20,8 @@ export const Conainter = styled.div`
 
 export const PhotoWrapper = styled.div`
   background-color: #2c2c2c;
-  width: 400px;
-  height: 240px;
+  width: 100%;
+  aspect-ratio: 4 / 3;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   display: flex;
@@ -29,23 +29,26 @@ export const PhotoWrapper = styled.div`
   align-items: center;
   overflow: hidden;
   position: relative;
-
-  img,
-  video {
-    display: block;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-  }
 `
 
 export const Photo = styled.img`
   display: block;
-  background-color: #2c2c2c;
-  width: 100%; /* 카드 폭에 맞춤 */
-  height: auto; /* 원본 비율 유지 */
+  max-width: 100%;
+  max-height: 300px;
   object-fit: contain;
+  object-position: center;
+  pointer-events: none;
 `
+
+export const Thumbnail = styled.img`
+  background-color: #2c2c2c;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+`
+
 export const RelayIcon = styled.span`
   position: absolute;
   margin: 10px;

@@ -29,6 +29,7 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
   }
 
   const isVideo = /\.(mp4|webm|ogg|m4v)$/i.test(ncutUrl)
+  // console.log({ ncutUrl, thumbnailUrl, profileUrl })
 
   return (
     <>
@@ -40,15 +41,34 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
           {isVideo ? (
             <HoverVideoPlayer
               videoSrc={ncutUrl}
-              pausedOverlay={<S.Photo src={thumbnailUrl} alt="썸네일" />}
+              videoStyle={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+              }}
+              pausedOverlay={
+                <S.Thumbnail
+                  src={thumbnailUrl}
+                  alt="썸네일"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
+                    display: 'block',
+                  }}
+                />
+              }
               loadingOverlay={<LoadingSpinner />}
               muted
               loop
-              sizingMode="overlay"
+              sizingMode="container"
+              style={{ width: '100%', height: '100%' }}
               // restartOnPaused // 일시정지 재시작
             />
           ) : (
-            <S.Photo src={ncutUrl} alt="썸네일" />
+            <S.Photo src={ncutUrl} alt="사진" />
           )}
         </S.PhotoWrapper>
         <S.InfoWrapper>
