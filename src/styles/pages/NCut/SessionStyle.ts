@@ -27,12 +27,28 @@ export const SessionHeader = styled.div`
   padding: 20px;
 `
 
+export const SessionRoomCode = styled.span`
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  margin-left: 0.5rem;
+`
+
+export const CopyIcon = styled.div`
+  cursor: pointer;
+  padding-left: 10px;
+  color: #666;
+  &:hover {
+    color: #333;
+  }
+`
+
 export const RemainingTakesCnt = styled.span`
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
   display: flex;
-  margin-left: calc(50% - 1.5rem);
 `
 
 export const LeaveSessionButton = styled.button`
@@ -53,10 +69,31 @@ export const SessionLayoutContainer = styled.div`
   align-items: center;
 `
 
-export const CanvasContainer = styled.canvas<{ customCursor?: string }>`
+export const CanvasWrapper = styled.div`
+  position: relative;
+`
+
+export const CountDownOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15rem;
+  font-weight: bold;
+  color: white;
+  -webkit-text-stroke: 4px black;
+  z-index: 10;
+  pointer-events: none;
+`
+
+export const CanvasContainer = styled.canvas<{ $customCursor: string }>`
   height: 90%;
   object-fit: contain;
-  cursor: ${(props) => props.customCursor || 'default'};
+  cursor: ${(props) => props.$customCursor || 'default'};
   background: transparent;
   margin-bottom: 10px;
 `
@@ -135,23 +172,27 @@ export const TakeContainer = styled.div`
   justify-content: center;
 `
 
-export const TakePhotoButton = styled.button`
-  background-color: #4caf50;
+export const TakePhotoButton = styled.button<{ disabled?: boolean }>`
+  background-color: ${(props) => (props.disabled ? '#ccc' : '#4caf50')};
   color: white;
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
   margin-left: 2rem;
 `
 
-export const TakeVideoButton = styled.button<{ isActive?: boolean }>`
-  background-color: ${(props) => (props.isActive ? '#f44336' : '#9e9e9e')};
+export const TakeVideoButton = styled.button<{
+  $isActive: boolean
+  disabled?: boolean
+}>`
+  background-color: ${(props) =>
+    props.$isActive ? '#f44336' : props.disabled ? '#ccc' : '#36F4A2'};
   color: white;
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
 `
 
 export const GoToEditPage = styled.button<{ disabled?: boolean }>`
