@@ -47,19 +47,7 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
                 objectFit: 'cover',
                 objectPosition: 'center',
               }}
-              pausedOverlay={
-                <S.Thumbnail
-                  src={thumbnailUrl}
-                  alt="썸네일"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                    display: 'block',
-                  }}
-                />
-              }
+              pausedOverlay={<S.Thumbnail src={thumbnailUrl} alt="썸네일" />}
               loadingOverlay={<LoadingSpinner />}
               muted
               loop
