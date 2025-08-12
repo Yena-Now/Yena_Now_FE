@@ -3,7 +3,7 @@ export type User = {
   profileUrl?: string
   nickname?: string
   name?: string
-  isFollow: boolean
+  isFollowing: boolean
 }
 
 export type UserSearchModalMode = 'search' | 'invite'
@@ -11,15 +11,23 @@ export type UserSearchModalMode = 'search' | 'invite'
 export type UserSearchModalProps =
   | {
       type: 'search'
-      users: User[] // 모든 유저
       isOpen: boolean
       onClose: () => void
-      onSelect?: never
+      initialKeyword?: string
+      onSelect?: (user: User) => void
+      pageSize?: number
     }
   | {
       type: 'invite'
-      users: (User & { isFollow: true })[] // 팔로우된 유저만
       isOpen: boolean
       onClose: () => void
       onSelect: (user: User) => void
+      users: (User & { isFollowing: true })[]
+      initialKeyword?: string
+      pageSize?: number
     }
+
+export type UserSearchResponse = {
+  totalPages: number
+  userSearches: User[]
+}
