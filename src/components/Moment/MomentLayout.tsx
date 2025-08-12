@@ -17,7 +17,8 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const weekly = searchParams.has('weekly')
-
+  const hasCuts = Array.isArray(nCuts) && nCuts.length > 0
+  const url = hasCuts && nCuts ? nCuts[0].ncutUrl : ''
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const imgRef = useRef<HTMLImageElement | null>(null)
 
@@ -50,8 +51,6 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
     return 'image'
   }
 
-  const hasCuts = Array.isArray(nCuts) && nCuts.length > 0
-  const url = hasCuts && nCuts ? nCuts[0].ncutUrl : ''
   const mediaType = getType(url)
 
   const chunk3 = <T,>(arr: T[]) => {
@@ -126,7 +125,7 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
             >
               {mediaType === 'video' ? (
                 <T.Video
-                  src={`https://yenanow.s3.ap-northeast-2.amazonaws.com/${url}`}
+                  src={url}
                   ref={videoRef}
                   autoPlay
                   muted

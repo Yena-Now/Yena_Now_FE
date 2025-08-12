@@ -9,9 +9,7 @@ import * as S from '@styles/pages/Moment/MomentStyle'
 const Moment = () => {
   const [searchParams] = useSearchParams()
   const weekly = searchParams.has('weekly')
-
   const { error } = useToast()
-
   const [dailyMoment, setDailyMoment] = useState<RankingResponse>([])
   const [weeklyMoment, setWeeklyMoment] = useState<RankingResponse>([])
 
