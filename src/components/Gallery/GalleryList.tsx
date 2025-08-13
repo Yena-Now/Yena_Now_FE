@@ -13,7 +13,7 @@ const GalleryList: React.FC<GalleryListProps> = ({ data, onItemClick }) => {
     <S.GalleryList>
       {data.map((item) => (
         <GalleryCard
-          key={item.ncut_uuid}
+          key={item.ncutUuid}
           {...item}
           onClick={() => onItemClick?.(item)}
         />

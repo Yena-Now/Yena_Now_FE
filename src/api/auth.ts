@@ -67,6 +67,7 @@ export const authAPI = {
     })
     apiClient.defaults.headers.common['Authorization'] =
       `Bearer ${response.data.accessToken}`
+    localStorage.setItem('userUuid', response.data.userUuid)
     return response.data
   },
 
