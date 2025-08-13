@@ -1,4 +1,3 @@
-// GalleryDetailPage.tsx
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import UserInfo from '@components/GalleryDetail/UserInfo'
@@ -17,7 +16,6 @@ import { nCutDetail } from '@/api/ncutdetail'
 import type { NCutDetailType } from '@/types/NCutDetail'
 import type { Comment } from '@/types/Comment'
 import { commentAPI } from '@/api/comment'
-import { toAbsS3 } from '@/utils/url'
 
 const GalleryDetailPage: React.FC = () => {
   const { ncutUuid } = useParams<{ ncutUuid: string }>()
@@ -46,27 +44,19 @@ const GalleryDetailPage: React.FC = () => {
   }, [])
 
   useEffect(() => {
+    setMyUuid(localStorage.getItem('userUuid'))
+  }, [])
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         if (!ncutUuid) return
-
         const detail = await nCutDetail.getNCutDetail(ncutUuid)
         const commentRes = await commentAPI.getComments(ncutUuid)
-
-        const resolvedDetail: NCutDetailType = {
-          ...detail,
-          ncutUrl: toAbsS3(detail.ncutUrl),
-          profileUrl: toAbsS3(detail.profileUrl),
-        }
-        const resolvedComments = commentRes.comments.map((c) => ({
-          ...c,
-          profileUrl: toAbsS3(c.profileUrl),
-        }))
-
-        setDetailData(resolvedDetail)
-        setPostContent(resolvedDetail.content)
-        setVisibility(resolvedDetail.visibility)
-        setComments(sortByCreatedAtAsc(resolvedComments))
+        setDetailData(detail)
+        setPostContent(detail.content)
+        setVisibility(detail.visibility)
+        setComments(sortByCreatedAtAsc(commentRes.comments))
       } catch {
         error('데이터 불러오기 실패')
       }

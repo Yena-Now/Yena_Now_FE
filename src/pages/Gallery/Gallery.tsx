@@ -5,7 +5,6 @@ import GalleryList from '@components/Gallery/GalleryList'
 import type { NCut } from '@/types/NCutList'
 import { galleryAPI } from '@/api/gallerylist'
 import { useToast } from '@/hooks/useToast'
-import { toAbsS3 } from '@/utils/url'
 
 type TabType = 'PUBLIC' | 'FOLLOW'
 
@@ -32,15 +31,7 @@ const GalleryPage: React.FC = () => {
             ? await galleryAPI.getPublicGalleryList()
             : await galleryAPI.getFollowGalleryList()
 
-        if (!cancelled) {
-          const normalized = data.ncuts.map((n: NCut) => ({
-            ...n,
-            ncutUrl: toAbsS3(n.ncutUrl),
-            thumbnailUrl: toAbsS3(n.thumbnailUrl),
-            profileUrl: toAbsS3(n.profileUrl),
-          }))
-          setItems(normalized)
-        }
+        if (!cancelled) setItems(data.ncuts)
       } catch {
         if (!cancelled) error('갤러리 목록을 불러오지 못했습니다.')
       } finally {
