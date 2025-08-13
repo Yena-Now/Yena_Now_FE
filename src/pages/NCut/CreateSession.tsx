@@ -214,59 +214,83 @@ const CreateSession: React.FC = () => {
   ]
 
   return (
-    <G.NCutCreateLayout>
-      {currentIndex > 0 && currentIndex < pages.length - 1 ? (
-        <G.NCutPrvButton onClick={handlePrev}>
-          <MdNavigateNext
-            style={{
-              width: '30px',
-              height: '30px',
-              color: 'white',
-              transform: 'rotate(180deg)',
-            }}
-          />
-        </G.NCutPrvButton>
-      ) : (
-        <G.NCutButtonWrapper />
-      )}
-      <G.NcutCreateContainer>
-        {pages[currentIndex]}
-        {currentIndex < pages.length - 1 && (
-          <G.ProgressBar>
-            {pages.slice(0, pages.length - 1).map((page, idx) => (
-              <G.ProgressBarItem
-                key={idx}
-                isActive={pages.indexOf(page) === currentIndex}
-              />
-            ))}
-          </G.ProgressBar>
-        )}
-      </G.NcutCreateContainer>
-      {currentIndex < pages.length - 2 ? (
-        <G.NCutNextButton onClick={handleNext}>
-          <MdNavigateNext
-            style={{
-              width: '30px',
-              height: '30px',
-              color: 'white',
-            }}
-          />
-        </G.NCutNextButton>
-      ) : currentIndex < pages.length - 2 ? (
-        <G.NCutButtonWrapper />
-      ) : null}
-      {currentIndex === pages.length - 2 && (
-        <G.NCutNextButton onClick={handleCreateSession} disabled={isCreating}>
-          <FaCheck
-            style={{
-              width: '30px',
-              height: '30px',
-              color: 'white',
-            }}
-          />
-        </G.NCutNextButton>
-      )}
-    </G.NCutCreateLayout>
+    <G.NCutLayout>
+      <G.NCutCreateLayout>
+        <G.NcutCreateContainer>
+          <G.NavigationButtonsContainer>
+            {currentIndex > 0 && currentIndex < pages.length - 1 && (
+              <G.NCutButtonWrapper>
+                <G.NCutPrvButton onClick={handlePrev}>
+                  <MdNavigateNext
+                    style={{
+                      width: '30px',
+                      height: '30px',
+                      color: 'white',
+                      transform: 'rotate(180deg)',
+                    }}
+                  />
+                </G.NCutPrvButton>
+              </G.NCutButtonWrapper>
+            )}
+
+            {!(currentIndex > 0 && currentIndex < pages.length - 1) && (
+              <G.NCutButtonWrapper style={{ visibility: 'hidden' }} />
+            )}
+
+            {currentIndex < pages.length - 2 && (
+              <G.NCutButtonWrapper>
+                <G.NCutNextButton onClick={handleNext}>
+                  <MdNavigateNext
+                    style={{
+                      width: '30px',
+                      height: '30px',
+                      color: 'white',
+                    }}
+                  />
+                </G.NCutNextButton>
+              </G.NCutButtonWrapper>
+            )}
+
+            {currentIndex === pages.length - 2 && (
+              <G.NCutButtonWrapper>
+                <G.NCutNextButton
+                  onClick={handleCreateSession}
+                  disabled={isCreating}
+                >
+                  <FaCheck
+                    style={{
+                      width: '30px',
+                      height: '30px',
+                      color: 'white',
+                    }}
+                  />
+                </G.NCutNextButton>
+              </G.NCutButtonWrapper>
+            )}
+
+            {currentIndex >= pages.length - 2 &&
+              currentIndex !== pages.length - 2 && (
+                <G.NCutButtonWrapper style={{ visibility: 'hidden' }} />
+              )}
+          </G.NavigationButtonsContainer>
+
+          <G.NCutCreateContentContainer>
+            {pages[currentIndex]}
+          </G.NCutCreateContentContainer>
+
+          {currentIndex < pages.length - 1 && (
+            <G.ProgressBar>
+              {pages.slice(0, pages.length - 1).map((page, idx) => (
+                <G.ProgressBarItem
+                  key={idx}
+                  isActive={pages.indexOf(page) === currentIndex}
+                />
+              ))}
+            </G.ProgressBar>
+          )}
+        </G.NcutCreateContainer>
+      </G.NCutCreateLayout>
+    </G.NCutLayout>
   )
 }
 

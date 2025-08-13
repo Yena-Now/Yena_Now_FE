@@ -37,7 +37,11 @@ const Saving: React.FC<SavingProps> = ({
   return (
     <S.SavingContainer>
       <S.ImageContainer>
-        <S.ResultImage src={mergedUrl} alt="Merged NCut" />
+        {mergedUrl.endsWith('.mp4') ? (
+          <S.ResultVideo src={mergedUrl} autoPlay muted loop />
+        ) : (
+          <S.ResultImage src={mergedUrl} alt="Merged NCut" />
+        )}
       </S.ImageContainer>
       <S.InputArea>
         <S.ContentInput

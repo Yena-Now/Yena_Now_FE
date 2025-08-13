@@ -130,7 +130,11 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
                 $isActive={index === currentImageIndex}
                 onClick={() => setCurrentImageIndex(index)}
               >
-                <S.ThumbnailImage src={url} alt={`thumbnail-${index}`} />
+                {url.endsWith('.png') ? (
+                  <S.ThumbnailImage src={url} alt={`thumbnail-${index}`} />
+                ) : (
+                  <S.ThumbnailVideo src={url} autoPlay muted loop />
+                )}
                 {selectionCount > 0 && totalParticipants > 1 && (
                   <S.SelectionBadge>{selectionCount}</S.SelectionBadge>
                 )}
@@ -144,10 +148,14 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
       {currentImageUrl && (
         <S.PreviewContainer>
           <S.PreviewImageWrapper $isSelected={!!isCurrentImageSelected}>
-            <S.PreviewImage
-              src={currentImageUrl}
-              alt={`preview-${currentImageIndex}`}
-            />
+            {currentImageUrl.endsWith('.png') ? (
+              <S.PreviewImage
+                src={currentImageUrl}
+                alt={`preview-${currentImageIndex}`}
+              />
+            ) : (
+              <S.PreviewVideo src={currentImageUrl} autoPlay muted loop />
+            )}
             {isCurrentImageSelected && (
               <S.SelectedLabel>선택됨</S.SelectedLabel>
             )}
