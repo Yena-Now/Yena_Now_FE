@@ -7,12 +7,16 @@ interface ProfileHeaderProps {
   data: Profile
   onEditProfile?: () => void
   onToggleFollow?: () => void
+  onClickFollowingCount?: () => void
+  onClickFollowerCount?: () => void
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   data,
   onEditProfile,
   onToggleFollow,
+  onClickFollowerCount,
+  onClickFollowingCount,
 }) => {
   return (
     <S.HeaderWrapper>
@@ -29,7 +33,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           {data.mine ? (
             <S.MyBtn onClick={onEditProfile}>내 정보 조회</S.MyBtn>
           ) : (
-            <S.FollowBtn onClick={onToggleFollow}>
+            <S.FollowBtn
+              $following={data.following}
+              onClick={onToggleFollow}
+              aria-pressed={data.following}
+            >
               {data.following ? '팔로잉' : '팔로우'}
             </S.FollowBtn>
           )}
@@ -41,11 +49,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <S.CountNum>{data.totalCut}</S.CountNum>
           <S.CountLabel>Cuts</S.CountLabel>
         </S.CountItem>
-        <S.CountItem>
+        <S.CountItem onClick={onClickFollowerCount}>
           <S.CountNum>{data.followerCount}</S.CountNum>
           <S.CountLabel>팔로워</S.CountLabel>
         </S.CountItem>
-        <S.CountItem>
+        <S.CountItem onClick={onClickFollowingCount}>
           <S.CountNum>{data.followingCount}</S.CountNum>
           <S.CountLabel>팔로잉</S.CountLabel>
         </S.CountItem>

@@ -73,12 +73,35 @@ export const MyBtn = styled.button`
   color: #444444;
   border: none;
   border-radius: 4px;
-  padding: 8px 12px;
+  padding: 8px 15px;
   cursor: pointer;
 `
 
-export const FollowBtn = styled(MyBtn)`
-  background-color: transparent;
-  color: #007bff;
+export const FollowBtn = styled(MyBtn)<{ $following?: boolean }>`
   border: 1px solid #007bff;
+  background-color: ${({ $following }) =>
+    $following ? '#007bff' : 'transparent'};
+  color: ${({ $following }) => ($following ? '#fff' : '#007bff')};
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background-color: ${({ $following }) =>
+      $following ? '#0069d9' : 'rgba(0,123,255,.08)'};
+    border-color: #0069d9;
+    color: ${({ $following }) => ($following ? '#fff' : '#0069d9')};
+  }
+
+  &:active {
+    background-color: ${({ $following }) =>
+      $following ? '#005cbf' : 'rgba(0,123,255,.16)'};
+    border-color: #005cbf;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `
