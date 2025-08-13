@@ -16,9 +16,9 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
   nickname,
   // ncut_uuid,
   thumbnailUrl,
-  ncutURL,
+  ncutUrl,
   likeCount,
-  isRelay,
+  relay,
   onClick,
 }) => {
   const navigate = useNavigate()
@@ -28,27 +28,35 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
     navigate(`/profile/${userUuid}`)
   }
 
-  const isVideo = /\.(mp4|webm|ogg|m4v)$/i.test(ncutURL)
+  const isVideo = /\.(mp4|webm|ogg|m4v)$/i.test(ncutUrl)
+  // console.log({ ncutUrl, thumbnailUrl, profileUrl })
 
   return (
     <>
       <S.Conainter onClick={onClick}>
         <S.RelayIcon>
-          {isRelay && <FaRotate style={{ color: 'white' }} />}
+          {relay && <FaRotate style={{ color: 'white' }} />}
         </S.RelayIcon>
         <S.PhotoWrapper>
           {isVideo ? (
             <HoverVideoPlayer
-              videoSrc={ncutURL}
-              pausedOverlay={<S.Photo src={thumbnailUrl} alt="썸네일" />}
+              videoSrc={ncutUrl}
+              videoStyle={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+              }}
+              pausedOverlay={<S.Thumbnail src={thumbnailUrl} alt="썸네일" />}
               loadingOverlay={<LoadingSpinner />}
               muted
               loop
-              sizingMode="overlay"
+              sizingMode="container"
+              style={{ width: '100%', height: '100%' }}
               // restartOnPaused // 일시정지 재시작
             />
           ) : (
-            <S.Photo src={ncutURL} alt="썸네일" />
+            <S.Photo src={ncutUrl} alt="사진" />
           )}
         </S.PhotoWrapper>
         <S.InfoWrapper>
@@ -63,7 +71,7 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
             <S.UserName onClick={handleProfileClick}>{nickname}</S.UserName>
           </S.Box>
           <S.Box>
-            <GoHeartFill size={12} />
+            <GoHeartFill size={12} color="red" />
             <S.likeText>{likeCount}</S.likeText>
           </S.Box>
         </S.InfoWrapper>

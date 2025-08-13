@@ -12,7 +12,8 @@
       "@utils/*": ["src/utils/*"],
       "@assets/*": ["src/assets/*"],
       "@types/*": ["src/types/*"],
-      "@api/*": ["src/api/*"]
+      "@api/*": ["src/api/*"],
+      "@store/*": ["src/store/*"]
     }
   }
 }

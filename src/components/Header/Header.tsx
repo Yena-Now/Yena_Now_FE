@@ -1,39 +1,71 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import * as S from '@styles/components/Header/HeaderStyle'
+import { authAPI } from '@/api/auth'
+import { userAPI } from '@/api/user'
+import { useToast } from '@/hooks/useToast'
+import type { UserMeResponse } from '@/types/User'
+import { useAuthStore } from '@/store/authStore'
 import Logo from '@components/Common/Logo'
 import ProfileImage from '@components/Common/ProfileImage'
-import { authAPI } from '@/api/auth'
-import { useToast } from '@/hooks/useToast'
+import * as S from '@styles/components/Header/HeaderStyle'
+import SearchModal from '@components/Common/SearchModal'
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const [myInfo, setMyInfo] = useState<UserMeResponse | null>()
   const { error } = useToast()
   const navigate = useNavigate()
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [modalKeyword, setModalKeyword] = useState('')
+  const logout = useAuthStore((state) => state.logout)
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      //   handleSearchSubmit();
-      setSearchQuery('')
-    }
+  const openSearchModal = (keyword: string) => {
+    const kw = keyword.trim()
+    if (!kw) return
+    setModalKeyword(kw)
+    setIsSearchOpen(true)
   }
 
+  const handleSearchSubmit = (keyword: string) => {
+    openSearchModal(keyword)
+    setSearchQuery('')
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit(searchQuery)
+    }
+  }
   const handleLogout = async () => {
     try {
       await authAPI.logout()
       navigate('/login')
+      logout()
     } catch {
       error('로그아웃에 실패했습니다. 다시 시도해주세요.')
     }
   }
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen)
+
+  const fetchMyInfo = useCallback(async () => {
+    try {
+      const myData = await userAPI.getUserMeInfo()
+      setMyInfo(myData)
+    } catch {
+      error('내 정보를 불러오는 데 실패했습니다.')
+    }
+  }, [error, setMyInfo])
+
+  useEffect(() => {
+    fetchMyInfo()
+  }, [fetchMyInfo])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -52,9 +84,7 @@ const Header: React.FC = () => {
 
   return (
     <S.HeaderContainer>
-      <Link to="/">
-        <Logo />
-      </Link>
+      <Logo />
       <S.NavigationContainer>
         <S.NavigationLeftSection>
           <Link to="/film">
@@ -95,7 +125,7 @@ const Header: React.FC = () => {
             />
           </S.SearchBox>
           <S.ProfileContainer ref={dropdownRef}>
-            <ProfileImage onClick={toggleDropdown} />
+            <ProfileImage onClick={toggleDropdown} src={myInfo?.profileUrl} />
             {isDropdownOpen && (
               <S.ProfileDropdown>
                 <S.ProfileDropdownTail />
@@ -119,6 +149,16 @@ const Header: React.FC = () => {
           </S.ProfileContainer>
         </S.NavigationRightSection>
       </S.NavigationContainer>
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        type="search"
+        initialKeyword={modalKeyword}
+        onSelect={(user) => {
+          navigate(`/users/profile/${user.userUuid}`)
+          setIsSearchOpen(false)
+        }}
+      />
     </S.HeaderContainer>
   )
 }

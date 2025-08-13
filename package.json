@@ -19,6 +19,7 @@
     "@types/axios": "^0.14.4",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.11.0",
+    "html2canvas": "^1.4.1",
     "livekit-client": "^2.15.3",
     "openvidu-browser": "^2.31.0",
     "react": "^19.1.0",
@@ -29,7 +30,8 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^7.7.0",
     "react-toastify": "^11.0.5",
-    "styled-components": "^6.1.19"
+    "styled-components": "^6.1.19",
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
