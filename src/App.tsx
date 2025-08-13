@@ -20,6 +20,8 @@ import GalleryPage from '@pages/Gallery/Gallery'
 import GlobalStyle from '@styles/GlobalStyle'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import 'react-datepicker/dist/react-datepicker.css'
+import GalleryDetailPage from '@pages/Gallery/GalleryDetail'
+import Moment from '@pages/Moment'
 import EditNCut from '@pages/NCut/EditNCut'
 import GalleryDetailPage from './pages/Gallery/GalleryDetail'
 
@@ -173,6 +175,12 @@ function App() {
                 ) : (
                   <Navigate to="/login" replace />
                 )
+              }
+            />
+            <Route
+              path="/daily-moment"
+              element={
+                isLoggedIn ? <Moment /> : <Navigate to="/login" replace />
               }
             />
           </Routes>
