@@ -22,6 +22,8 @@ import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import 'react-datepicker/dist/react-datepicker.css'
 import GalleryDetailPage from '@pages/Gallery/GalleryDetail'
 import Moment from '@pages/Moment'
+import EditNCut from '@pages/NCut/EditNCut'
+import GalleryDetailPage from './pages/Gallery/GalleryDetail'
 
 function App() {
   const location = useLocation()
@@ -137,6 +139,12 @@ function App() {
               path="/film/room/:roomCode"
               element={
                 isLoggedIn ? <Session /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/film/room/:roomCode/edit"
+              element={
+                isLoggedIn ? <EditNCut /> : <Navigate to="/login" replace />
               }
             />
             <Route

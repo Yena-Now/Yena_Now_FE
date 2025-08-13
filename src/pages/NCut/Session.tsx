@@ -8,21 +8,29 @@ import { Chat } from '@components/NCut/Chat'
 import { useToast } from '@hooks/useToast'
 import { useDragAndDrop } from '@hooks/useDragAndDrop'
 import * as S from '@styles/pages/NCut/SessionStyle'
-import { s3API } from '@/api/s3'
 import {
   IoCameraOutline,
   IoVideocamOffOutline,
   IoVideocamOutline,
 } from 'react-icons/io5'
 import type { StateProps } from '@/types/Session'
+import { FaRegCopy } from 'react-icons/fa6'
+import { s3API } from '@/api/s3'
 import { useAuthStore } from '@/store/authStore'
 
 export const Session: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { success, error } = useToast()
-  const { backgroundImageUrl, takeCnt, cutCnt, timeLimit } =
-    location.state as StateProps
+  const {
+    backgroundImageUrl,
+    takeCount,
+    cutCount,
+    timeLimit,
+    cuts,
+    roomCode,
+    isHost,
+  } = location.state as StateProps
 
   const [showInteractionPrompt, setShowInteractionPrompt] = useState(true)
   const [hasAttemptedConnection, setHasAttemptedConnection] = useState(false)
@@ -32,8 +40,9 @@ export const Session: React.FC = () => {
   const [videoScale, setVideoScale] = useState(0.5)
   const [brightness, setBrightness] = useState(1)
   const [cursor, setCursor] = useState('default')
+  const [displayCountdown, setDisplayCountdown] = useState<number | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
-  const [urls, setUrls] = useState<string[]>([])
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordedChunksRef = useRef<Blob[]>([])
@@ -55,6 +64,11 @@ export const Session: React.FC = () => {
     sendData,
     chatMessages,
     sendChatMessage,
+    sharedUrls,
+    sendUrls,
+    countdownInfo,
+    startSharedCountdown,
+    sendNavigateToEdit,
   } = useRoom()
 
   const {
@@ -296,6 +310,8 @@ export const Session: React.FC = () => {
       return
     }
 
+    sessionStorage.setItem('userToken', token)
+
     setIsConnecting(true)
     setHasAttemptedConnection(true)
     try {
@@ -331,7 +347,7 @@ export const Session: React.FC = () => {
           (blob) => {
             if (blob) resolve(blob)
           },
-          'image/webp',
+          'image/png',
           1,
         )
       })
@@ -341,20 +357,26 @@ export const Session: React.FC = () => {
         return
       }
 
-      const fileName = `session-capture-${new Date().getTime()}.webp`
-      const file = new File([blob], fileName, { type: 'image/webp' })
+      const fileName = `session-capture-${new Date().getTime()}.png`
+      const file = new File([blob], fileName, { type: 'image/png' })
 
       const fileUrl = await s3API.upload({
         file,
-        type: 'profile',
+        type: 'cut',
+        roomCode: roomCode,
       })
 
       success('캡처된 이미지를 저장했습니다.')
-      setUrls((prevUrls) => [...prevUrls, fileUrl as unknown as string])
+
+      sendUrls([...sharedUrls, fileUrl as unknown as string])
+
+      sendChatMessage('촬영 완료!')
     } catch (err) {
       error(`캔버스 캡처 실패: ${err}`)
+    } finally {
+      setIsProcessing(false)
     }
-  }, [error, success])
+  }, [error, success, sendUrls, sendChatMessage, sharedUrls, roomCode])
 
   const startRecording = useCallback(() => {
     const mainCanvas = mainCanvasRef.current
@@ -386,12 +408,12 @@ export const Session: React.FC = () => {
 
         const fileUrl = s3API.upload({
           file,
-          type: 'profile',
+          type: 'cut',
+          roomCode: roomCode,
         })
 
-        console.log('영상 녹화 성공:', fileUrl)
         success('녹화된 영상을 저장했습니다.')
-        setUrls((prevUrls) => [...prevUrls, fileUrl as unknown as string])
+        sendUrls([...sharedUrls, fileUrl as unknown as string])
         recordedChunksRef.current = [] // 녹화가 끝나면 청소
       }
 
@@ -412,8 +434,53 @@ export const Session: React.FC = () => {
       }, timeLimit * 1000)
     } catch (err) {
       error(`녹화 시작 실패: ${err}`)
+    } finally {
+      setIsProcessing(false)
     }
-  }, [error, success, timeLimit])
+  }, [error, success, sendUrls, sharedUrls, timeLimit, roomCode])
+
+  const startCountDown = useCallback(
+    (action: 'capture' | 'record') => {
+      if (isProcessing || isRecording) return
+      setIsProcessing(true)
+      startSharedCountdown(action)
+    },
+    [isProcessing, isRecording, startSharedCountdown],
+  )
+
+  useEffect(() => {
+    if (!countdownInfo) {
+      setDisplayCountdown(null)
+      return
+    }
+
+    setDisplayCountdown(3)
+    const timer = setInterval(() => {
+      setDisplayCountdown((prev) => (prev !== null ? prev - 1 : null))
+    }, 1000)
+
+    const timeout = setTimeout(() => {
+      clearInterval(timer)
+      setDisplayCountdown(null)
+      // 카운트다운을 시작한 사람만 캡처/녹화 실행
+      if (
+        room &&
+        countdownInfo &&
+        countdownInfo.initiator === room.localParticipant.identity
+      ) {
+        if (countdownInfo.action === 'capture') {
+          captureCanvas().then(() => {})
+        } else if (countdownInfo.action === 'record') {
+          startRecording()
+        }
+      }
+    }, 3000)
+
+    return () => {
+      clearInterval(timer)
+      clearTimeout(timeout)
+    }
+  }, [countdownInfo, captureCanvas, startRecording, room])
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
@@ -425,6 +492,14 @@ export const Session: React.FC = () => {
 
   // 초기 설정 및 언마운트 정리
   useEffect(() => {
+    const storedSharedCuts = Array.isArray(cuts)
+      ? cuts.map((cut) => cut.cutUrl)
+      : []
+
+    if (storedSharedCuts.length > 0) {
+      sendUrls(storedSharedCuts)
+    }
+
     if (!location.state) {
       error('잘못된 접근입니다. 필름 페이지로 돌아갑니다.')
       navigate('/film')
@@ -433,11 +508,7 @@ export const Session: React.FC = () => {
     return () => {
       cleanup()
       if (room) {
-        // .then()을 사용하여 leaveRoom이 완료된 후에 로그를 출력
-        // 안하니까 빨간줄 뜸!
-        leaveRoom().then((r) => {
-          console.log('세션에서 나갔습니다:', r)
-        })
+        leaveRoom().then(() => {})
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -466,21 +537,42 @@ export const Session: React.FC = () => {
   }
 
   const handleFinishTakes = () => {
-    navigate('/film/edit', {
-      state: {
-        urls,
-        cutCnt,
-      },
+    const editData = {
+      sharedUrls,
+      cutCount,
+      roomCode,
+      isHost,
+      token: location.state?.token || '',
+    }
+
+    sessionStorage.setItem('editData', JSON.stringify(editData))
+
+    sendNavigateToEdit(roomCode, { ...editData, isHost: false })
+
+    navigate(`/film/room/${roomCode}/edit`, {
+      state: editData,
     })
   }
 
-  const canCapture = urls.length < takeCnt
+  const canCapture = sharedUrls.length < takeCount
+  const handleCopyRoomCode = () => {
+    navigator.clipboard
+      .writeText(location.state?.roomCode || '')
+      .then(() => success('세션 코드가 클립보드에 복사되었습니다.'))
+      .catch((err) => error(`세션 코드 복사 실패: ${err}`))
+  }
 
   return (
     <S.SessionLayout id="room">
       <S.SessionHeader>
+        <S.SessionRoomCode onClick={handleCopyRoomCode}>
+          {location.state?.roomCode || '세션 코드 없음'}
+          <S.CopyIcon>
+            <FaRegCopy size={20} />
+          </S.CopyIcon>
+        </S.SessionRoomCode>
         <S.RemainingTakesCnt>
-          {urls.length} / {takeCnt}
+          {sharedUrls.length} / {takeCount}
         </S.RemainingTakesCnt>
         <S.LeaveSessionButton onClick={handleLeaveRoom}>
           나가기
@@ -488,14 +580,19 @@ export const Session: React.FC = () => {
       </S.SessionHeader>
       <S.mainContent>
         <S.SessionLayoutContainer id="layout-container">
-          <S.CanvasContainer
-            customCursor={cursor}
-            ref={mainCanvasRef}
-            width={1280}
-            height={720}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleCanvasMouseMove}
-          />
+          <S.CanvasWrapper>
+            <S.CanvasContainer
+              $customCursor={cursor}
+              ref={mainCanvasRef}
+              width={1280}
+              height={720}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleCanvasMouseMove}
+            />
+            {displayCountdown !== null && displayCountdown > 0 && (
+              <S.CountDownOverlay>{displayCountdown}</S.CountDownOverlay>
+            )}
+          </S.CanvasWrapper>
           <S.SessionFooter>
             <S.CameraSizeContainer>
               <S.CameraSizeLabel htmlFor="size-slider">
@@ -528,9 +625,11 @@ export const Session: React.FC = () => {
             </S.BrightnessContainer>
             <S.TakeContainer>
               <S.TakeVideoButton
-                isActive={isRecording}
-                onClick={isRecording ? stopRecording : startRecording}
-                disabled={!canCapture}
+                $isActive={isRecording}
+                onClick={
+                  isRecording ? stopRecording : () => startCountDown('record')
+                }
+                disabled={!canCapture || isProcessing}
               >
                 {isRecording ? (
                   <IoVideocamOffOutline
@@ -548,11 +647,17 @@ export const Session: React.FC = () => {
                   />
                 )}
               </S.TakeVideoButton>
-              <S.TakePhotoButton onClick={captureCanvas} disabled={!canCapture}>
+              <S.TakePhotoButton
+                onClick={() => startCountDown('capture')}
+                disabled={!canCapture || isRecording || isProcessing}
+              >
                 <IoCameraOutline style={{ width: '24px', height: '24px' }} />
               </S.TakePhotoButton>
             </S.TakeContainer>
-            <S.GoToEditPage onClick={handleFinishTakes} disabled={canCapture}>
+            <S.GoToEditPage
+              onClick={handleFinishTakes}
+              disabled={canCapture || isRecording || isProcessing || !isHost}
+            >
               다음
             </S.GoToEditPage>
           </S.SessionFooter>
