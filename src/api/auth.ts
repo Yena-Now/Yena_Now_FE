@@ -9,6 +9,8 @@ import type {
   LoginRequest,
   LoginResponse,
 } from '@/types/auth'
+import { useAuthStore } from '@/store/authStore'
+import { userAPI } from '@/api/user'
 
 export const authAPI = {
   sendEmailVerification: async (
@@ -26,6 +28,7 @@ export const authAPI = {
       )
       return response
     } catch (err) {
+      console.log(err)
       throw err
     }
   },
@@ -61,22 +64,26 @@ export const authAPI = {
   },
 
   login: async (loginData: LoginRequest): Promise<LoginResponse> => {
-    const response = await apiClient.post('/auth/login', loginData)
-    localStorage.setItem('accessToken', response.data.accessToken)
-    localStorage.setItem('nickname', response.data.nickname)
-    localStorage.setItem('profileUrl', response.data.profileUrl)
-    apiClient.defaults.headers.common['Authorization'] =
-      `Bearer ${response.data.accessToken}`
-
-    window.dispatchEvent(new Event('authChange'))
+    const { setAuth } = useAuthStore.getState()
+    const response = await apiClient.post('/auth/login', loginData, {
+      withCredentials: true,
+      skipAuth: true,
+    })
+    const { accessToken, userUuid, user } = response.data
+    setAuth(accessToken, user ?? null)
+    localStorage.setItem('userUuid', userUuid)
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+    const me = await userAPI.getUserMeInfo()
+    setAuth(accessToken, me)
     return response.data
   },
 
   logout: async () => {
+    const { logout } = useAuthStore.getState()
     const response = await apiClient.post('/auth/logout')
+    logout()
     localStorage.clear()
     delete apiClient.defaults.headers.common['Authorization']
-    window.dispatchEvent(new Event('authChange'))
     return response.data
   },
 

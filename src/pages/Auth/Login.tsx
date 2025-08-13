@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import Logo from '@components/Common/Logo'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '@/api/auth'
+import { userAPI } from '@/api/user'
 import { useToast } from '@/hooks/useToast'
+import { useAuthStore } from '@/store/authStore'
+import Logo from '@components/Common/Logo'
 import { FcGoogle } from 'react-icons/fc'
 import { RiKakaoTalkFill } from 'react-icons/ri'
 import * as S from '@styles/pages/Auth/LoginStyle'
@@ -11,6 +13,8 @@ import * as T from '@styles/pages/Auth/AuthGlobalStyle'
 const Login: React.FC = () => {
   const { error } = useToast()
   const navigate = useNavigate()
+  const setAuth = useAuthStore((state) => state.setAuth)
+  const setAuthChecked = useAuthStore((state) => state.setAuthChecked)
 
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
@@ -24,7 +28,9 @@ const Login: React.FC = () => {
 
     try {
       const response = await authAPI.login(submitData)
-      console.log('로그인 성공', response)
+      const me = await userAPI.getUserMeInfo()
+      setAuth(response.accessToken, me)
+      setAuthChecked(false)
       navigate('/gallery')
     } catch (err) {
       console.log(err)
@@ -45,7 +51,6 @@ const Login: React.FC = () => {
 
   const handleGoogleLogin = () => {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL
-    console.log(BASE_URL)
     window.location.href = `${BASE_URL}/oauth2/authorization/google`
   }
 

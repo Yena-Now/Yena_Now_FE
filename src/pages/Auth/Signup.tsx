@@ -102,7 +102,6 @@ const Signup: React.FC = () => {
       const response = await authAPI.sendEmailVerification({
         email: form.email,
       })
-      console.log(response)
       if (response.status === 204) {
         info('인증 코드가 이메일로 전송되었습니다.')
         setEmailVerified(true)

@@ -7,9 +7,9 @@ export interface NCut {
   userUuid: string
   profileUrl: string
   nickname: string
-  ncut_uuid: string
+  ncutUuid: string
   thumbnailUrl: string
-  ncutURL: string
+  ncutUrl: string
   likeCount: number
-  isRelay: boolean
+  relay: boolean
 }

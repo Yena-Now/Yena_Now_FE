@@ -20,7 +20,12 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
 }) => {
   return (
     <S.ProfileImageWrapper onClick={onClick}>
-      <S.ProfileImage src={src} alt={alt} width={width} height={height} />
+      <S.ProfileImage
+        src={src || defaultProfileImage}
+        alt={alt}
+        width={width}
+        height={height}
+      />
     </S.ProfileImageWrapper>
   )
 }

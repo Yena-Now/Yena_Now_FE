@@ -4,7 +4,6 @@ import * as S from '@styles/pages/NCut/ParticipationSessionStyle'
 import ParticipationModal from '@components/NCut/Enter/EnterConfirmModal'
 import { useNavigate } from 'react-router-dom'
 
-import { FiUserPlus } from 'react-icons/fi'
 import { FaCheck } from 'react-icons/fa6'
 import { useToast } from '@/hooks/useToast'
 import { nCutAPI } from '@/api/ncut'
@@ -37,6 +36,21 @@ const ParticipationSession: React.FC = () => {
     }
   }
 
+  const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const pasteData = e.clipboardData.getData('text')
+
+    if (pasteData.length === 6 && /^[0-9]+$/.test(pasteData)) {
+      const newCode = pasteData.split('')
+      setSessionCode(newCode)
+      newCode.forEach((_, index) => {
+        if (inputRefs.current[index]) {
+          inputRefs.current[index]?.focus()
+        }
+      })
+    }
+  }
+
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     index: number,
@@ -65,9 +79,10 @@ const ParticipationSession: React.FC = () => {
       sessionStorage.setItem('sessionToken', response.token)
       sessionStorage.setItem('sessionRoomCode', sessionId)
       sessionStorage.setItem('backgroundUrl', response.backgroundUrl)
-      sessionStorage.setItem('takeCnt', response.takeCnt.toString())
-      sessionStorage.setItem('cutCnt', response.cutCnt.toString())
+      sessionStorage.setItem('takeCount', response.takeCount.toString())
+      sessionStorage.setItem('cutCount', response.cutCount.toString())
       sessionStorage.setItem('timeLimit', response.timeLimit.toString())
+      sessionStorage.setItem('cuts', JSON.stringify(response.cuts))
     } catch {
       setIsExist(false)
       setIsModalOpen(true)
@@ -80,43 +95,35 @@ const ParticipationSession: React.FC = () => {
     const token = sessionStorage.getItem('sessionToken')
     const roomCode = sessionStorage.getItem('sessionRoomCode')
     const backgroundUrl = sessionStorage.getItem('backgroundUrl')
-    const takeCnt = sessionStorage.getItem('takeCnt')
-    const cutCnt = sessionStorage.getItem('cutCnt')
+    const takeCount = sessionStorage.getItem('takeCount')
+    const cutCount = sessionStorage.getItem('cutCount')
     const timeLimit = sessionStorage.getItem('timeLimit')
+    const cuts = sessionStorage.getItem('cuts')
 
     if (token && roomCode) {
       // Session 페이지로 이동
       navigate('/film/room/' + roomCode, {
         state: {
           roomCode: roomCode,
+          isHost: false,
           token: token,
           backgroundImageUrl: backgroundUrl || '',
-          takeCnt: takeCnt ? parseInt(takeCnt, 10) : 0,
-          cutCnt: cutCnt ? parseInt(cutCnt, 10) : 0,
+          takeCount: takeCount ? parseInt(takeCount, 10) : 0,
+          cutCount: cutCount ? parseInt(cutCount, 10) : 0,
           timeLimit: timeLimit ? parseInt(timeLimit, 10) : 0,
-          isHost: false,
+          cuts: cuts ? JSON.parse(cuts) : [],
         },
       })
     }
 
     // 임시 저장된 데이터 정리
-    sessionStorage.removeItem('sessionToken')
-    sessionStorage.removeItem('sessionRoomCode')
-    sessionStorage.removeItem('backgroundUrl')
-    sessionStorage.removeItem('takeCnt')
-    sessionStorage.removeItem('cutCnt')
-    sessionStorage.removeItem('timeLimit')
+    sessionStorage.clear()
 
     setIsModalOpen(false)
   }
 
   const handleCancelJoin = () => {
-    sessionStorage.removeItem('sessionToken')
-    sessionStorage.removeItem('sessionRoomCode')
-    sessionStorage.removeItem('backgroundUrl')
-    sessionStorage.removeItem('takeCnt')
-    sessionStorage.removeItem('cutCnt')
-    sessionStorage.removeItem('timeLimit')
+    sessionStorage.clear()
     setIsModalOpen(false)
   }
 
@@ -125,59 +132,58 @@ const ParticipationSession: React.FC = () => {
   }
 
   return (
-    <G.NCutCreateLayout>
-      <G.NcutCreateContainer>
-        <G.NCutCreateIcon>
-          <FiUserPlus
-            style={{
-              width: '100px',
-              height: '100px',
-            }}
-          />
-        </G.NCutCreateIcon>
-        <G.NCutCreateContentContainer>
-          <G.NcutCreateHeader>촬영 부스 참가</G.NcutCreateHeader>
-          <G.NcutCreateDescription>
-            초대 코드를 입력해주세요.
-          </G.NcutCreateDescription>
-          <S.LastStepContainer>
-            <S.CodeContainer>
-              {sessionCode.map((digit, index) => (
-                <S.CodeDigit
-                  key={index}
-                  type="text"
-                  value={digit}
-                  onChange={(e) => handleCodeChange(e, index)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  ref={(el) => {
-                    inputRefs.current[index] = el
+    <G.NCutLayout>
+      <G.NCutCreateLayout>
+        <G.NcutCreateContainer>
+          <G.NavigationButtonsContainer>
+            <G.NCutButtonWrapper style={{ visibility: 'hidden' }} />
+            <G.NCutButtonWrapper>
+              <G.NCutNextButton
+                onClick={handleJoinSession}
+                disabled={isChecking || sessionCode.join('').length !== 6}
+              >
+                <FaCheck
+                  style={{
+                    fontSize: '24px',
                   }}
-                  maxLength={1}
                 />
-              ))}
-            </S.CodeContainer>
-          </S.LastStepContainer>
-        </G.NCutCreateContentContainer>
-      </G.NcutCreateContainer>
-      <G.NCutNextButton
-        onClick={handleJoinSession}
-        disabled={isChecking || sessionCode.join('').length !== 6}
-      >
-        <FaCheck
-          style={{
-            fontSize: '24px',
-          }}
+              </G.NCutNextButton>
+            </G.NCutButtonWrapper>
+          </G.NavigationButtonsContainer>
+          <G.NCutCreateContentContainer>
+            <G.NcutCreateHeader>촬영 부스 참가</G.NcutCreateHeader>
+            <G.NcutCreateDescription>
+              초대 코드를 입력해주세요.
+            </G.NcutCreateDescription>
+            <S.LastStepContainer>
+              <S.CodeContainer>
+                {sessionCode.map((digit, index) => (
+                  <S.CodeDigit
+                    key={index}
+                    type="text"
+                    value={digit}
+                    onChange={(e) => handleCodeChange(e, index)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    onPaste={handleCodePaste}
+                    ref={(el) => {
+                      inputRefs.current[index] = el
+                    }}
+                    maxLength={1}
+                  />
+                ))}
+              </S.CodeContainer>
+            </S.LastStepContainer>
+          </G.NCutCreateContentContainer>
+        </G.NcutCreateContainer>
+        <ParticipationModal
+          onClose={handleCloseModal}
+          isExist={isExist}
+          isOpen={isModalOpen}
+          onConfirm={handleConfirmJoin}
+          onCancel={handleCancelJoin}
         />
-      </G.NCutNextButton>
-
-      <ParticipationModal
-        onClose={handleCloseModal}
-        isExist={isExist}
-        isOpen={isModalOpen}
-        onConfirm={handleConfirmJoin}
-        onCancel={handleCancelJoin}
-      />
-    </G.NCutCreateLayout>
+      </G.NCutCreateLayout>
+    </G.NCutLayout>
   )
 }
 
