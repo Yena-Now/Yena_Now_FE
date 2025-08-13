@@ -194,6 +194,7 @@ const GalleryDetailPage: React.FC = () => {
           <UserInfo
             profileUrl={detailData.profileUrl}
             nickname={detailData.nickname}
+            userUuid={detailData.userUuid}
             createdAt={detailData.createdAt}
             onClick={() => {}}
           />
@@ -247,6 +248,7 @@ const GalleryDetailPage: React.FC = () => {
                   nickname={c.nickname}
                   ncutUuid={c.ncutUuid}
                   comment={c.comment}
+                  userUuid={c.userUuid}
                   isMyComment={c.userUuid === myUuid}
                   isMine={detailData.userUuid === myUuid}
                   onEdit={(newComment) =>
