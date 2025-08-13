@@ -1,4 +1,3 @@
-// GalleryDetailPage.tsx
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import UserInfo from '@components/GalleryDetail/UserInfo'
@@ -39,6 +38,10 @@ const GalleryDetailPage: React.FC = () => {
       (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     )
+
+  useEffect(() => {
+    setMyUuid(localStorage.getItem('userUuid'))
+  }, [])
 
   useEffect(() => {
     setMyUuid(localStorage.getItem('userUuid'))
@@ -146,6 +149,7 @@ const GalleryDetailPage: React.FC = () => {
           c.commentUuid === commentUuid ? { ...c, comment: newContent } : c,
         ),
       )
+      success('댓글이 수정되었습니다.')
     } catch {
       error('댓글 수정 실패')
     }
