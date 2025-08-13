@@ -8,6 +8,7 @@ import type {
   NicknameVerificationResponse,
   ChangePasswordRequest,
 } from '@/types/User'
+import { useAuthStore } from '@/store/authStore'
 
 export const userAPI = {
   patchUserMeInfo: async (
@@ -49,10 +50,11 @@ export const userAPI = {
   },
 
   deleteUser: async (): Promise<void> => {
+    const { logout } = useAuthStore.getState()
     try {
       await apiClient.delete('/users/me')
+      logout()
       localStorage.clear()
-      window.dispatchEvent(new Event('authChange'))
     } catch (err) {
       console.log('회원 탈퇴 실패', err)
       throw err
