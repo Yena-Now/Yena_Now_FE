@@ -62,7 +62,7 @@ const GalleryDetailPage: React.FC = () => {
       }
     }
     fetchData()
-  }, [ncutUuid])
+  }, [ncutUuid, error])
 
   const handleUpdatePost = async (newContent: string) => {
     if (!detailData) return
@@ -108,6 +108,7 @@ const GalleryDetailPage: React.FC = () => {
     if (!ncutUuid || !newComment.trim()) return
     try {
       const res = await commentAPI.addComment(ncutUuid, newComment)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const raw = res && 'data' in res ? (res as any).data : res
 
       if (raw?.commentUuid) {

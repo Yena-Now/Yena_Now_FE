@@ -4,7 +4,7 @@ export interface Profile {
   name?: string | null
   nickname: string
   gender?: Gender
-  profileUrl?: string
+  profileUrl?: string | null
   followingCount: number
   followerCount: number
   totalCut: number

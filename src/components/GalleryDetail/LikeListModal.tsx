@@ -60,7 +60,7 @@ const LikeListModal: React.FC<Props> = ({
           return
 
         let pageLikes = Array.isArray(res.likes) ? res.likes : []
-        const rawCount = Number((res as any).likeCount)
+        const rawCount = Number(res.likeCount)
         const apiCount = Number.isFinite(rawCount) ? rawCount : pageLikes.length
         let last = pageLikes.length < pageSize
 
@@ -91,7 +91,7 @@ const LikeListModal: React.FC<Props> = ({
               })(),
         )
         setHasMore(!last)
-        setPage((_) => nextPage + 1)
+        setPage(() => nextPage + 1)
       } catch {
         setError('목록을 불러오지 못했습니다.')
       } finally {
@@ -105,7 +105,6 @@ const LikeListModal: React.FC<Props> = ({
     },
     [isOpen, loading, hasMore, ncutUuid, page, pageSize],
   )
-
   useEffect(() => {
     if (!isOpen) return
     setItems([])
@@ -117,7 +116,9 @@ const LikeListModal: React.FC<Props> = ({
     if (typeof initialIsLiked === 'boolean') setIsLiked(initialIsLiked)
     openedKeyRef.current = `${ncutUuid}-${Date.now()}`
     fetchPage({ force: true, page: 0 })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, ncutUuid, initialLikeCount, initialIsLiked])
+  // fetchPage 넣으면 무한 루프 발생, 한 번만 실행 의도
 
   useEffect(() => {
     if (!isOpen || !sentinelRef.current || page === 0) return

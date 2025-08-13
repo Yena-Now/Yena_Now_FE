@@ -1,72 +1,79 @@
-import { useEffect, useState, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
-import { profileAPI } from '@/api/profile'
+import { useMemo, useState, useCallback } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import type { Profile } from '@/types/Profile'
 import ProfileHeader from '@/components/UserProfile/ProfileHeader'
+import type { NCut } from '@/types/NCutList'
+import GalleryList from '@components/Gallery/GalleryList'
 
 const UserProfilePage: React.FC = () => {
-  const { userUuid } = useParams<{ userUuid: string }>()
-  const [data, setData] = useState<Profile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { userUuid } = useParams<{ userUuid?: string }>()
+  const navigate = useNavigate()
 
-  const fetchProfile = useCallback(async () => {
-    if (!userUuid) {
-      setError('URL에 userUuid가 없어요.')
-      setLoading(false)
-      return
-    }
-    try {
-      setLoading(true)
-      const res = await profileAPI.get(userUuid)
-      setData(res)
-      setError(null)
-    } catch {
-      setError('프로필 정보를 불러오지 못했어요.')
-    } finally {
-      setLoading(false)
-    }
-  }, [userUuid])
+  // 더미 프로필
+  const [data, setData] = useState<Profile>({
+    name: userUuid ? '서연희' : '나',
+    nickname: userUuid ? '연히히' : 'me',
+    profileUrl: null,
+    followingCount: 73,
+    followerCount: 342,
+    totalCut: 18,
+    mine: true,
+    following: !!userUuid && false,
+  })
 
-  useEffect(() => {
-    fetchProfile()
-  }, [fetchProfile])
+  // ✅ 더미 갤러리 아이템 배열
+  const items: NCut[] = useMemo(
+    () => [
+      {
+        userUuid: '00000000-0000-0000-0000-000000000001',
+        ncutUuid: '11111111-0000-0000-0000-000000000001',
+        profileUrl: null,
+        nickname: '연히히',
+        thumbnailUrl: 'https://picsum.photos/id/237/600/450', // 이미지
+        ncutUrl: 'https://picsum.photos/id/237/1200/900',
+        likeCount: 12,
+        relay: false,
+      },
+      {
+        userUuid: '00000000-0000-0000-0000-000000000002',
+        ncutUuid: '11111111-0000-0000-0000-000000000002',
+        profileUrl: null,
+        nickname: 'momo',
+        thumbnailUrl: 'https://picsum.photos/id/1025/600/450', // 비디오 썸네일
+        ncutUrl: '/videos/sample1.mp4', // mp4 → HoverVideoPlayer 재생됨
+        likeCount: 34,
+        relay: true,
+      },
+      {
+        userUuid: '00000000-0000-0000-0000-000000000003',
+        ncutUuid: '11111111-0000-0000-0000-000000000003',
+        profileUrl: null,
+        nickname: 'hana',
+        thumbnailUrl: 'https://picsum.photos/id/1062/600/450',
+        ncutUrl: 'https://picsum.photos/id/1062/1200/900',
+        likeCount: 7,
+        relay: false,
+      },
+      // ...원하면 더 추가
+    ],
+    [],
+  )
 
-  const handleEdit = useCallback(() => {}, [])
+  const handleClick = (item: NCut) => {
+    navigate(`/gallery/${item.ncutUuid}`)
+  }
 
-  const handleToggleFollow = useCallback(async () => {
-    if (!userUuid) return
-    const wasFollowing = !!data?.following
+  const handleEdit = useCallback(() => {
+    navigate('/my-profile')
+  }, [navigate])
 
-    setData((prev) =>
-      prev
-        ? {
-            ...prev,
-            following: !wasFollowing,
-            followerCount: prev.followerCount + (wasFollowing ? -1 : 1),
-          }
-        : prev,
-    )
-
-    try {
-      if (wasFollowing) await profileAPI.unfollow(userUuid)
-      else await profileAPI.follow(userUuid)
-    } catch {
-      setData((prev) =>
-        prev
-          ? {
-              ...prev,
-              following: wasFollowing,
-              followerCount: prev.followerCount + (wasFollowing ? 1 : -1),
-            }
-          : prev,
-      )
-    }
-  }, [userUuid, data?.following])
-
-  if (loading) return <div style={{ padding: 24 }}>로딩 중…</div>
-  if (error || !data)
-    return <div style={{ padding: 24 }}>{error ?? '데이터가 없어요.'}</div>
+  const handleToggleFollow = useCallback(() => {
+    setData((prev) => ({
+      ...prev,
+      following: !prev.following,
+      followerCount: prev.followerCount + (prev.following ? -1 : 1),
+    }))
+  }, [])
 
   return (
     <>
@@ -75,6 +82,7 @@ const UserProfilePage: React.FC = () => {
         onEditProfile={handleEdit}
         onToggleFollow={handleToggleFollow}
       />
+      <GalleryList data={items} onItemClick={handleClick} />
     </>
   )
 }

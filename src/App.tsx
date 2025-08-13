@@ -23,7 +23,6 @@ import 'react-datepicker/dist/react-datepicker.css'
 import GalleryDetailPage from '@pages/Gallery/GalleryDetail'
 import Moment from '@pages/Moment'
 import EditNCut from '@pages/NCut/EditNCut'
-import GalleryDetailPage from './pages/Gallery/GalleryDetail'
 import UserProfilePage from './pages/UserProfile/UserProfile'
 
 function App() {
@@ -185,13 +184,13 @@ function App() {
               }
             />
             <Route
-              path="/profile/:nickname"
+              path="/profile/:userUuid"
               element={
-                isLoggedIn ? (
-                  <UserProfilePage />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                // isLoggedIn ? (
+                <UserProfilePage />
+                // ) : (
+                //   <Navigate to="/login" replace />
+                // )
               }
             />
           </Routes>

@@ -1,91 +1,84 @@
 import styled from 'styled-components'
 
-const HeaderWrapper = styled.div`
+export const HeaderWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 80px;
+`
+
+export const LeftArea = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 40px;
+`
+export const NameBlock = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  border-bottom: 1px solid #eee;
+  align-items: flex-start;
+  gap: 15px;
+  margin-top: 35px;
 `
 
-const Info = styled.div`
-  display: flex;
-  align-items: center;
+export const Nickname = styled.div`
+  font-weight: 700;
+  font-size: 36px;
 `
 
-const NameItem = styled.div`
-  margin-left: 12px;
-`
-
-const Nickname = styled.div`
-  font-weight: bold;
-`
-
-const Name = styled.div`
-  font-size: 12px;
+export const Name = styled.div`
+  font-size: 18px;
   color: #888;
 `
 
-const CountRow = styled.div`
+export const CountRow = styled.div`
   display: flex;
-  margin: 12px 0;
+  gap: 150px; /* 카운트 사이 간격 */
+  align-items: baseline;
+  margin-top: 70px;
+  margin-right: 140px;
 `
 
-const CountItem = styled.div`
+export const CountItem = styled.div`
+  position: relative;
   display: flex;
+  flex-direction: row;
   align-items: center;
+  gap: 10px;
+  padding-bottom: 7px;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 150px; /* ← 밑줄 길이 */
+    height: 2px;
+    background-color: #ddd;
+  }
 `
 
-const CountNum = styled.div`
+export const CountNum = styled.div`
   font-weight: bold;
+  font-size: 24px;
+  padding-bottom: 5px;
 `
 
-const CountLabel = styled.div`
-  font-size: 12px;
+export const CountLabel = styled.div`
+  font-size: 16px;
   color: #888;
 `
 
-const ButtonItem = styled.div`
-  margin-top: 12px;
-`
-
-const MyBtn = styled.button`
-  background-color: #007bff;
-  color: white;
+export const MyBtn = styled.button`
+  margin-top: 8px;
+  background-color: #f9be08;
+  color: #444444;
   border: none;
   border-radius: 4px;
   padding: 8px 12px;
   cursor: pointer;
-
-  &:hover {
-    background-color: #0056b3;
-  }
 `
 
-const FollowBtn = styled.button`
+export const FollowBtn = styled(MyBtn)`
   background-color: transparent;
   color: #007bff;
   border: 1px solid #007bff;
-  border-radius: 4px;
-  padding: 8px 12px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #007bff;
-    color: white;
-  }
 `
-
-export {
-  HeaderWrapper,
-  Info,
-  NameItem,
-  Nickname,
-  Name,
-  CountRow,
-  CountItem,
-  CountNum,
-  CountLabel,
-  ButtonItem,
-  MyBtn,
-  FollowBtn,
-}
