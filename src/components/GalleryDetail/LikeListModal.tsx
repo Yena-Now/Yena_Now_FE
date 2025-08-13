@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as S from '@styles/components/GalleryDetail/LikeListModalStyle'
@@ -91,7 +92,7 @@ const LikeListModal: React.FC<Props> = ({
               })(),
         )
         setHasMore(!last)
-        setPage((_) => nextPage + 1)
+        setPage(() => nextPage + 1)
       } catch {
         setError('목록을 불러오지 못했습니다.')
       } finally {
@@ -117,6 +118,7 @@ const LikeListModal: React.FC<Props> = ({
     if (typeof initialIsLiked === 'boolean') setIsLiked(initialIsLiked)
     openedKeyRef.current = `${ncutUuid}-${Date.now()}`
     fetchPage({ force: true, page: 0 })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, ncutUuid, initialLikeCount, initialIsLiked])
 
   useEffect(() => {
