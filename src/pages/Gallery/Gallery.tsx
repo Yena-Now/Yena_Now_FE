@@ -5,6 +5,7 @@ import GalleryList from '@components/Gallery/GalleryList'
 import type { NCut } from '@/types/NCutList'
 import { galleryAPI } from '@/api/gallerylist'
 import { useToast } from '@/hooks/useToast'
+import * as S from '@/styles/components/Common/LoadingStyle'
 
 type TabType = 'PUBLIC' | 'FOLLOW'
 
@@ -47,6 +48,15 @@ const GalleryPage: React.FC = () => {
     <>
       <GalleryTabMenu currentTab={currentTab} onClickTab={setCurrentTab} />
       <GalleryList data={items} onItemClick={handleClick} />
+
+      <S.LoaderWrapper>
+        {loading && (
+          <>
+            <S.Spinner />
+            <S.LoadingText>로딩 중입니다...</S.LoadingText>
+          </>
+        )}
+      </S.LoaderWrapper>
     </>
   )
 }

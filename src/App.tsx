@@ -193,11 +193,11 @@ function App() {
             <Route
               path="/profile/:userUuid"
               element={
-                // isLoggedIn ? (
-                <UserProfilePage />
-                // ) : (
-                //   <Navigate to="/login" replace />
-                // )
+                isLoggedIn ? (
+                  <UserProfilePage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
           </Routes>

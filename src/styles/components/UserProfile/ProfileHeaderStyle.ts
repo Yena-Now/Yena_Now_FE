@@ -4,7 +4,7 @@ export const HeaderWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 80px;
+  padding: 90px;
 `
 
 export const LeftArea = styled.div`
@@ -35,7 +35,7 @@ export const CountRow = styled.div`
   gap: 150px; /* 카운트 사이 간격 */
   align-items: baseline;
   margin-top: 70px;
-  margin-right: 140px;
+  margin-right: 150px;
 `
 
 export const CountItem = styled.div`
