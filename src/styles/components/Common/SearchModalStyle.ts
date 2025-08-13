@@ -19,7 +19,6 @@ export const Modal = styled.div`
   padding: 20px;
   border-radius: 16px;
   background-color: #f8f8f8;
-  font-family: 'Noto Sans KR', sans-serif;
   position: relative;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 `
@@ -39,12 +38,12 @@ export const CloseButton = styled.button`
 export const SearchInput = styled.input`
   width: 70%;
   height: 45px;
-  padding: 0 40px 0 36px;
+  padding: 0 40px 0 20px;
+  margin-bottom: 10px;
   border: none;
   border-radius: 8px;
   background-color: white;
   font-size: 14px;
-  background-image: url('/icons/search.svg');
   background-repeat: no-repeat;
   background-position: 10px center;
   box-shadow: 0 0 0 1px #ddd;
@@ -52,10 +51,9 @@ export const SearchInput = styled.input`
 `
 
 export const UserList = styled.div`
-  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  height: 470px;
+  height: 100%;
   overflow-y: auto;
 `
 
@@ -85,13 +83,49 @@ export const UserInfo = styled.div`
 
 export const Nickname = styled.div`
   font-weight: 600;
-  font-size: 17px;
+  font-size: 16px;
   color: #222;
+  letter-spacing: 0.5px;
 `
 
-export const Name = styled.div`
-  padding: 7px 1px;
+export const Name = styled.span`
   font-size: 14px;
   color: #666;
-  margin-top: 2px;
+  margin-right: 5px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+`
+
+export const Empty = styled.p`
+  text-align: center;
+  padding: 24px 0;
+  font-size: 14px;
+  color: #6b7280;
+  user-select: none;
+`
+
+export const Error = styled.p`
+  margin: 12px 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #fecdca;
+  background: #fef3f2;
+  color: #d92d20;
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.35;
+`
+
+export const Following = styled.span`
+  align-self: center;
+  display: inline-block;
+  color: #9b9b9bff;
+  font-size: 12px;
+  font-weight: 500;
+`
+
+export const UserState = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
 `

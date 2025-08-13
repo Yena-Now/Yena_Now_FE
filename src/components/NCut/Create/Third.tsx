@@ -4,25 +4,25 @@ import React from 'react'
 import { IoTriangleOutline } from 'react-icons/io5'
 
 interface ThirdCreateStepProps {
-  onFormDataChange: (data: { takeCnt: number }) => void
+  onFormDataChange: (data: { takeCount: number }) => void
 }
 
 function ThirdCreateStep({ onFormDataChange }: ThirdCreateStepProps) {
-  const [takeCnt, setTakeCnt] = React.useState(6)
+  const [takeCount, setTakeCount] = React.useState(6)
 
   const handleIncrease = () => {
-    if (takeCnt < 10) {
-      const newCount = takeCnt + 1
-      setTakeCnt(newCount)
-      onFormDataChange({ takeCnt: newCount })
+    if (takeCount < 10) {
+      const newCount = takeCount + 1
+      setTakeCount(newCount)
+      onFormDataChange({ takeCount: newCount })
     }
   }
 
   const handleDecrease = () => {
-    if (takeCnt > 6) {
-      const newCount = takeCnt - 1
-      setTakeCnt(newCount)
-      onFormDataChange({ takeCnt: newCount })
+    if (takeCount > 6) {
+      const newCount = takeCount - 1
+      setTakeCount(newCount)
+      onFormDataChange({ takeCount: newCount })
     }
   }
 
@@ -36,14 +36,14 @@ function ThirdCreateStep({ onFormDataChange }: ThirdCreateStepProps) {
         최소 6회 ~ 최대 10회까지 가능합니다.
       </G.NcutCreateSubDescription>
       <S.CounterContainer>
-        <S.CounterButton onClick={handleDecrease} disabled={takeCnt === 6}>
+        <S.CounterButton onClick={handleDecrease} disabled={takeCount === 6}>
           <IoTriangleOutline
             size={24}
             style={{ transform: 'rotate(180deg)' }}
           />
         </S.CounterButton>
-        <S.CounterDisplay>{takeCnt}</S.CounterDisplay>
-        <S.CounterButton onClick={handleIncrease} disabled={takeCnt === 10}>
+        <S.CounterDisplay>{takeCount}</S.CounterDisplay>
+        <S.CounterButton onClick={handleIncrease} disabled={takeCount === 10}>
           <IoTriangleOutline size={24} />
         </S.CounterButton>
       </S.CounterContainer>
