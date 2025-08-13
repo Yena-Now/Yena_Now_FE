@@ -42,7 +42,13 @@ const SelectFrame: React.FC<SelectFrameProps> = ({
   const combinedImage = (
     <S.FrameWrapper urlCount={selectedUrls.length}>
       {selectedUrls.map((url, idx) => (
-        <S.ImageStrip key={idx} src={url} alt={`Selected Cut ${idx + 1}`} />
+        <>
+          {url.endsWith('.png') ? (
+            <S.ImageStrip key={idx} src={url} alt={`Selected Cut ${idx + 1}`} />
+          ) : (
+            <S.VideoStrip key={idx} src={url} autoPlay muted loop />
+          )}
+        </>
       ))}
     </S.FrameWrapper>
   )

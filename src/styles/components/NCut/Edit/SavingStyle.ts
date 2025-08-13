@@ -20,6 +20,11 @@ export const ResultImage = styled.img`
   height: auto;
 `
 
+export const ResultVideo = styled.video`
+  width: 40%;
+  height: auto;
+`
+
 export const InputArea = styled.div`
   width: 40%;
   background-color: #f9f9f9;

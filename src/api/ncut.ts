@@ -33,6 +33,15 @@ export const nCutAPI = {
     return response.data
   },
 
+  getBackgrounds: async (): Promise<string[]> => {
+    const response = await apiClient.get('/film/backgrounds', {
+      withCredentials: false,
+    })
+    return response.data.map(
+      (bg: { backgroundUrl: string }) => bg.backgroundUrl,
+    )
+  },
+
   mergeNCut: async (
     request: MergeNCutRequest,
   ): Promise<{

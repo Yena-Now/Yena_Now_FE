@@ -4,6 +4,7 @@ import { useRoom } from '@hooks/useRoom'
 import { useBackgroundRemoval } from '@hooks/useBackgroundRemoval'
 import { SessionPrompt } from '@components/NCut/SessionPrompt'
 import { LoadingScreen } from '@components/NCut/LoadingScreen'
+import NCutBackground from '@components/NCut/NCutBackground'
 import { Chat } from '@components/NCut/Chat'
 import { useToast } from '@hooks/useToast'
 import { useDragAndDrop } from '@hooks/useDragAndDrop'
@@ -17,6 +18,7 @@ import type { StateProps } from '@/types/Session'
 import { FaRegCopy } from 'react-icons/fa6'
 import { s3API } from '@/api/s3'
 import { useAuthStore } from '@/store/authStore'
+import { nCutAPI } from '@/api/ncut'
 
 export const Session: React.FC = () => {
   const location = useLocation()
@@ -43,6 +45,7 @@ export const Session: React.FC = () => {
   const [displayCountdown, setDisplayCountdown] = useState<number | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
+  const [backgroundImageUrls, setBackgroundImageUrls] = useState<string[]>([])
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordedChunksRef = useRef<Blob[]>([])
@@ -62,6 +65,8 @@ export const Session: React.FC = () => {
     leaveRoom,
     setIsConnecting,
     sendData,
+    background,
+    sendBackground,
     chatMessages,
     sendChatMessage,
     sharedUrls,
@@ -88,6 +93,19 @@ export const Session: React.FC = () => {
     canvasPosition,
     setCanvasPosition,
   )
+
+  useEffect(() => {
+    const fetchBackgrounds = async () => {
+      const backgrounds = await nCutAPI.getBackgrounds()
+      setBackgroundImageUrls(backgrounds)
+      if (!backgroundImageUrls.includes(backgroundImageUrl)) {
+        setBackgroundImageUrls((prev) => [...prev, backgroundImageUrl])
+      }
+    }
+
+    fetchBackgrounds()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     sendData(canvasPosition, canvasSize, brightness)
@@ -119,15 +137,19 @@ export const Session: React.FC = () => {
 
   // 배경 이미지 로드
   useEffect(() => {
-    if (backgroundImageUrl) {
+    const imageUrl = background !== null ? background : backgroundImageUrl
+
+    if (imageUrl) {
       const img = new Image()
-      img.crossOrigin = 'Anonymous'
+      img.crossOrigin = 'anonymous'
+      img.style.objectFit = 'contain'
       img.onload = () => setBgImageElement(img)
       img.onerror = (err) => error(`배경 이미지 로드 실패: ${err}`)
-      img.src = backgroundImageUrl
+      const urlWithTimestamp = `${imageUrl}?t=${Date.now()}`
+      img.src = urlWithTimestamp
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [backgroundImageUrl])
+  }, [background, backgroundImageUrl])
 
   // 캔버스 크기 업데이트
   useEffect(() => {
@@ -387,7 +409,7 @@ export const Session: React.FC = () => {
 
       // MediaRecorder 설정
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm;codecs=vp9',
+        mimeType: 'video/mp4;codecs=vp9',
       })
 
       recordedChunksRef.current = []
@@ -398,15 +420,15 @@ export const Session: React.FC = () => {
         }
       }
 
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const blob = new Blob(recordedChunksRef.current, {
-          type: 'video/webm',
+          type: 'video/mp4',
         })
 
-        const fileName = `session-recording-${new Date().getTime()}.webm`
-        const file = new File([blob], fileName, { type: 'video/webm' })
+        const fileName = `session-recording-${new Date().getTime()}.mp4`
+        const file = new File([blob], fileName, { type: 'video/mp4' })
 
-        const fileUrl = s3API.upload({
+        const fileUrl = await s3API.upload({
           file,
           type: 'cut',
           roomCode: roomCode,
@@ -664,7 +686,10 @@ export const Session: React.FC = () => {
         </S.SessionLayoutContainer>
         <S.OtherContainer>
           <S.BackgroundImageContainer>
-            여기는 배경 입니다.
+            <NCutBackground
+              backgroundImageUrls={backgroundImageUrls}
+              onBackgroundChange={sendBackground}
+            />
           </S.BackgroundImageContainer>
           <S.ChatContainer>
             <Chat

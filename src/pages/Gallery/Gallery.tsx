@@ -12,7 +12,7 @@ type TabType = 'PUBLIC' | 'FOLLOW'
 const GalleryPage: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<TabType>('PUBLIC')
   const [items, setItems] = useState<NCut[]>([])
-  const [loading, setLoading] = useState(false)
+  const [, setLoading] = useState(false)
   const { error } = useToast()
 
   const navigate = useNavigate()
@@ -50,12 +50,10 @@ const GalleryPage: React.FC = () => {
       <GalleryList data={items} onItemClick={handleClick} />
 
       <S.LoaderWrapper>
-        {loading && (
-          <>
-            <S.Spinner />
-            <S.LoadingText>로딩 중입니다...</S.LoadingText>
-          </>
-        )}
+        <>
+          <S.Spinner />
+          <S.LoadingText>로딩 중입니다...</S.LoadingText>
+        </>
       </S.LoaderWrapper>
     </>
   )

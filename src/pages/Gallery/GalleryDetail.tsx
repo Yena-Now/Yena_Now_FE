@@ -62,7 +62,8 @@ const GalleryDetailPage: React.FC = () => {
       }
     }
     fetchData()
-  }, [ncutUuid, error])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ncutUuid])
 
   const handleUpdatePost = async (newContent: string) => {
     if (!detailData) return

@@ -109,11 +109,14 @@ export const OtherContainer = styled.div`
 
 export const BackgroundImageContainer = styled.div`
   height: 45%;
+  max-height: 400px;
+  overflow-y: auto;
   border: 1px solid black;
 `
 
 export const ChatContainer = styled.div`
   height: 50%;
+  max-height: 400px;
 `
 
 export const CameraSizeRangeContainer = styled.div`

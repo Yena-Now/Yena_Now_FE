@@ -299,6 +299,17 @@ export const ImageStrip = styled.img`
   }
 `
 
+export const VideoStrip = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+
+  @media (max-width: ${breakpoints.tablet}) {
+    border-radius: 1px;
+  }
+`
+
 export const LoadingMessage = styled.div`
   display: flex;
   justify-content: center;

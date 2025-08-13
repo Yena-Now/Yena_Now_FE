@@ -28,7 +28,8 @@ const LikeButton: React.FC<LikeButtonProps> = ({ data, onClick }) => {
         error('좋아요 정보를 불러오지 못했습니다.')
       }
     })()
-  }, [data.ncutUuid, error])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.ncutUuid])
 
   const handleLikeClick = async () => {
     if (!data?.ncutUuid) return

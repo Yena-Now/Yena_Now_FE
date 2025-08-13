@@ -45,7 +45,10 @@ interface DecorateNCutProps {
 }
 
 export interface DecorateNCutRef {
-  uploadDecoratedImages: () => Promise<string[]>
+  uploadDecoratedImages: () => Promise<{
+    imageUrls?: string[]
+    videoUrls?: string[]
+  }>
 }
 
 const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
@@ -74,6 +77,18 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
         lastActivity: number
       }
     }>({})
+
+    const detectMediaType = useCallback((url: string): 'image' | 'video' => {
+      if (
+        url.includes('video') ||
+        url.includes('.mp4') ||
+        url.includes('.webm') ||
+        url.includes('.mov')
+      ) {
+        return 'video'
+      }
+      return 'image'
+    }, [])
 
     useEffect(() => {
       const handleCollaborativeUpdate = (event: CustomEvent) => {
@@ -251,9 +266,16 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
 
     // URL을 blob으로 변환
     const convertUrlToBlob = useCallback(
-      async (url: string): Promise<string> => {
+      async (
+        url: string,
+      ): Promise<{ blobUrl: string; mediaType: 'image' | 'video' }> => {
         try {
-          if (url.startsWith('blob:')) return url
+          if (url.startsWith('blob:')) {
+            return {
+              blobUrl: url,
+              mediaType: detectMediaType(url),
+            }
+          }
 
           const response = await fetch(url, {
             mode: 'cors',
@@ -265,13 +287,37 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
           }
 
           const blob = await response.blob()
-          return URL.createObjectURL(blob)
+          const blobUrl = URL.createObjectURL(blob)
+
+          // MIME 타입으로 미디어 타입 판단
+          let mediaType: 'image' | 'video' = 'image'
+          if (blob.type.startsWith('video/')) {
+            mediaType = 'video'
+          } else if (blob.type.startsWith('image/')) {
+            mediaType = 'image'
+          } else {
+            // MIME 타입이 명확하지 않은 경우 URL로 판단
+            mediaType = detectMediaType(url)
+          }
+
+          return { blobUrl, mediaType }
         } catch {
-          return url
+          return {
+            blobUrl: url,
+            mediaType: detectMediaType(url),
+          }
         }
       },
-      [],
+      [detectMediaType],
     )
+
+    const [mediaBlobData, setMediaBlobData] = useState<
+      Array<{
+        blobUrl: string
+        mediaType: 'image' | 'video'
+        originalUrl: string
+      }>
+    >([])
 
     // 이미지 로드
     useEffect(() => {
@@ -281,18 +327,36 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
         setIsImagesLoading(true)
 
         try {
-          const blobUrls = await Promise.all(
+          const mediaData = await Promise.all(
             selectedUrls.map(async (url) => {
               try {
-                return await convertUrlToBlob(url)
+                const { blobUrl, mediaType } = await convertUrlToBlob(url)
+                return {
+                  blobUrl,
+                  mediaType,
+                  originalUrl: url,
+                }
               } catch {
-                return url
+                return {
+                  blobUrl: url,
+                  mediaType: detectMediaType(url) as 'image' | 'video',
+                  originalUrl: url,
+                }
               }
             }),
           )
 
-          setImageBlobUrls(blobUrls)
+          setMediaBlobData(mediaData)
+
+          // 이전 호환성을 위해 imageBlobUrls도 유지
+          setImageBlobUrls(mediaData.map((item) => item.blobUrl))
         } catch {
+          const fallbackData = selectedUrls.map((url) => ({
+            blobUrl: url,
+            mediaType: detectMediaType(url) as 'image' | 'video',
+            originalUrl: url,
+          }))
+          setMediaBlobData(fallbackData)
           setImageBlobUrls(selectedUrls)
         } finally {
           setIsImagesLoading(false)
@@ -301,11 +365,11 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
 
       loadImages()
 
-      // cleanup
+      // cleanup - 이전 blob URLs 해제
       return () => {
-        imageBlobUrls.forEach((url) => {
-          if (url.startsWith('blob:')) {
-            URL.revokeObjectURL(url)
+        mediaBlobData.forEach((item) => {
+          if (item.blobUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(item.blobUrl)
           }
         })
       }
@@ -382,81 +446,102 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
     }, [getEditAreaSize])
 
     // S3 업로드 함수
-    const uploadDecoratedImages = useCallback(async (): Promise<string[]> => {
-      if (isImagesLoading || !imageBlobUrls.length) {
-        return selectedUrls
+    const uploadDecoratedImages = useCallback(async (): Promise<{
+      imageUrls?: string[]
+      videoUrls?: string[]
+    }> => {
+      if (isImagesLoading || !mediaBlobData.length) {
+        return {
+          imageUrls: selectedUrls.filter(
+            (url) => detectMediaType(url) === 'image',
+          ),
+          videoUrls: selectedUrls.filter(
+            (url) => detectMediaType(url) === 'video',
+          ),
+        }
       }
 
       try {
-        const decoratedUrls: string[] = []
+        const decoratedImageUrls: string[] = []
+        const videoUrls: string[] = []
 
-        for (let i = 0; i < imageBlobUrls.length; i++) {
+        for (let i = 0; i < mediaBlobData.length; i++) {
+          const mediaItem = mediaBlobData[i]
+
+          if (mediaItem.mediaType === 'video') {
+            // 영상은 원본 URL 사용
+            videoUrls.push(mediaItem.originalUrl)
+            continue
+          }
+
           try {
-            // 임시 컨테이너 생성
+            // 이미지만 장식 처리
             const tempContainer = document.createElement('div')
             tempContainer.style.cssText = `
-              position: relative;
-              width: 400px;
-              height: 400px;
-              overflow: hidden;
-              background: white;
-            `
+          position: relative;
+          width: 400px;
+          height: 400px;
+          overflow: hidden;
+          background: white;
+        `
 
             // 이미지 생성
             const img = new Image()
             img.crossOrigin = 'anonymous'
             img.style.cssText = `
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-            `
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        `
 
             // 이미지 로드 대기
             await new Promise<void>((resolve, reject) => {
               img.onload = () => resolve()
               img.onerror = () => reject(new Error('Image load failed'))
-              img.src = imageBlobUrls[i]
+              img.src = mediaItem.blobUrl
             })
 
             tempContainer.appendChild(img)
 
-            // 장식 추가
+            // 장식 추가 로직은 기존과 동일
             const decorations = imageDecorations[i] || {
               stickers: [],
               textElements: [],
             }
 
+            // 스티커 추가
             decorations.stickers.forEach((sticker) => {
               const stickerEl = document.createElement('div')
               stickerEl.textContent = sticker.src
               stickerEl.style.cssText = `
-                position: absolute;
-                left: ${sticker.x}px;
-                top: ${sticker.y}px;
-                font-size: ${sticker.size}px;
-                transform: rotate(${sticker.rotation}deg);
-                pointer-events: none;
-                user-select: none;
-                z-index: 10;
-              `
+            position: absolute;
+            left: ${(sticker.x / 100) * 400}px;
+            top: ${(sticker.y / 100) * 400}px;
+            font-size: ${sticker.size}px;
+            transform: rotate(${sticker.rotation}deg);
+            pointer-events: none;
+            user-select: none;
+            z-index: 10;
+          `
               tempContainer.appendChild(stickerEl)
             })
 
+            // 텍스트 추가
             decorations.textElements.forEach((textEl) => {
               const textElDiv = document.createElement('div')
               textElDiv.textContent = textEl.text
               textElDiv.style.cssText = `
-                position: absolute;
-                left: ${textEl.x}px;
-                top: ${textEl.y}px;
-                font-size: ${textEl.fontSize}px;
-                color: ${textEl.color};
-                font-family: ${textEl.fontFamily};
-                pointer-events: none;
-                user-select: none;
-                z-index: 10;
-                white-space: nowrap;
-              `
+            position: absolute;
+            left: ${(textEl.x / 100) * 400}px;
+            top: ${(textEl.y / 100) * 400}px;
+            font-size: ${textEl.fontSize}px;
+            color: ${textEl.color};
+            font-family: ${textEl.fontFamily};
+            pointer-events: none;
+            user-select: none;
+            z-index: 10;
+            white-space: nowrap;
+          `
               tempContainer.appendChild(textElDiv)
             })
 
@@ -469,6 +554,9 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
               scale: 2,
               useCORS: true,
               allowTaint: false,
+              ignoreElements: (element) => {
+                return element.tagName === 'VIDEO'
+              },
             })
 
             // DOM에서 제거
@@ -496,45 +584,37 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
 
             const s3Response = await s3API.upload({
               file,
-              type: 'cut',
+              type: 'yena',
               roomCode,
             })
 
-            decoratedUrls.push(s3Response as unknown as string)
+            decoratedImageUrls.push(s3Response as unknown as string)
           } catch {
-            try {
-              if (imageBlobUrls[i].startsWith('blob:')) {
-                const response = await fetch(imageBlobUrls[i])
-                const blob = await response.blob()
-                const file = new File([blob], `fallback-${i}.png`, {
-                  type: 'image/png',
-                })
-
-                const s3Response = await s3API.upload({
-                  file,
-                  type: 'cut',
-                  roomCode,
-                })
-
-                decoratedUrls.push(s3Response as unknown as string)
-              } else {
-                decoratedUrls.push(imageBlobUrls[i])
-              }
-            } catch {
-              decoratedUrls.push(selectedUrls[i])
-            }
+            decoratedImageUrls.push(mediaItem.originalUrl)
           }
         }
 
-        return decoratedUrls
+        return {
+          imageUrls:
+            decoratedImageUrls.length > 0 ? decoratedImageUrls : undefined,
+          videoUrls: videoUrls.length > 0 ? videoUrls : undefined,
+        }
       } catch {
-        return selectedUrls
+        return {
+          imageUrls: mediaBlobData
+            .filter((item) => item.mediaType === 'image')
+            .map((item) => item.originalUrl),
+          videoUrls: mediaBlobData
+            .filter((item) => item.mediaType === 'video')
+            .map((item) => item.originalUrl),
+        }
       }
     }, [
       isImagesLoading,
-      imageBlobUrls,
-      imageDecorations,
+      mediaBlobData,
       selectedUrls,
+      detectMediaType,
+      imageDecorations,
       roomCode,
     ])
 
@@ -586,6 +666,11 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
       (index: number) => {
         setSelectedElement(null)
         setCurrentImageIndex(index)
+
+        if (mediaBlobData[index]?.mediaType === 'video') {
+          setActiveTab('sticker')
+        }
+
         if (isCollaborative && onDecorateUpdate) {
           onDecorateUpdate({
             type: 'changeImage',
@@ -594,7 +679,7 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
           })
         }
       },
-      [isCollaborative, onDecorateUpdate],
+      [isCollaborative, onDecorateUpdate, mediaBlobData],
     )
 
     // 스티커 추가
@@ -862,6 +947,7 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                 $gridCols={gridLayout.cols}
               >
                 {imageBlobUrls.map((url, index) => {
+                  const mediaItem = mediaBlobData[index]
                   const decorations = imageDecorations[index] || {
                     stickers: [],
                     textElements: [],
@@ -869,54 +955,91 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
 
                   return (
                     <S.CutImageContainer key={index} data-image-index={index}>
-                      <S.CutImage
-                        src={url}
-                        alt={`cut-${index}`}
-                        crossOrigin="anonymous"
-                      />
-
-                      {/* 미리보기에서 스티커 표시 */}
-                      {decorations.stickers.map((sticker) => (
-                        <S.CutSticker
-                          key={sticker.id}
+                      {mediaItem?.mediaType === 'video' ? (
+                        <video
+                          src={url}
                           style={{
-                            left: `${Math.max(2, Math.min(sticker.x, 90))}%`, // 2% ~ 90% 범위로 제한
-                            top: `${Math.max(2, Math.min(sticker.y, 90))}%`, // 2% ~ 90% 범위로 제한
-                            fontSize: `${Math.max(sticker.size * 0.25, 6)}px`, // 미리보기용 크기 조정
-                            transform: `rotate(${sticker.rotation}deg)`,
-                            pointerEvents: 'none',
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                          }}
+                          muted
+                          playsInline
+                        />
+                      ) : (
+                        <S.CutImage
+                          src={url}
+                          alt={`cut-${index}`}
+                          crossOrigin="anonymous"
+                        />
+                      )}
+
+                      {/* 영상에는 장식을 표시하지 않거나 제한적으로 표시 */}
+                      {mediaItem?.mediaType === 'image' && (
+                        <>
+                          {/* 스티커 표시 */}
+                          {decorations.stickers.map((sticker) => (
+                            <S.CutSticker
+                              key={sticker.id}
+                              style={{
+                                left: `${Math.max(2, Math.min(sticker.x, 90))}%`,
+                                top: `${Math.max(2, Math.min(sticker.y, 90))}%`,
+                                fontSize: `${Math.max(sticker.size * 0.25, 6)}px`,
+                                transform: `rotate(${sticker.rotation}deg)`,
+                                pointerEvents: 'none',
+                                position: 'absolute',
+                                zIndex: 10,
+                                userSelect: 'none',
+                              }}
+                            >
+                              {sticker.src}
+                            </S.CutSticker>
+                          ))}
+
+                          {/* 텍스트 표시 */}
+                          {decorations.textElements.map((textEl) => {
+                            const scale = getPreviewScale()
+                            return (
+                              <S.CutText
+                                key={textEl.id}
+                                style={{
+                                  left: `${Math.min(textEl.x, 90)}%`,
+                                  top: `${Math.min(textEl.y, 90)}%`,
+                                  fontSize: `${Math.max(textEl.fontSize * scale.scaleX, 6)}px`,
+                                  color: textEl.color,
+                                  fontFamily: textEl.fontFamily,
+                                  pointerEvents: 'none',
+                                  position: 'absolute',
+                                  zIndex: 10,
+                                  userSelect: 'none',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                {textEl.text}
+                              </S.CutText>
+                            )
+                          })}
+                        </>
+                      )}
+
+                      {/* 영상 표시 아이콘 */}
+                      {mediaItem?.mediaType === 'video' && (
+                        <div
+                          style={{
                             position: 'absolute',
-                            zIndex: 10,
-                            userSelect: 'none',
+                            top: '4px',
+                            right: '4px',
+                            background: 'rgba(0, 0, 0, 0.7)',
+                            color: 'white',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            fontSize: '10px',
+                            zIndex: 20,
                           }}
                         >
-                          {sticker.src}
-                        </S.CutSticker>
-                      ))}
-
-                      {/* 미리보기에서 텍스트 표시 */}
-                      {decorations.textElements.map((textEl) => {
-                        const scale = getPreviewScale()
-                        return (
-                          <S.CutText
-                            key={textEl.id}
-                            style={{
-                              left: `${Math.min(textEl.x, 90)}%`,
-                              top: `${Math.min(textEl.y, 90)}%`,
-                              fontSize: `${Math.max(textEl.fontSize * scale.scaleX, 6)}px`,
-                              color: textEl.color,
-                              fontFamily: textEl.fontFamily,
-                              pointerEvents: 'none',
-                              position: 'absolute',
-                              zIndex: 10,
-                              userSelect: 'none',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {textEl.text}
-                          </S.CutText>
-                        )
-                      })}
+                          📹 영상
+                        </div>
+                      )}
 
                       {index === currentImageIndex && (
                         <div
@@ -959,27 +1082,73 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
               </div>
               <S.IndividualCuts>
                 {imageBlobUrls.map((url, index) => {
+                  const mediaItem = mediaBlobData[index]
                   const isBeingEditedByOthers = Object.values(
                     otherUsersActivity,
                   ).some((activity) => activity.currentImageIndex === index)
 
                   return (
                     <div key={index} style={{ position: 'relative' }}>
-                      <S.IndividualCut
-                        src={url}
-                        alt={`cut-${index}`}
-                        crossOrigin="anonymous"
-                        onClick={() => handleImageSelect(index)}
-                        $isSelected={index === currentImageIndex}
-                        style={{
-                          border:
-                            isBeingEditedByOthers && index !== currentImageIndex
-                              ? '2px solid #ff6b6b'
-                              : index === currentImageIndex
-                                ? '2px solid #007bff'
-                                : '1px solid #ddd',
-                        }}
-                      />
+                      {mediaItem?.mediaType === 'video' ? (
+                        <video
+                          src={url}
+                          style={{
+                            width: '60px',
+                            height: '60px',
+                            objectFit: 'cover',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            border:
+                              isBeingEditedByOthers &&
+                              index !== currentImageIndex
+                                ? '2px solid #ff6b6b'
+                                : index === currentImageIndex
+                                  ? '2px solid #007bff'
+                                  : '1px solid #ddd',
+                          }}
+                          onClick={() => handleImageSelect(index)}
+                          muted
+                          playsInline
+                        />
+                      ) : (
+                        <S.IndividualCut
+                          src={url}
+                          alt={`cut-${index}`}
+                          crossOrigin="anonymous"
+                          onClick={() => handleImageSelect(index)}
+                          $isSelected={index === currentImageIndex}
+                          style={{
+                            border:
+                              isBeingEditedByOthers &&
+                              index !== currentImageIndex
+                                ? '2px solid #ff6b6b'
+                                : index === currentImageIndex
+                                  ? '2px solid #007bff'
+                                  : '1px solid #ddd',
+                          }}
+                        />
+                      )}
+
+                      {/* 영상 표시 아이콘 */}
+                      {mediaItem?.mediaType === 'video' && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: '2px',
+                            right: '2px',
+                            background: 'rgba(0, 0, 0, 0.8)',
+                            color: 'white',
+                            padding: '1px 3px',
+                            borderRadius: '3px',
+                            fontSize: '8px',
+                            zIndex: 10,
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          📹
+                        </div>
+                      )}
+
                       {isBeingEditedByOthers && index !== currentImageIndex && (
                         <div
                           style={{
@@ -1007,102 +1176,163 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
             {/* 중앙: 현재 선택된 이미지의 편집 영역 */}
             <S.LargePreview>
               <S.EditableImage onClick={handleCanvasClick} data-edit-area>
-                <img
-                  src={imageBlobUrls[currentImageIndex]}
-                  alt="editing preview"
-                  crossOrigin="anonymous"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    pointerEvents: 'none',
-                  }}
-                />
-
-                {currentDecorations.stickers.map((sticker) => {
-                  // 상대적 좌표를 절대 좌표로 변환
-                  const absolutePos = convertToAbsolutePosition(
-                    sticker.x,
-                    sticker.y,
-                  )
-
-                  const isSelectedByOthers = Object.values(
-                    otherUsersActivity,
-                  ).some(
-                    (activity) =>
-                      activity.selectedElement === sticker.id &&
-                      activity.currentImageIndex === currentImageIndex,
-                  )
-
-                  return (
-                    <S.EditableSticker
-                      key={sticker.id}
+                {mediaBlobData[currentImageIndex]?.mediaType === 'video' ? (
+                  <div
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      height: '100%',
+                    }}
+                  >
+                    <video
+                      src={imageBlobUrls[currentImageIndex]}
                       style={{
-                        left: `${Math.max(0, Math.min(absolutePos.x, getEditAreaSize().width - 40))}px`,
-                        top: `${Math.max(0, Math.min(absolutePos.y, getEditAreaSize().height - 40))}px`,
-                        fontSize: `${sticker.size}px`,
-                        transform: `rotate(${sticker.rotation}deg)`,
-                        border:
-                          selectedElement === sticker.id
-                            ? '2px dashed #007bff'
-                            : isSelectedByOthers
-                              ? '2px dashed #ff6b6b'
-                              : 'none',
-                        zIndex: selectedElement === sticker.id ? 100 : 10,
-                        boxShadow: isSelectedByOthers
-                          ? '0 0 5px rgba(255, 107, 107, 0.5)'
-                          : 'none',
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        pointerEvents: 'none',
                       }}
-                      onMouseDown={(e) => handlePointerDown(e, sticker.id)}
-                      onTouchStart={(e) => handlePointerDown(e, sticker.id)}
-                    >
-                      {sticker.src}
-                    </S.EditableSticker>
-                  )
-                })}
-
-                {currentDecorations.textElements.map((textEl) => {
-                  // 상대적 좌표를 절대 좌표로 변환
-                  const absolutePos = convertToAbsolutePosition(
-                    textEl.x,
-                    textEl.y,
-                  )
-
-                  const isSelectedByOthers = Object.values(
-                    otherUsersActivity,
-                  ).some(
-                    (activity) =>
-                      activity.selectedElement === textEl.id &&
-                      activity.currentImageIndex === currentImageIndex,
-                  )
-
-                  return (
-                    <S.EditableText
-                      key={textEl.id}
+                      muted
+                      playsInline
+                      controls={false}
+                    />
+                    {/* 영상에는 편집할 수 없다는 안내 */}
+                    <div
                       style={{
-                        left: `${absolutePos.x}px`, // 절대 좌표 사용
-                        top: `${absolutePos.y}px`,
-                        fontSize: `${textEl.fontSize}px`,
-                        color: textEl.color,
-                        fontFamily: textEl.fontFamily,
-                        border:
-                          selectedElement === textEl.id
-                            ? '2px dashed #007bff'
-                            : isSelectedByOthers
-                              ? '2px dashed #ff6b6b'
-                              : 'none',
-                        zIndex: selectedElement === textEl.id ? 100 : 10,
-                        boxShadow: isSelectedByOthers
-                          ? '0 0 5px rgba(255, 107, 107, 0.5)'
-                          : 'none',
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        background: 'rgba(0, 0, 0, 0.8)',
+                        color: 'white',
+                        padding: '20px',
+                        borderRadius: '10px',
+                        textAlign: 'center',
+                        fontSize: '16px',
+                        zIndex: 100,
+                        pointerEvents: 'none',
                       }}
-                      onMouseDown={(e) => handlePointerDown(e, textEl.id)}
-                      onTouchStart={(e) => handlePointerDown(e, textEl.id)}
                     >
-                      {textEl.text}
-                    </S.EditableText>
-                  )
-                })}
+                      <div>영상은 편집할 수 없습니다</div>
+                      <div
+                        style={{
+                          fontSize: '14px',
+                          marginTop: '5px',
+                          opacity: 0.8,
+                        }}
+                      >
+                        이미지 컷을 선택해서 꾸며보세요
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <img
+                      src={imageBlobUrls[currentImageIndex]}
+                      alt="editing preview"
+                      crossOrigin="anonymous"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        pointerEvents: 'none',
+                      }}
+                    />
+
+                    {/* 스티커와 텍스트는 이미지에만 표시 */}
+                    {currentDecorations.stickers.map((sticker) => {
+                      // 상대적 좌표를 절대 좌표로 변환
+                      const absolutePos = convertToAbsolutePosition(
+                        sticker.x,
+                        sticker.y,
+                      )
+
+                      const isSelectedByOthers = Object.values(
+                        otherUsersActivity,
+                      ).some(
+                        (activity) =>
+                          activity.selectedElement === sticker.id &&
+                          activity.currentImageIndex === currentImageIndex,
+                      )
+
+                      return (
+                        <S.EditableSticker
+                          key={sticker.id}
+                          style={{
+                            left: `${Math.max(0, Math.min(absolutePos.x, getEditAreaSize().width - 40))}px`,
+                            top: `${Math.max(0, Math.min(absolutePos.y, getEditAreaSize().height - 40))}px`,
+                            fontSize: `${sticker.size}px`,
+                            transform: `rotate(${sticker.rotation}deg)`,
+                            border:
+                              selectedElement === sticker.id
+                                ? '2px dashed #007bff'
+                                : isSelectedByOthers
+                                  ? '2px dashed #ff6b6b'
+                                  : 'none',
+                            zIndex: selectedElement === sticker.id ? 100 : 10,
+                            boxShadow: isSelectedByOthers
+                              ? '0 0 5px rgba(255, 107, 107, 0.5)'
+                              : 'none',
+                          }}
+                          onMouseDown={(e) => handlePointerDown(e, sticker.id)}
+                          onTouchStart={(e) => handlePointerDown(e, sticker.id)}
+                        >
+                          {sticker.src}
+                        </S.EditableSticker>
+                      )
+                    })}
+
+                    {currentDecorations.textElements.map((textEl) => {
+                      // 상대적 좌표를 절대 좌표로 변환
+                      const absolutePos = convertToAbsolutePosition(
+                        textEl.x,
+                        textEl.y,
+                      )
+
+                      const isSelectedByOthers = Object.values(
+                        otherUsersActivity,
+                      ).some(
+                        (activity) =>
+                          activity.selectedElement === textEl.id &&
+                          activity.currentImageIndex === currentImageIndex,
+                      )
+
+                      return (
+                        <S.EditableText
+                          key={textEl.id}
+                          style={{
+                            left: `${absolutePos.x}px`, // 절대 좌표 사용
+                            top: `${absolutePos.y}px`,
+                            fontSize: `${textEl.fontSize}px`,
+                            color: textEl.color,
+                            fontFamily: textEl.fontFamily,
+                            border:
+                              selectedElement === textEl.id
+                                ? '2px dashed #007bff'
+                                : isSelectedByOthers
+                                  ? '2px dashed #ff6b6b'
+                                  : 'none',
+                            zIndex: selectedElement === textEl.id ? 100 : 10,
+                            boxShadow: isSelectedByOthers
+                              ? '0 0 5px rgba(255, 107, 107, 0.5)'
+                              : 'none',
+                          }}
+                          onMouseDown={(e) => handlePointerDown(e, textEl.id)}
+                          onTouchStart={(e) => handlePointerDown(e, textEl.id)}
+                        >
+                          {textEl.text}
+                        </S.EditableText>
+                      )
+                    })}
+
+                    {currentDecorations.stickers.length === 0 &&
+                      currentDecorations.textElements.length === 0 && (
+                        <S.EditGuide>
+                          <p>아래에서 스티커나 텍스트를 추가해보세요!</p>
+                        </S.EditGuide>
+                      )}
+                  </>
+                )}
 
                 {/* 협업 상태 표시 개선 */}
                 {isCollaborative &&
@@ -1141,90 +1371,107 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                       )}
                     </div>
                   )}
-
-                {currentDecorations.stickers.length === 0 &&
-                  currentDecorations.textElements.length === 0 && (
-                    <S.EditGuide>
-                      <p>아래에서 스티커나 텍스트를 추가해보세요!</p>
-                    </S.EditGuide>
-                  )}
               </S.EditableImage>
             </S.LargePreview>
 
-            {/* 하단: 편집 도구 */}
+            {/* 하단: 편집 도구 - 영상일 때는 비활성화 */}
             <S.EditToolsContainer>
-              <S.EditTabs>
-                <S.TabButton
-                  $active={activeTab === 'sticker'}
-                  onClick={() => setActiveTab('sticker')}
+              {mediaBlobData[currentImageIndex]?.mediaType === 'video' ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '200px',
+                    background: '#f8f9fa',
+                    borderRadius: '12px',
+                    color: '#666',
+                    fontSize: '16px',
+                    flexDirection: 'column',
+                    gap: '10px',
+                  }}
                 >
-                  스티커
-                </S.TabButton>
-                <S.TabButton
-                  $active={activeTab === 'text'}
-                  onClick={() => setActiveTab('text')}
-                >
-                  텍스트
-                </S.TabButton>
-              </S.EditTabs>
+                  <div>영상은 꾸밀 수 없습니다</div>
+                  <div style={{ fontSize: '14px', opacity: 0.7 }}>
+                    이미지 컷을 선택해서 스티커와 텍스트를 추가해보세요
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <S.EditTabs>
+                    <S.TabButton
+                      $active={activeTab === 'sticker'}
+                      onClick={() => setActiveTab('sticker')}
+                    >
+                      스티커
+                    </S.TabButton>
+                    <S.TabButton
+                      $active={activeTab === 'text'}
+                      onClick={() => setActiveTab('text')}
+                    >
+                      텍스트
+                    </S.TabButton>
+                  </S.EditTabs>
 
-              <S.EditPanel>
-                {activeTab === 'sticker' && (
-                  <S.StickerPanel>
-                    <S.StickerGrid>
-                      {defaultStickers.map((emoji, index) => (
-                        <S.StickerButton
-                          key={index}
-                          onClick={() => addSticker(emoji)}
-                        >
-                          {emoji}
-                        </S.StickerButton>
-                      ))}
-                    </S.StickerGrid>
-                  </S.StickerPanel>
-                )}
+                  <S.EditPanel>
+                    {activeTab === 'sticker' && (
+                      <S.StickerPanel>
+                        <S.StickerGrid>
+                          {defaultStickers.map((emoji, index) => (
+                            <S.StickerButton
+                              key={index}
+                              onClick={() => addSticker(emoji)}
+                            >
+                              {emoji}
+                            </S.StickerButton>
+                          ))}
+                        </S.StickerGrid>
+                      </S.StickerPanel>
+                    )}
 
-                {activeTab === 'text' && (
-                  <S.TextPanel>
-                    <S.TextInput
-                      type="text"
-                      placeholder="텍스트를 입력하세요"
-                      value={newText}
-                      onChange={(e) => setNewText(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addText()}
-                    />
-                    <S.TextControls>
-                      <S.ColorPicker
-                        type="color"
-                        value={textColor}
-                        onChange={(e) => setTextColor(e.target.value)}
-                      />
-                    </S.TextControls>
-                    <S.FontSizeSlider
-                      type="range"
-                      min="12"
-                      max="72"
-                      value={fontSize}
-                      onChange={(e) => setFontSize(Number(e.target.value))}
-                    />
-                    <S.FontSizeInfo>크기: {fontSize}px</S.FontSizeInfo>
-                  </S.TextPanel>
-                )}
-              </S.EditPanel>
+                    {activeTab === 'text' && (
+                      <S.TextPanel>
+                        <S.TextInput
+                          type="text"
+                          placeholder="텍스트를 입력하세요"
+                          value={newText}
+                          onChange={(e) => setNewText(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && addText()}
+                        />
+                        <S.TextControls>
+                          <S.ColorPicker
+                            type="color"
+                            value={textColor}
+                            onChange={(e) => setTextColor(e.target.value)}
+                          />
+                        </S.TextControls>
+                        <S.FontSizeSlider
+                          type="range"
+                          min="12"
+                          max="72"
+                          value={fontSize}
+                          onChange={(e) => setFontSize(Number(e.target.value))}
+                        />
+                        <S.FontSizeInfo>크기: {fontSize}px</S.FontSizeInfo>
+                      </S.TextPanel>
+                    )}
+                  </S.EditPanel>
 
-              <S.ActionButtons>
-                <S.AddButton
-                  onClick={activeTab === 'sticker' ? undefined : addText}
-                >
-                  {activeTab === 'sticker' ? '스티커 추가' : '텍스트 추가'}
-                </S.AddButton>
-                <S.DeleteButton
-                  onClick={deleteElement}
-                  disabled={!selectedElement}
-                >
-                  삭제
-                </S.DeleteButton>
-              </S.ActionButtons>
+                  <S.ActionButtons>
+                    <S.AddButton
+                      onClick={activeTab === 'sticker' ? undefined : addText}
+                    >
+                      {activeTab === 'sticker' ? '스티커 추가' : '텍스트 추가'}
+                    </S.AddButton>
+                    <S.DeleteButton
+                      onClick={deleteElement}
+                      disabled={!selectedElement}
+                    >
+                      삭제
+                    </S.DeleteButton>
+                  </S.ActionButtons>
+                </>
+              )}
             </S.EditToolsContainer>
           </S.EditSection>
         </S.MainLayout>
