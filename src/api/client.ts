@@ -3,6 +3,12 @@ import type { InternalAxiosRequestConfig } from 'axios'
 import type { TokenReissueResponse } from '@/types/auth'
 import { useAuthStore } from '@/store/authStore'
 
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    skipAuth?: boolean
+  }
+}
+
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
@@ -13,31 +19,48 @@ const apiClient = axios.create({
 // 리프레시 중인지 플래그 + 대기열
 let isRefreshing = false
 let subscribers: Array<(token: string) => void> = []
-
 const onTokenRefreshed = (token: string) => {
   subscribers.forEach((cb) => cb(token))
   subscribers = []
 }
 const addSubscriber = (cb: (token: string) => void) => subscribers.push(cb)
 
-// 리프레시 요청은 Authorization 없이 인터셉터도 없는 별도 인스턴스
+const AUTH_FREE_PATHS = [
+  '/auth/tokens',
+  '/oauth2/authorization',
+  '/auth/callback',
+  '/signup',
+  '/reset-password',
+]
+
+const isAuthFree = (url?: string) =>
+  !!url && AUTH_FREE_PATHS.some((p) => url.includes(p))
+
+// 리프레시 요청은 Authorization 없이. 인터셉터도 없는 별도 인스턴스
 const refreshClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true, // 이미 만료된 토큰을 넣을 필요x
+  withCredentials: true,
 })
 
 export const reissueToken = async (): Promise<TokenReissueResponse> => {
-  const { data } = await refreshClient.post('/auth/tokens')
+  const { data } = await refreshClient.post(
+    '/auth/tokens',
+    {},
+    { skipAuth: true },
+  )
   return data
 }
 
 // 요청 인터셉터
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    if (config.skipAuth || isAuthFree(config.url)) return config
+
     const { accessToken } = useAuthStore.getState()
-    if (!config.url?.includes('/auth/tokens') && accessToken) {
+    if (accessToken) {
+      config.headers = config.headers ?? {}
       config.headers['Authorization'] = `Bearer ${accessToken}`
     }
     return config
@@ -51,22 +74,24 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const { logout, setAuth } = useAuthStore.getState()
 
-    const status = error.response?.status
+    if (!error.response) return Promise.reject(error)
+
+    const status = error.response.status
     const originalRequest = error.config as
       | (InternalAxiosRequestConfig & { _retry?: boolean })
       | undefined
 
-    if (!originalRequest || !(status === 401 || status === 403))
-      return Promise.reject(error)
+    if (!originalRequest) return Promise.reject(error)
 
-    // 리프레시 요청 자체가 401이면 더 이상 시도하지 않고 로그아웃
-    if (originalRequest.url?.includes('/auth/tokens')) {
-      logout()
-      window.location.href = '/login'
+    if (originalRequest.skipAuth || isAuthFree(originalRequest.url)) {
       return Promise.reject(error)
     }
 
-    // 이미 재시도헌 요청은 그대로 실패
+    if (!(status === 401 || status === 403)) {
+      return Promise.reject(error)
+    }
+
+    // 이미 재시도한 요청은 그대로 실패
     if (originalRequest._retry) {
       return Promise.reject(error)
     }
@@ -76,9 +101,7 @@ apiClient.interceptors.response.use(
       if (!isRefreshing) {
         isRefreshing = true
         const { accessToken } = await reissueToken()
-        // 전역 상태 갱신
         setAuth(accessToken, null)
-        // 기본 헤더 갱신
         apiClient.defaults.headers.common['Authorization'] =
           `Bearer ${accessToken}`
         isRefreshing = false
@@ -86,10 +109,10 @@ apiClient.interceptors.response.use(
 
         originalRequest.headers = originalRequest.headers ?? {}
         originalRequest.headers['Authorization'] = `Bearer ${accessToken}`
-        return apiClient(originalRequest) // 즉시 재시도 (첫 요청이 대기 안 함)
+        return apiClient(originalRequest)
       }
 
-      // 리프레시 중이면 큐에 넣고 끝나면 재시도
+      // 리프레시 중이면 큐에 넣고, 완료되면 재시도
       return new Promise((resolve, reject) => {
         addSubscriber((newToken: string) => {
           try {

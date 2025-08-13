@@ -14,7 +14,6 @@ export const s3API = {
         type: request.type,
         fileName: request.file.name,
         contentType: request.file.type,
-        relayUuid: request?.relayUuid || null,
         roomCode: request?.roomCode || null,
       },
       {
