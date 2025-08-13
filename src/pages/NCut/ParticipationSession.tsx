@@ -132,52 +132,58 @@ const ParticipationSession: React.FC = () => {
   }
 
   return (
-    <G.NCutCreateLayout>
-      <G.NcutCreateContainer>
-        <G.NCutCreateContentContainer>
-          <G.NcutCreateHeader>촬영 부스 참가</G.NcutCreateHeader>
-          <G.NcutCreateDescription>
-            초대 코드를 입력해주세요.
-          </G.NcutCreateDescription>
-          <S.LastStepContainer>
-            <S.CodeContainer>
-              {sessionCode.map((digit, index) => (
-                <S.CodeDigit
-                  key={index}
-                  type="text"
-                  value={digit}
-                  onChange={(e) => handleCodeChange(e, index)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  onPaste={handleCodePaste}
-                  ref={(el) => {
-                    inputRefs.current[index] = el
+    <G.NCutLayout>
+      <G.NCutCreateLayout>
+        <G.NcutCreateContainer>
+          <G.NavigationButtonsContainer>
+            <G.NCutButtonWrapper style={{ visibility: 'hidden' }} />
+            <G.NCutButtonWrapper>
+              <G.NCutNextButton
+                onClick={handleJoinSession}
+                disabled={isChecking || sessionCode.join('').length !== 6}
+              >
+                <FaCheck
+                  style={{
+                    fontSize: '24px',
                   }}
-                  maxLength={1}
                 />
-              ))}
-            </S.CodeContainer>
-          </S.LastStepContainer>
-        </G.NCutCreateContentContainer>
-      </G.NcutCreateContainer>
-      <G.NCutNextButton
-        onClick={handleJoinSession}
-        disabled={isChecking || sessionCode.join('').length !== 6}
-      >
-        <FaCheck
-          style={{
-            fontSize: '24px',
-          }}
+              </G.NCutNextButton>
+            </G.NCutButtonWrapper>
+          </G.NavigationButtonsContainer>
+          <G.NCutCreateContentContainer>
+            <G.NcutCreateHeader>촬영 부스 참가</G.NcutCreateHeader>
+            <G.NcutCreateDescription>
+              초대 코드를 입력해주세요.
+            </G.NcutCreateDescription>
+            <S.LastStepContainer>
+              <S.CodeContainer>
+                {sessionCode.map((digit, index) => (
+                  <S.CodeDigit
+                    key={index}
+                    type="text"
+                    value={digit}
+                    onChange={(e) => handleCodeChange(e, index)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    onPaste={handleCodePaste}
+                    ref={(el) => {
+                      inputRefs.current[index] = el
+                    }}
+                    maxLength={1}
+                  />
+                ))}
+              </S.CodeContainer>
+            </S.LastStepContainer>
+          </G.NCutCreateContentContainer>
+        </G.NcutCreateContainer>
+        <ParticipationModal
+          onClose={handleCloseModal}
+          isExist={isExist}
+          isOpen={isModalOpen}
+          onConfirm={handleConfirmJoin}
+          onCancel={handleCancelJoin}
         />
-      </G.NCutNextButton>
-
-      <ParticipationModal
-        onClose={handleCloseModal}
-        isExist={isExist}
-        isOpen={isModalOpen}
-        onConfirm={handleConfirmJoin}
-        onCancel={handleCancelJoin}
-      />
-    </G.NCutCreateLayout>
+      </G.NCutCreateLayout>
+    </G.NCutLayout>
   )
 }
 
