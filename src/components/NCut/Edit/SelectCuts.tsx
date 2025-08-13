@@ -179,7 +179,11 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
             !isHost
           }
         >
-          {isCurrentImageSelected ? '선택 해제' : '이 이미지 선택'}
+          {isHost
+            ? isCurrentImageSelected
+              ? '선택 해제'
+              : '이 이미지 선택'
+            : '호스트만 선택 가능'}
         </S.SelectButton>
 
         {!isCurrentImageSelected && selectedUrls.length >= cutCount && (

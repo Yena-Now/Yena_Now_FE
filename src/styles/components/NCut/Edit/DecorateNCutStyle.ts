@@ -557,15 +557,19 @@ export const EditPanel = styled.div`
   padding: 20px;
   height: 400px;
   display: flex;
-  flex-directions: column;
+  flex-direction: column;
+  position: relative;
+  min-width: 320px;
 
   @media (max-width: ${breakpoints.tablet}) {
     padding: 15px;
+    min-width: 220px;
   }
 
   @media (max-width: ${breakpoints.mobile}) {
     padding: 12px;
     border-radius: 8px;
+    min-width: 160px;
   }
 `
 
@@ -854,6 +858,7 @@ export const AddButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s ease;
+  width: 15%;
 
   @media (max-width: ${breakpoints.tablet}) {
     padding: 12px 24px;
@@ -879,10 +884,9 @@ export const AddButton = styled.button`
 export const ActionButtons = styled.div`
   display: flex;
   gap: 15px;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-top: auto;
   padding-top: 15px;
-  border-top: 1px solid #e0e0e0;
 
   @media (max-width: ${breakpoints.tablet}) {
     gap: 12px;
@@ -905,6 +909,7 @@ export const DeleteButton = styled.button`
   font-size: 14px;
   cursor: pointer;
   transition: background 0.2s ease;
+  width: 10%;
 
   @media (max-width: ${breakpoints.tablet}) {
     padding: 10px 20px;

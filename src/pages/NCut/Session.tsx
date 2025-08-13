@@ -69,6 +69,8 @@ export const Session: React.FC = () => {
     sendBackground,
     chatMessages,
     sendChatMessage,
+    isProcessingGlobal,
+    sendProcessingStatus,
     sharedUrls,
     sendUrls,
     countdownInfo,
@@ -436,6 +438,7 @@ export const Session: React.FC = () => {
 
         success('녹화된 영상을 저장했습니다.')
         sendUrls([...sharedUrls, fileUrl as unknown as string])
+        sendChatMessage('영상 촬영 완료!')
         recordedChunksRef.current = [] // 녹화가 끝나면 청소
       }
 
@@ -459,16 +462,32 @@ export const Session: React.FC = () => {
     } finally {
       setIsProcessing(false)
     }
-  }, [error, success, sendUrls, sharedUrls, timeLimit, roomCode])
+  }, [
+    error,
+    success,
+    sendUrls,
+    sendChatMessage,
+    sharedUrls,
+    timeLimit,
+    roomCode,
+  ])
 
   const startCountDown = useCallback(
     (action: 'capture' | 'record') => {
       if (isProcessing || isRecording) return
       setIsProcessing(true)
+      sendProcessingStatus(true)
       startSharedCountdown(action)
     },
-    [isProcessing, isRecording, startSharedCountdown],
+    [isProcessing, isRecording, startSharedCountdown, sendProcessingStatus],
   )
+
+  useEffect(() => {
+    if (!isProcessing) {
+      sendProcessingStatus(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isProcessing])
 
   useEffect(() => {
     if (!countdownInfo) {
@@ -484,7 +503,6 @@ export const Session: React.FC = () => {
     const timeout = setTimeout(() => {
       clearInterval(timer)
       setDisplayCountdown(null)
-      // 카운트다운을 시작한 사람만 캡처/녹화 실행
       if (
         room &&
         countdownInfo &&
@@ -651,7 +669,7 @@ export const Session: React.FC = () => {
                 onClick={
                   isRecording ? stopRecording : () => startCountDown('record')
                 }
-                disabled={!canCapture || isProcessing}
+                disabled={!canCapture || isProcessing || isProcessingGlobal}
               >
                 {isRecording ? (
                   <IoVideocamOffOutline
@@ -671,7 +689,12 @@ export const Session: React.FC = () => {
               </S.TakeVideoButton>
               <S.TakePhotoButton
                 onClick={() => startCountDown('capture')}
-                disabled={!canCapture || isRecording || isProcessing}
+                disabled={
+                  !canCapture ||
+                  isRecording ||
+                  isProcessing ||
+                  isProcessingGlobal
+                }
               >
                 <IoCameraOutline style={{ width: '24px', height: '24px' }} />
               </S.TakePhotoButton>
