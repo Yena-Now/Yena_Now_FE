@@ -21,8 +21,9 @@ import GlobalStyle from '@styles/GlobalStyle'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import 'react-datepicker/dist/react-datepicker.css'
 import GalleryDetailPage from '@pages/Gallery/GalleryDetail'
-import Moment from '@pages/Moment'
+import Moment from '@/pages/Moment/Moment'
 import EditNCut from '@pages/NCut/EditNCut'
+import ExtractGif from '@/pages/Gif/ExtractGif'
 import * as S from '@/styles/components/Common/LoadingStyle'
 
 function App() {
@@ -187,6 +188,12 @@ function App() {
               path="/daily-moment"
               element={
                 isLoggedIn ? <Moment /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/gif-extract"
+              element={
+                isLoggedIn ? <ExtractGif /> : <Navigate to="/login" replace />
               }
             />
           </Routes>

@@ -13,7 +13,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   fileUrl,
   ncutUuid,
 }) => {
-  const { error, success } = useToast()
+  const { error, success, info } = useToast()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
@@ -44,19 +44,19 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   }
 
   const handleImageSave = () => {
-    if (!isImage) return error('사진만 가능해요')
+    if (!isImage) return info('사진만 가능해요')
     downloadFile(fileUrl, `${ncutUuid}.${ext || 'png'}`)
     setOpen(false)
   }
 
   const handleGifSave = () => {
-    if (!isVideo) return error('GIF는 영상에서만 추출 가능해요')
-    navigate(`/gif-extract?video=${encodeURIComponent(fileUrl)}`)
+    if (!isVideo) return info('GIF는 영상에서만 추출 가능해요')
+    navigate(`/gif-extract?video=${ncutUuid}`)
     setOpen(false)
   }
 
   const handleVideoSave = () => {
-    if (!isVideo) return error('영상만 저장 가능해요')
+    if (!isVideo) return info('영상만 저장 가능해요')
     downloadFile(fileUrl, `${ncutUuid}.${ext || 'mp4'}`)
     setOpen(false)
   }
