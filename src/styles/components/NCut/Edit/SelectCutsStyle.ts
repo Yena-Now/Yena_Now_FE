@@ -63,6 +63,13 @@ export const ThumbnailImage = styled.img`
   display: block;
 `
 
+export const ThumbnailVideo = styled.video`
+  width: 180px;
+  height: 100px;
+  object-fit: cover;
+  display: block;
+`
+
 export const SelectionBadge = styled.div`
   position: absolute;
   top: 2px;
@@ -107,6 +114,13 @@ export const PreviewImage = styled.img`
   width: 100%;
   height: auto;
   display: block;
+`
+
+export const PreviewVideo = styled.video`
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 `
 
 export const SelectedLabel = styled.div`

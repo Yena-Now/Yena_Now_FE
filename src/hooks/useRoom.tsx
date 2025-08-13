@@ -37,6 +37,7 @@ export const useRoom = () => {
   const [remoteTracks, setRemoteTracks] = useState<TrackInfo[]>([])
   const [isConnecting, setIsConnecting] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<string>('준비 중...')
+  const [background, setBackground] = useState<string | null>(null)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [sharedUrls, setSharedUrls] = useState<string[]>([])
   const [countdownInfo, setCountdownInfo] = useState<CountdownInfo | null>(null)
@@ -230,6 +231,15 @@ export const useRoom = () => {
           timestamp: Date.now(),
         }
         setChatMessages((prev) => [...prev, newMessage])
+      } else if (data.type === 'backgroundChange') {
+        setBackground(data.background)
+        window.dispatchEvent(
+          new CustomEvent('backgroundChange', {
+            detail: {
+              background: data.background,
+            },
+          }),
+        )
       } else if (data.type === 'urlsUpdate') {
         setSharedUrls(data.urls)
       } else if (data.type === 'countdownStart') {
@@ -525,6 +535,7 @@ export const useRoom = () => {
           setChatMessages((prev) => [...prev, newMessage])
         })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const sendUrls = useCallback((urls: string[]) => {
@@ -603,6 +614,27 @@ export const useRoom = () => {
     [],
   )
 
+  const sendBackground = useCallback((background: string | null) => {
+    setBackground(background)
+    if (roomRef.current) {
+      const encoder = new TextEncoder()
+      const data = encoder.encode(
+        JSON.stringify({
+          type: 'backgroundChange',
+          background,
+        }),
+      )
+      roomRef.current.localParticipant
+        .publishData(
+          data,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {})
+    }
+  }, [])
+
   const startSharedCountdown = useCallback((action: 'capture' | 'record') => {
     if (roomRef.current) {
       const data = { type: 'countdownStart', action }
@@ -635,6 +667,8 @@ export const useRoom = () => {
     leaveRoom,
     setIsConnecting,
     sendData,
+    background,
+    sendBackground,
     chatMessages,
     sendChatMessage,
     sharedUrls,

@@ -7,7 +7,6 @@ import SelectCuts from '@/components/NCut/Edit/SelectCuts'
 import SelectFrame from '@/components/NCut/Edit/SelectFrame'
 import DecorateNCut from '@/components/NCut/Edit/DecorateNCut'
 import type { DecorateNCutRef } from '@/components/NCut/Edit/DecorateNCut'
-import MakingThumbnail from '@/components/NCut/Edit/MakingThumbnail'
 import Saving from '@/components/NCut/Edit/Saving'
 import * as S from '@styles/pages/NCut/EditNCutStyle'
 import { useBackgroundRemoval } from '@/hooks/useBackgroundRemoval'
@@ -122,7 +121,6 @@ const EditNCut: React.FC = () => {
         setIsReconnecting(false)
         success('방에 연결되었습니다.')
       } catch {
-        
         if (!isMounted) return
 
         setIsConnectionEstablished(false)
@@ -262,8 +260,8 @@ const EditNCut: React.FC = () => {
             isHostUser: parsed.isHost || false,
             token: parsed.token || '',
           })
-        } catch  {
-           navigate('/')
+        } catch {
+          navigate('/')
         }
       } else {
         navigate('/')
@@ -452,7 +450,7 @@ const EditNCut: React.FC = () => {
         content,
         visibility,
         ncutUrl: mergedUrl,
-        thumbnailUrl: mergedUrl,
+        thumbnailUrl: prev.thumbnailUrl || mergedUrl,
       }))
     },
     [mergedUrl],
@@ -516,9 +514,8 @@ const EditNCut: React.FC = () => {
 
   const handleDecorateUpdate = useCallback(
     (decorateData: unknown) => {
-      
       if (broadcastDecorateUpdate) {
-         broadcastDecorateUpdate(decorateData)
+        broadcastDecorateUpdate(decorateData)
       }
     },
     [broadcastDecorateUpdate],
@@ -546,31 +543,65 @@ const EditNCut: React.FC = () => {
       const uploadedUrls =
         await decorateNCutRef.current?.uploadDecoratedImages()
 
-      if (!uploadedUrls || uploadedUrls.length === 0) {
-        error('장식된 이미지 업로드에 실패했습니다.')
-        return
-      }
+      let contentUrls
+      let thumbnailUrl = '' // 썸네일 URL 초기화
 
-      // 업로드된 URL들로 병합 요청
-      const contentUrls = uploadedUrls.map((url, index) => ({
-        contentUrl: url,
-        order: index + 1,
-      }))
+      if (Array.isArray(uploadedUrls)) {
+        // 기존 방식 (모든 것이 이미지인 경우)
+        contentUrls = uploadedUrls.map((url, index) => ({
+          contentUrl: url,
+          order: index + 1,
+        }))
+        // 첫 번째 이미지를 썸네일로 사용
+        thumbnailUrl = uploadedUrls[0] || ''
+      } else if (uploadedUrls && typeof uploadedUrls === 'object') {
+        // 이미지와 영상이 모두 있는 경우
+        const allUrls = [
+          ...(uploadedUrls.imageUrls || []),
+          ...(uploadedUrls.videoUrls || []),
+        ]
+        contentUrls = allUrls.map((url, index) => ({
+          contentUrl: url,
+          order: index + 1,
+        }))
+
+        // 썸네일 우선순위: 첫 번째 이미지 > 첫 번째 영상 > 병합 결과
+        if (uploadedUrls.imageUrls && uploadedUrls.imageUrls.length > 0) {
+          thumbnailUrl = uploadedUrls.imageUrls[0]
+        } else if (
+          uploadedUrls.videoUrls &&
+          uploadedUrls.videoUrls.length > 0
+        ) {
+          // 영상의 경우 첫 번째 프레임을 캡처하거나 영상 URL 그대로 사용
+          thumbnailUrl = uploadedUrls.videoUrls[0]
+        }
+      }
 
       const formDataToMerge: FormData = {
         roomCode: formData.roomCode,
-        contentUrls,
+        contentUrls: contentUrls ?? [],
         frameUuid: selectedFrame,
       }
 
       const response = await nCutAPI.mergeNCut(formDataToMerge)
       setMergedUrl(response.resultUrl)
 
+      // 썸네일 URL이 없으면 병합 결과를 사용
+      if (!thumbnailUrl) {
+        thumbnailUrl = response.resultUrl
+      }
+
+      // saveData에 썸네일 URL 미리 설정
+      setSaveData((prev) => ({
+        ...prev,
+        thumbnailUrl: thumbnailUrl,
+      }))
+
       const nextPage = currentPage + 1
       setCurrentPage(nextPage)
       broadcastPageChange(nextPage)
     } catch {
-       error('병합 중 오류가 발생했습니다. 다시 시도해주세요.')
+      error('병합 중 오류가 발생했습니다. 다시 시도해주세요.')
     }
   }, [
     sessionData,
@@ -677,7 +708,6 @@ const EditNCut: React.FC = () => {
       isCollaborative={true}
       roomCode={sessionData.roomCode}
     />,
-    <MakingThumbnail key="thumbnail" />,
     <Saving
       key="saving"
       mergedUrl={mergedUrl}
