@@ -21,11 +21,11 @@ const Moment = () => {
         setDailyMoment(dailyResponse)
         setWeeklyMoment(weeklyResponse)
       } catch {
-        error('moment 불러오기 실패')
+        error('다시 시도해 주세요.')
       }
     }
     fetchMoment()
-  }, [])
+  }, [error])
 
   return (
     <S.Container>

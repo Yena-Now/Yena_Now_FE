@@ -37,9 +37,8 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
   }, [])
 
   const getExt = (url: string): string => {
-    const clean = url.split('#')[0].split('?')[0]
-    const i = clean.lastIndexOf('.')
-    return i >= 0 ? clean.slice(i + 1).toLowerCase() : ''
+    const i = url.lastIndexOf('.')
+    return i >= 0 ? url.slice(i + 1).toLowerCase() : ''
   }
 
   const getType = (url: string): 'video' | 'image' => {
