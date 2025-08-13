@@ -37,8 +37,9 @@ function App() {
     const handleInitialRefresh = async () => {
       try {
         const response = await reissueToken()
-        const me = await userAPI.getUserMeInfo()
         const accessToken = response.accessToken
+        setAuth(accessToken, null)
+        const me = await userAPI.getUserMeInfo()
         setAuth(accessToken, me)
       } catch {
         logout()
