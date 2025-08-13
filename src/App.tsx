@@ -23,7 +23,6 @@ import 'react-datepicker/dist/react-datepicker.css'
 import GalleryDetailPage from '@pages/Gallery/GalleryDetail'
 import Moment from '@pages/Moment'
 import EditNCut from '@pages/NCut/EditNCut'
-import GalleryDetailPage from './pages/Gallery/GalleryDetail'
 
 function App() {
   const location = useLocation()
