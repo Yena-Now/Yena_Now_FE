@@ -1,26 +1,30 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import type { Profile } from '@/types/Profile'
+import * as S from '@styles/components/Common/LoadingStyle'
+import type { Profile, FollowUser } from '@/types/Profile'
+import type { NCut, NCutList } from '@/types/NCutList'
 import ProfileHeader from '@/components/UserProfile/ProfileHeader'
-// import type { NCut } from '@/types/NCutList'
-// import GalleryList from '@components/Gallery/GalleryList'
+import GalleryList from '@components/Gallery/GalleryList'
 import { profileAPI } from '@/api/profile'
+import { galleryAPI } from '@/api/gallerylist'
 import UserFollowListModal from '@components/Common/FollowModal'
-import type { FollowUser } from '@/types/Profile'
 
 const UserProfilePage: React.FC = () => {
   const { userUuid } = useParams<{ userUuid?: string }>()
   const navigate = useNavigate()
 
-  const [myUuid] = useState<string | null>(() => {
-    if (typeof window === 'undefined') return null
-    return localStorage.getItem('userUuid')
-  })
+  const [myUuid] = useState<string | null>(() =>
+    typeof window === 'undefined' ? null : localStorage.getItem('userUuid'),
+  )
   const targetUuid = userUuid ?? myUuid ?? undefined
 
   const [data, setData] = useState<Profile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [, setLoading] = useState(true)
+  const [, setError] = useState<string | null>(null)
+
+  const [gallery, setGallery] = useState<NCut[]>([])
+  const [gLoading, setGLoading] = useState(true)
+  const [gError, setGError] = useState<string | null>(null)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalTitle, setModalTitle] = useState('')
@@ -30,11 +34,9 @@ const UserProfilePage: React.FC = () => {
     if (!data) return
     setModalTitle('팔로잉')
     setIsModalOpen(true)
-
     const res = data.mine
       ? await profileAPI.getMyFollowings({ page: 0, size: 30 })
       : await profileAPI.getFollowings(userUuid!, { page: 0, size: 30 })
-
     setModalUsers(res.followings)
   }, [data, userUuid])
 
@@ -42,11 +44,9 @@ const UserProfilePage: React.FC = () => {
     if (!data) return
     setModalTitle('팔로워')
     setIsModalOpen(true)
-
     const res = data.mine
       ? await profileAPI.getMyFollowers({ page: 0, size: 30 })
       : await profileAPI.getFollowers(userUuid!, { page: 0, size: 30 })
-
     setModalUsers(res.followers)
   }, [data, userUuid])
 
@@ -72,6 +72,29 @@ const UserProfilePage: React.FC = () => {
     fetchProfile()
   }, [fetchProfile])
 
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        setGLoading(true)
+        setGError(null)
+        const res: NCutList = userUuid
+          ? await galleryAPI.getUserGalleryList(userUuid)
+          : await galleryAPI.getMyGalleryList()
+        if (!cancelled) {
+          setGallery(res.ncuts)
+        }
+      } catch {
+        if (!cancelled) setGError('갤러리를 불러오지 못했어요.')
+      } finally {
+        if (!cancelled) setGLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [userUuid])
+
   const handleEdit = useCallback(() => {
     navigate('/my-profile')
   }, [navigate])
@@ -93,8 +116,8 @@ const UserProfilePage: React.FC = () => {
     }
   }, [data, userUuid])
 
-  if (loading) return <div>불러오는 중…</div>
-  if (error) return <div>{error}</div>
+  const handleItemClick = (ncutUuid: string) => navigate(`/gallery/${ncutUuid}`)
+
   if (!data) return null
 
   return (
@@ -106,9 +129,22 @@ const UserProfilePage: React.FC = () => {
         onClickFollowingCount={openFollowings}
         onClickFollowerCount={openFollowers}
       />
-      {/* 갤러리는 나중에 연동
-      <GalleryList data={items} onItemClick={handleClick} />
-      */}
+
+      {gLoading ? (
+        <S.LoaderWrapper>
+          <S.Spinner />
+          <S.LoadingText>로딩 중입니다...</S.LoadingText>
+        </S.LoaderWrapper>
+      ) : gError ? (
+        <div>{gError}</div>
+      ) : (
+        <GalleryList
+          data={gallery}
+          onItemClick={(item) => handleItemClick(item.ncutUuid)}
+          showOwnerAvatar={false}
+        />
+      )}
+
       <UserFollowListModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -117,8 +153,7 @@ const UserProfilePage: React.FC = () => {
         listType={modalTitle === '팔로잉' ? 'followings' : 'followers'}
         onDeltaFollowing={(delta) => {
           setData((prev) => {
-            if (!prev) return prev
-            if (!prev.mine) return prev
+            if (!prev || !prev.mine) return prev
             return { ...prev, followingCount: prev.followingCount + delta }
           })
         }}
