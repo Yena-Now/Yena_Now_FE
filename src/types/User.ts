@@ -4,7 +4,7 @@ export interface UserMeInfoPatchRequest {
   phoneNumber: string
   birthdate: string
   gender: string
-  profileUrl: string
+  profileUrl: string | null
 }
 
 export interface UserMeResponse {
@@ -14,7 +14,7 @@ export interface UserMeResponse {
   gender: string
   birthdate: string
   phoneNumber: string
-  profileUrl: string
+  profileUrl: string | null
 }
 
 export interface UserImagePatchRequest {
