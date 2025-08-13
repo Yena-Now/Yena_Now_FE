@@ -23,6 +23,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import GalleryDetailPage from '@pages/Gallery/GalleryDetail'
 import Moment from '@pages/Moment'
 import EditNCut from '@pages/NCut/EditNCut'
+import * as S from '@/styles/components/Common/LoadingStyle'
 
 function App() {
   const location = useLocation()
@@ -49,7 +50,12 @@ function App() {
   }, [setAuth, logout, setAuthChecked])
 
   if (isAuthChecking) {
-    return <div>로딩 중...</div>
+    return (
+      <S.LoaderWrapper>
+        <S.Spinner />
+        <S.LoadingText>로딩 중입니다...</S.LoadingText>
+      </S.LoaderWrapper>
+    )
   }
 
   const showHeader = isLoggedIn && !location.pathname.startsWith('/film/room/')
