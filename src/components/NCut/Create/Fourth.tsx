@@ -4,25 +4,36 @@ import React from 'react'
 import { IoTriangleOutline } from 'react-icons/io5'
 
 interface FourthCreateStepProps {
-  onFormDataChange: (data: { cutCnt: number }) => void
+  onFormDataChange: (data: { cutCount: number }) => void
 }
 
 function FourthCreateStep({ onFormDataChange }: FourthCreateStepProps) {
-  const [cutCnt, setCutCnt] = React.useState(2)
+  const [cutCount, setCutCount] = React.useState(2)
 
   const handleIncrease = () => {
-    if (cutCnt < 4) {
-      const newCount = cutCnt + 1
-      setCutCnt(newCount)
-      onFormDataChange({ cutCnt: newCount })
+    if (cutCount === 1) {
+      setCutCount(2)
+      onFormDataChange({ cutCount: 2 })
+    } else if (cutCount === 2) {
+      setCutCount(4)
+      onFormDataChange({ cutCount: 4 })
+    } else if (cutCount === 4) {
+      setCutCount(6)
+      onFormDataChange({ cutCount: 6 })
     }
   }
 
   const handleDecrease = () => {
-    if (cutCnt > 2) {
-      const newCount = cutCnt - 1
-      setCutCnt(newCount)
-      onFormDataChange({ cutCnt: newCount })
+    // 1, 2, 4, 6만 허용
+    if (cutCount === 6) {
+      setCutCount(4)
+      onFormDataChange({ cutCount: 4 })
+    } else if (cutCount === 4) {
+      setCutCount(2)
+      onFormDataChange({ cutCount: 2 })
+    } else if (cutCount === 2) {
+      setCutCount(1)
+      onFormDataChange({ cutCount: 1 })
     }
   }
 
@@ -31,17 +42,17 @@ function FourthCreateStep({ onFormDataChange }: FourthCreateStepProps) {
       <G.NcutCreateHeader>촬영 부스 생성</G.NcutCreateHeader>
       <G.NcutCreateDescription>컷 수를 지정해주세요.</G.NcutCreateDescription>
       <G.NcutCreateSubDescription>
-        최소 2회 ~ 최대 4회까지 가능합니다.
+        1, 2, 4, 6회 가능합니다.
       </G.NcutCreateSubDescription>
       <S.CounterContainer>
-        <S.CounterButton onClick={handleDecrease} disabled={cutCnt === 2}>
+        <S.CounterButton onClick={handleDecrease} disabled={cutCount === 1}>
           <IoTriangleOutline
             size={24}
             style={{ transform: 'rotate(180deg)' }}
           />
         </S.CounterButton>
-        <S.CounterDisplay>{cutCnt}</S.CounterDisplay>
-        <S.CounterButton onClick={handleIncrease} disabled={cutCnt === 4}>
+        <S.CounterDisplay>{cutCount}</S.CounterDisplay>
+        <S.CounterButton onClick={handleIncrease} disabled={cutCount === 6}>
           <IoTriangleOutline size={24} />
         </S.CounterButton>
       </S.CounterContainer>
