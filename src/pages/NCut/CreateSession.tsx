@@ -87,7 +87,7 @@ const CreateSession: React.FC = () => {
     setIsCreating(true)
     try {
       const fileUrl = await s3API.upload({
-        type: 'profile',
+        type: 'background',
         file: formData.backgroundImage as File,
       })
       if (fileUrl) {
