@@ -6,6 +6,7 @@ import PostSection from '@components/GalleryDetail/PostSection'
 import CommentSection from '@components/GalleryDetail/CommentSection'
 import LikeButton from '@components/GalleryDetail/LikeButton'
 import * as S from '@styles/pages/Gallery/GalleryDetailStyle'
+import * as LS from '@styles/components/Common/LoadingStyle'
 import Input from '@components/Common/Input'
 import ShareButton from '@components/GalleryDetail/ShareButton'
 import DownloadButton from '@components/GalleryDetail/DownloadButton'
@@ -38,10 +39,6 @@ const GalleryDetailPage: React.FC = () => {
       (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     )
-
-  useEffect(() => {
-    setMyUuid(localStorage.getItem('userUuid'))
-  }, [])
 
   useEffect(() => {
     setMyUuid(localStorage.getItem('userUuid'))
@@ -182,7 +179,13 @@ const GalleryDetailPage: React.FC = () => {
     }
   }
 
-  if (!detailData) return <div>로딩 중...</div>
+  if (!detailData)
+    return (
+      <LS.LoaderWrapper>
+        <LS.Spinner />
+        <LS.LoadingText>로딩 중입니다...</LS.LoadingText>
+      </LS.LoaderWrapper>
+    )
 
   return (
     <S.DetailBox>
