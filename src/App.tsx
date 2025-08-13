@@ -21,6 +21,7 @@ import GlobalStyle from '@styles/GlobalStyle'
 import { StyledToastContainer } from '@styles/hooks/ToastStyles'
 import 'react-datepicker/dist/react-datepicker.css'
 import GalleryDetailPage from './pages/Gallery/GalleryDetail'
+import UserProfilePage from './pages/UserProfile/UserProfile'
 
 function App() {
   const location = useLocation()
@@ -163,6 +164,16 @@ function App() {
               element={
                 isLoggedIn ? (
                   <GalleryDetailPage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/profile/:nickname"
+              element={
+                isLoggedIn ? (
+                  <UserProfilePage />
                 ) : (
                   <Navigate to="/login" replace />
                 )
