@@ -175,7 +175,7 @@ export const MenuLink = styled.div`
   text-decoration: none;
   display: block;
   margin-top: 8px;
-  padding-bottom: 8px;
+  padding: 0.3rem 0;
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.12s;
