@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import * as S from '@styles/components/NCut/Edit/SelectCutsStyle'
 
 interface SelectCutsProps {
@@ -19,6 +19,8 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
   isHost,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
     const handleHostSelection = (event: CustomEvent) => {
       const { selectedUrls: hostSelectedUrls } = event.detail
@@ -73,15 +75,27 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
     currentImageUrl && selectedUrls.includes(currentImageUrl)
 
   const handlePrevious = () => {
-    setCurrentImageIndex((prev) =>
-      prev > 0 ? prev - 1 : sharedUrls.length - 1,
-    )
+    const prevIndex =
+      currentImageIndex > 0 ? currentImageIndex - 1 : sharedUrls.length - 1
+    setCurrentImageIndex(prevIndex)
+
+    if (containerRef.current) {
+      const thumbnailElement = containerRef.current.children[0] as HTMLElement
+      const thumbnailWidth = thumbnailElement.offsetWidth
+      containerRef.current.scrollLeft = prevIndex * thumbnailWidth
+    }
   }
 
   const handleNext = () => {
-    setCurrentImageIndex((prev) =>
-      prev < sharedUrls.length - 1 ? prev + 1 : 0,
-    )
+    const nextIndex =
+      currentImageIndex < sharedUrls.length - 1 ? currentImageIndex + 1 : 0
+    setCurrentImageIndex(nextIndex)
+
+    if (containerRef.current) {
+      const thumbnailElement = containerRef.current.children[0] as HTMLElement
+      const thumbnailWidth = thumbnailElement.offsetWidth
+      containerRef.current.scrollLeft = nextIndex * thumbnailWidth
+    }
   }
 
   const handleSelectCurrent = () => {
@@ -120,7 +134,7 @@ const SelectCuts: React.FC<SelectCutsProps> = ({
       <S.SliderContainer>
         <S.SliderButton onClick={handlePrevious}>←</S.SliderButton>
 
-        <S.SliderImageContainer>
+        <S.SliderImageContainer ref={containerRef}>
           {sharedUrls.map((url, index) => {
             const selectionCount = getSelectionCount(url)
 

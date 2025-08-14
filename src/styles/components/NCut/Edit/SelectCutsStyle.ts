@@ -39,9 +39,9 @@ export const SliderImageContainer = styled.div`
   overflow-x: auto;
   scroll-behavior: smooth;
   -ms-overflow-x: hidden;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
   &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, and Opera */
+    display: none;
   }
   max-width: 80%;
 `

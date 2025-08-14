@@ -1419,6 +1419,9 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                     )}
                     <S.ActionButtons>
                       <S.AddButton
+                        style={{
+                          display: activeTab === 'sticker' ? 'none' : 'block',
+                        }}
                         onClick={activeTab === 'sticker' ? undefined : addText}
                       >
                         {activeTab === 'sticker'
