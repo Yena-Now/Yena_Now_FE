@@ -41,6 +41,7 @@ export const useRoom = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [sharedUrls, setSharedUrls] = useState<string[]>([])
   const [countdownInfo, setCountdownInfo] = useState<CountdownInfo | null>(null)
+  const [isProcessingGlobal, setIsProcessingGlobal] = useState<boolean>(false)
   const [allUsersSelections, setAllUsersSelections] = useState<{
     [userId: string]: string[]
   }>({})
@@ -203,6 +204,39 @@ export const useRoom = () => {
     },
     [room],
   )
+
+  const broadcastMergeResult = useCallback(
+    (mergeData: {
+      mergedUrl: string
+      thumbnailUrl: string
+      saveData: unknown
+    }) => {
+      const currentRoom = roomRef.current || room
+      if (!currentRoom || !isHost) return
+
+      const encoder = new TextEncoder()
+      const message = encoder.encode(
+        JSON.stringify({
+          type: 'hostMergeResult',
+          mergedUrl: mergeData.mergedUrl,
+          thumbnailUrl: mergeData.thumbnailUrl,
+          saveData: mergeData.saveData,
+        }),
+      )
+
+      currentRoom.localParticipant
+        .publishData(
+          message,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {})
+        .catch(() => {})
+    },
+    [room, isHost],
+  )
+
   const user = useAuthStore((state) => state.user)
 
   const handleDataReceived = useCallback(
@@ -320,6 +354,18 @@ export const useRoom = () => {
         window.dispatchEvent(
           new CustomEvent('navigateToNextPage', { detail: data.editData }),
         )
+      } else if (data.type === 'hostMergeResult') {
+        window.dispatchEvent(
+          new CustomEvent('hostMergeResult', {
+            detail: {
+              mergedUrl: data.mergedUrl,
+              thumbnailUrl: data.thumbnailUrl,
+              saveData: data.saveData,
+            },
+          }),
+        )
+      } else if (data.type === 'processingStatus') {
+        setIsProcessingGlobal(data.status)
       }
     },
 
@@ -505,6 +551,26 @@ export const useRoom = () => {
     [],
   )
 
+  const sendProcessingStatus = useCallback((status: boolean) => {
+    if (roomRef.current) {
+      const encoder = new TextEncoder()
+      const data = encoder.encode(
+        JSON.stringify({
+          type: 'processingStatus',
+          status,
+        }),
+      )
+      roomRef.current.localParticipant
+        .publishData(
+          data,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {})
+    }
+  }, [])
+
   const sendChatMessage = useCallback((message: string) => {
     if (roomRef.current && message.trim()) {
       const nickname = user?.nickname || 'Anonymous'
@@ -675,6 +741,8 @@ export const useRoom = () => {
     sendUrls,
     countdownInfo,
     startSharedCountdown,
+    isProcessingGlobal,
+    sendProcessingStatus,
     sendNavigateToEdit,
     allUsersSelections,
     broadcastSelection,
@@ -685,6 +753,7 @@ export const useRoom = () => {
     broadcastPageChange,
     broadcastDecorateUpdate,
     broadcastHostSelection,
+    broadcastMergeResult,
     sendNavigateToNextPage,
     selectedUrls,
     selectedFrame,

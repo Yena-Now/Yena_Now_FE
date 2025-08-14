@@ -1234,7 +1234,7 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                       style={{
                         width: '100%',
                         height: '100%',
-                        objectFit: 'cover',
+                        objectFit: 'contain',
                         pointerEvents: 'none',
                       }}
                     />
@@ -1333,44 +1333,6 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                       )}
                   </>
                 )}
-
-                {/* 협업 상태 표시 개선 */}
-                {isCollaborative &&
-                  Object.keys(otherUsersActivity).length > 0 && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '8px',
-                        right: '8px',
-                        background: 'rgba(0, 0, 0, 0.8)',
-                        color: 'white',
-                        padding: '6px 10px',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        zIndex: 50,
-                      }}
-                    >
-                      <div>
-                        함께 편집 중: {Object.keys(otherUsersActivity).length}명
-                      </div>
-                      {Object.entries(otherUsersActivity).map(
-                        ([participantId, activity]) => (
-                          <div
-                            key={participantId}
-                            style={{
-                              fontSize: '10px',
-                              marginTop: '2px',
-                              opacity: 0.8,
-                            }}
-                          >
-                            {participantId}: 컷 {activity.currentImageIndex + 1}
-                            {activity.selectedElement &&
-                              ` (${activity.selectedElement.split('-')[0]})`}
-                          </div>
-                        ),
-                      )}
-                    </div>
-                  )}
               </S.EditableImage>
             </S.LargePreview>
 
@@ -1455,21 +1417,25 @@ const DecorateNCut = forwardRef<DecorateNCutRef, DecorateNCutProps>(
                         <S.FontSizeInfo>크기: {fontSize}px</S.FontSizeInfo>
                       </S.TextPanel>
                     )}
+                    <S.ActionButtons>
+                      <S.AddButton
+                        style={{
+                          display: activeTab === 'sticker' ? 'none' : 'block',
+                        }}
+                        onClick={activeTab === 'sticker' ? undefined : addText}
+                      >
+                        {activeTab === 'sticker'
+                          ? '스티커 추가'
+                          : '텍스트 추가'}
+                      </S.AddButton>
+                      <S.DeleteButton
+                        onClick={deleteElement}
+                        disabled={!selectedElement}
+                      >
+                        삭제
+                      </S.DeleteButton>
+                    </S.ActionButtons>
                   </S.EditPanel>
-
-                  <S.ActionButtons>
-                    <S.AddButton
-                      onClick={activeTab === 'sticker' ? undefined : addText}
-                    >
-                      {activeTab === 'sticker' ? '스티커 추가' : '텍스트 추가'}
-                    </S.AddButton>
-                    <S.DeleteButton
-                      onClick={deleteElement}
-                      disabled={!selectedElement}
-                    >
-                      삭제
-                    </S.DeleteButton>
-                  </S.ActionButtons>
                 </>
               )}
             </S.EditToolsContainer>

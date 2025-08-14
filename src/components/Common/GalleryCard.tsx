@@ -9,6 +9,7 @@ import LoadingSpinner from './LoadingSpinner'
 
 interface NcutForGalleryProps extends NCut {
   onClick: () => void
+  showOwnerAvatar?: boolean
 }
 const GalleryCard: React.FC<NcutForGalleryProps> = ({
   userUuid,
@@ -20,6 +21,7 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
   likeCount,
   relay,
   onClick,
+  showOwnerAvatar = true,
 }) => {
   const navigate = useNavigate()
 
@@ -29,7 +31,6 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
   }
 
   const isVideo = /\.(mp4|webm|ogg|m4v)$/i.test(ncutUrl)
-  // console.log({ ncutUrl, thumbnailUrl, profileUrl })
 
   return (
     <>
@@ -60,16 +61,18 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
           )}
         </S.PhotoWrapper>
         <S.InfoWrapper>
-          <S.Box>
-            <ProfileImage
-              src={profileUrl}
-              alt={nickname}
-              height="25px"
-              width="25px"
-              onClick={handleProfileClick}
-            />
-            <S.UserName onClick={handleProfileClick}>{nickname}</S.UserName>
-          </S.Box>
+          {showOwnerAvatar && (
+            <S.Box>
+              <ProfileImage
+                src={profileUrl}
+                alt={nickname}
+                height="25px"
+                width="25px"
+                onClick={handleProfileClick}
+              />
+              <S.UserName onClick={handleProfileClick}>{nickname}</S.UserName>
+            </S.Box>
+          )}
           <S.Box>
             <GoHeartFill size={12} color="red" />
             <S.likeText>{likeCount}</S.likeText>

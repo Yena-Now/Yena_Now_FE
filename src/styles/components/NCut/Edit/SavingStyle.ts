@@ -4,7 +4,8 @@ export const SavingContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  max-height: 80vh;
+  margin-top: 20px;
 `
 
 export const ImageContainer = styled.div`
@@ -13,20 +14,29 @@ export const ImageContainer = styled.div`
   align-items: center;
   width: 100%;
   padding: 20px;
+  max-height: 60vh;
+  overflow: auto;
 `
 
 export const ResultImage = styled.img`
-  width: 40%;
+  max-width: 40%;
+  max-height: 100%;
   height: auto;
+  width: auto;
+  object-fit: contain;
 `
 
 export const ResultVideo = styled.video`
-  width: 40%;
+  max-width: 40%;
+  max-height: 100%;
   height: auto;
+  width: auto;
+  object-fit: contain;
 `
 
 export const InputArea = styled.div`
-  width: 40%;
+  width: 100%;
+  min-width: 300px;
   background-color: #f9f9f9;
   border: 1px solid #dcdcdc;
   border-radius: 12px;
@@ -109,22 +119,6 @@ export const MergeDropdown = styled(DropdownBase)`
 `
 
 export const VisibilityDropdown = styled(DropdownBase)``
-
-const ButtonBase = styled.button`
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-`
-
-export const MergeUserButton = styled(ButtonBase)`
-  background-color: #fff;
-  border: 1px solid #dcdcdc;
-  color: #555;
-  &:hover {
-    background-color: #f0f0f0;
-  }
-`
 
 export const ActionButton = styled.button`
   width: 100%;

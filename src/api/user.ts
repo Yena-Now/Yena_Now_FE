@@ -19,46 +19,26 @@ export const userAPI = {
   },
 
   getUserMeInfo: async (): Promise<UserMeResponse> => {
-    try {
-      const response = await apiClient.get('/users/me')
-      return response.data
-    } catch (err) {
-      console.log('내 정보 가져오기 실패', err)
-      throw err
-    }
+    const response = await apiClient.get('/users/me')
+    return response.data
   },
 
   patchUserImage: async (
     requestData: UserImagePatchRequest,
   ): Promise<UserImagePatchResponse> => {
-    try {
-      const response = await apiClient.patch('/users/image', requestData)
-      return response.data
-    } catch (err) {
-      console.log('이미지 변경 실패', err)
-      throw err
-    }
+    const response = await apiClient.patch('/users/image', requestData)
+    return response.data
   },
 
   deleteUserImage: async (): Promise<void> => {
-    try {
-      await apiClient.delete('/users/image')
-    } catch (err) {
-      console.log('프로필 사진 삭제 실패', err)
-      throw err
-    }
+    await apiClient.delete('/users/image')
   },
 
   deleteUser: async (): Promise<void> => {
     const { logout } = useAuthStore.getState()
-    try {
-      await apiClient.delete('/users/me')
-      logout()
-      localStorage.clear()
-    } catch (err) {
-      console.log('회원 탈퇴 실패', err)
-      throw err
-    }
+    await apiClient.delete('/users/me')
+    logout()
+    localStorage.clear()
   },
 
   verifyNickname: async (
@@ -73,11 +53,6 @@ export const userAPI = {
   },
 
   changePassword: async (requestData: ChangePasswordRequest): Promise<void> => {
-    try {
-      await apiClient.patch('/users/password', requestData)
-    } catch (err) {
-      console.log('비밀번호 변경 실패', err)
-      throw err
-    }
+    await apiClient.patch('/users/password', requestData)
   },
 }

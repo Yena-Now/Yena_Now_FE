@@ -32,8 +32,7 @@ const Login: React.FC = () => {
       setAuth(response.accessToken, me)
       setAuthChecked(false)
       navigate('/gallery')
-    } catch (err) {
-      console.log(err)
+    } catch {
       error('로그인에 실패했습니다.')
     }
   }

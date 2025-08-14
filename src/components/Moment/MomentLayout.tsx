@@ -91,7 +91,7 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
               {weekly ? (
                 <div>
                   <S.TitleWrapper weekly={weekly}>
-                    <S.SubTitle>가장 많이 머물렀던 순간이에요</S.SubTitle>
+                    <S.SubTitle>지난 일주일의 하이라이트</S.SubTitle>
                     <S.Title>지난주의 순간</S.Title>
                   </S.TitleWrapper>
                   <S.MoveText
@@ -104,7 +104,7 @@ const MomentLayout: React.FC<MomentLayoutProps> = ({ nCuts }) => {
               ) : (
                 <div>
                   <S.TitleWrapper weekly={weekly}>
-                    <S.SubTitle>지난 일주일의 하이라이트</S.SubTitle>
+                    <S.SubTitle>가장 많이 머물렀던 순간이에요</S.SubTitle>
                     <S.Title>어제의 순간</S.Title>
                   </S.TitleWrapper>
                   <S.MoveText
