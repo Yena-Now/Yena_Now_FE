@@ -58,7 +58,13 @@ export const InfoWrapper = styled.div`
   height: 40px;
   padding: 5px 10px;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: flex-start; /* 기본은 왼→오 배치 */
+
+  /* 마지막 박스(좋아요)를 항상 오른쪽 끝으로 밀기 */
+  & > *:last-child {
+    margin-left: auto;
+  }
 `
 
 export const Box = styled.div`

@@ -66,6 +66,7 @@ const Header: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+  const uuid = localStorage.getItem('userUuid')
 
   return (
     <S.HeaderContainer>
@@ -116,7 +117,11 @@ const Header: React.FC = () => {
                 <S.ProfileDropdownTail />
                 <S.DropdownMenu>
                   <S.DropdownMenuItem>
-                    <S.MenuLink as={Link} to="/profile">
+                    <S.MenuLink
+                      as={Link}
+                      to={uuid ? `/profile/${uuid}` : '/login'}
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
                       내 프로필
                     </S.MenuLink>
                   </S.DropdownMenuItem>
@@ -140,7 +145,7 @@ const Header: React.FC = () => {
         type="search"
         initialKeyword={modalKeyword}
         onSelect={(user) => {
-          navigate(`/users/profile/${user.userUuid}`)
+          navigate(`/profile/${user.userUuid}`)
           setIsSearchOpen(false)
         }}
       />
