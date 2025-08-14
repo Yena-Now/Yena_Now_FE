@@ -28,7 +28,7 @@ export const Nickname = styled.span`
   font-weight: 500;
   font-size: 14px;
   margin-top: 5px;
-  max-width: 100%;
+  max-width: 90%;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: center;
