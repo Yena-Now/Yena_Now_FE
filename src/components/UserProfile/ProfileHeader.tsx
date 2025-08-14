@@ -49,11 +49,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <S.CountNum>{data.totalCut}</S.CountNum>
           <S.CountLabel>Cuts</S.CountLabel>
         </S.CountItem>
-        <S.CountItem onClick={onClickFollowerCount}>
+        <S.CountItem data-clickable="true" onClick={onClickFollowerCount}>
           <S.CountNum>{data.followerCount}</S.CountNum>
           <S.CountLabel>팔로워</S.CountLabel>
         </S.CountItem>
-        <S.CountItem onClick={onClickFollowingCount}>
+        <S.CountItem data-clickable="true" onClick={onClickFollowingCount}>
           <S.CountNum>{data.followingCount}</S.CountNum>
           <S.CountLabel>팔로잉</S.CountLabel>
         </S.CountItem>

@@ -54,6 +54,9 @@ export const CountItem = styled.div`
     height: 2px;
     background-color: #ddd;
   }
+  &[data-clickable='true'] {
+    cursor: pointer;
+  }
 `
 
 export const CountNum = styled.div`
