@@ -15,6 +15,8 @@ const SocialCallback: React.FC = () => {
     ;(async () => {
       try {
         const accessToken = searchParams.get('accessToken')
+        const userUuid = searchParams.get('userUuid')
+        localStorage.setItem('userUuid', userUuid || '')
         if (!accessToken) {
           throw new Error('토큰 없음')
         }
