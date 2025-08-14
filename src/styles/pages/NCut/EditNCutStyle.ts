@@ -17,6 +17,7 @@ export const EditNCutPrevButton = styled.button`
   height: 65px;
   border-radius: 50%;
   border: none;
+  cursor: pointer;
   background-color: #f9be08;
   color: white;
 `
@@ -28,6 +29,7 @@ export const EditNCutNextButton = styled.button`
   width: 65px;
   height: 65px;
   border-radius: 50%;
+  cursor: pointer;
   border: none;
   background-color: #f9be08;
   color: white;
