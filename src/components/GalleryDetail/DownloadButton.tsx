@@ -23,7 +23,8 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
 
   const downloadFile = async (url: string, filename: string) => {
     try {
-      const res = await fetch(url)
+      const changedUrl = `${url}?${Date.now()}`
+      const res = await fetch(changedUrl)
       if (!res.ok) throw new Error('fetch failed')
       const blob = await res.blob()
       const blobUrl = URL.createObjectURL(blob)
