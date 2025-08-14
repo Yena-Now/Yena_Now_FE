@@ -177,6 +177,7 @@ export const MenuLink = styled.div`
   margin-top: 8px;
   padding-bottom: 8px;
   border-radius: 4px;
+  cursor: pointer;
   transition: background 0.12s;
   &:hover {
     background: #f7ebeb;

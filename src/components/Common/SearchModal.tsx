@@ -120,7 +120,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
   const handleClick = (user: User) => {
     if (type === 'search') {
       onClose()
-      navigate(`/users/profile/${user.userUuid}`)
+      navigate(`/profile/${user.userUuid}`)
     } else if (type === 'invite' && onSelect) {
       onSelect(user)
     }

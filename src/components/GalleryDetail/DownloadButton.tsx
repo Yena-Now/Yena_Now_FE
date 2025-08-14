@@ -13,7 +13,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   fileUrl,
   ncutUuid,
 }) => {
-  const { error, success } = useToast()
+  const { info, error, success } = useToast()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
@@ -23,7 +23,8 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
 
   const downloadFile = async (url: string, filename: string) => {
     try {
-      const res = await fetch(url)
+      const changedUrl = `${url}?${Date.now()}`
+      const res = await fetch(changedUrl)
       if (!res.ok) throw new Error('fetch failed')
       const blob = await res.blob()
       const blobUrl = URL.createObjectURL(blob)
@@ -37,26 +38,25 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
       URL.revokeObjectURL(blobUrl)
 
       success('다운로드 완료!')
-    } catch (e) {
-      console.error('[download error]', e)
+    } catch {
       error('다운로드 실패!')
     }
   }
 
   const handleImageSave = () => {
-    if (!isImage) return error('사진만 가능해요')
+    if (!isImage) return info('사진만 가능해요')
     downloadFile(fileUrl, `${ncutUuid}.${ext || 'png'}`)
     setOpen(false)
   }
 
   const handleGifSave = () => {
-    if (!isVideo) return error('GIF는 영상에서만 추출 가능해요')
+    if (!isVideo) return info('GIF는 영상에서만 추출 가능해요')
     navigate(`/gif-extract?video=${encodeURIComponent(fileUrl)}`)
     setOpen(false)
   }
 
   const handleVideoSave = () => {
-    if (!isVideo) return error('영상만 저장 가능해요')
+    if (!isVideo) return info('영상만 저장 가능해요')
     downloadFile(fileUrl, `${ncutUuid}.${ext || 'mp4'}`)
     setOpen(false)
   }

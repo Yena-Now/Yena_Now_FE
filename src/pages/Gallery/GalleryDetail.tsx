@@ -6,6 +6,7 @@ import PostSection from '@components/GalleryDetail/PostSection'
 import CommentSection from '@components/GalleryDetail/CommentSection'
 import LikeButton from '@components/GalleryDetail/LikeButton'
 import * as S from '@styles/pages/Gallery/GalleryDetailStyle'
+import * as LS from '@styles/components/Common/LoadingStyle'
 import Input from '@components/Common/Input'
 import ShareButton from '@components/GalleryDetail/ShareButton'
 import DownloadButton from '@components/GalleryDetail/DownloadButton'
@@ -38,10 +39,6 @@ const GalleryDetailPage: React.FC = () => {
       (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     )
-
-  useEffect(() => {
-    setMyUuid(localStorage.getItem('userUuid'))
-  }, [])
 
   useEffect(() => {
     setMyUuid(localStorage.getItem('userUuid'))
@@ -94,11 +91,9 @@ const GalleryDetailPage: React.FC = () => {
     if (!detailData || deletingRef.current) return
     deletingRef.current = true
     try {
-      console.log('[NCUT_DELETE] call', detailData.ncutUuid)
       await nCutDetail.deleteNCut(detailData.ncutUuid)
       navigate('/gallery', { replace: true })
-    } catch (e) {
-      console.error('[NCUT_DELETE_ERR]', e)
+    } catch {
       error('N컷 삭제 실패')
     } finally {
       deletingRef.current = false
@@ -159,30 +154,26 @@ const GalleryDetailPage: React.FC = () => {
 
   const handleDeleteComment = async (commentUuid: string) => {
     const targetNcutUuid = detailData?.ncutUuid || ncutUuid
-    console.log('[HANDLE_DELETE] start', {
-      commentUuid,
-      ncutUuid: targetNcutUuid,
-    })
-    if (!commentUuid || !targetNcutUuid) {
-      console.warn('[HANDLE_DELETE] early-return', {
-        commentUuid,
-        ncutUuid: targetNcutUuid,
-      })
-      return
-    }
+    if (!commentUuid || !targetNcutUuid) return
+
     try {
       await commentAPI.deleteComment(targetNcutUuid, commentUuid)
       setComments((prev) => prev.filter((c) => c.commentUuid !== commentUuid))
       const latest = await commentAPI.getComments(targetNcutUuid)
       setComments(sortByCreatedAtAsc(latest.comments))
       success('댓글이 삭제되었습니다.')
-    } catch (e) {
-      console.error('[DELETE_ERR]', e)
+    } catch {
       error('댓글 삭제 실패')
     }
   }
 
-  if (!detailData) return <div>로딩 중...</div>
+  if (!detailData)
+    return (
+      <LS.LoaderWrapper>
+        <LS.Spinner />
+        <LS.LoadingText>로딩 중입니다...</LS.LoadingText>
+      </LS.LoaderWrapper>
+    )
 
   return (
     <S.DetailBox>
@@ -191,6 +182,7 @@ const GalleryDetailPage: React.FC = () => {
           <UserInfo
             profileUrl={detailData.profileUrl}
             nickname={detailData.nickname}
+            userUuid={detailData.userUuid}
             createdAt={detailData.createdAt}
             onClick={() => {}}
           />
@@ -244,6 +236,7 @@ const GalleryDetailPage: React.FC = () => {
                   nickname={c.nickname}
                   ncutUuid={c.ncutUuid}
                   comment={c.comment}
+                  userUuid={c.userUuid}
                   isMyComment={c.userUuid === myUuid}
                   isMine={detailData.userUuid === myUuid}
                   onEdit={(newComment) =>

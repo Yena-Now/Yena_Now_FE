@@ -92,21 +92,23 @@ export const UserItem = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin: 2px 2vw;
+  margin: 2px 1vw;
 `
 
 export const UserItemBox = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
 `
 
 export const UserNickName = styled.div`
   font-weight: bold;
-  font-size: 28px;
+  font-size: 24px;
 `
 
 export const UserName = styled.div`
-  font-size: 24px;
+  font-size: 18px;
   color: #666;
   margin-top: 2px;
 `
@@ -135,4 +137,11 @@ export const UserItemButton = styled.button.withConfig({
     background-color: ${({ isFollowing }) =>
       isFollowing ? '#0056b3' : '#e0e0e0'};
   }
+`
+
+export const EmptyState = styled.div`
+  padding: 40px 16px;
+  text-align: center;
+  color: #9a9a9a;
+  font-size: 14px;
 `

@@ -6,9 +6,14 @@ import * as S from '@styles/pages/Gallery/GalleryListStyle'
 interface GalleryListProps {
   data: NCut[]
   onItemClick?: (item: NCut) => void
+  showOwnerAvatar?: boolean
 }
 
-const GalleryList: React.FC<GalleryListProps> = ({ data, onItemClick }) => {
+const GalleryList: React.FC<GalleryListProps> = ({
+  data,
+  onItemClick,
+  showOwnerAvatar = true,
+}) => {
   return (
     <S.GalleryList>
       {data.map((item) => (
@@ -16,6 +21,7 @@ const GalleryList: React.FC<GalleryListProps> = ({ data, onItemClick }) => {
           key={item.ncutUuid}
           {...item}
           onClick={() => onItemClick?.(item)}
+          showOwnerAvatar={showOwnerAvatar}
         />
       ))}
     </S.GalleryList>

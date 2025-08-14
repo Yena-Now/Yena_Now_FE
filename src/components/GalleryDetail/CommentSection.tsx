@@ -54,7 +54,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   const handleOwnerDelete = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log('[CS] owner delete clicked')
     onOwnerDelete?.()
   }
 

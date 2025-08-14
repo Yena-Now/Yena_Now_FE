@@ -2,6 +2,7 @@ import React from 'react'
 import ProfileImage from '@components/Common/ProfileImage'
 import * as S from '@styles/components/GalleryDetail/UserInfoStyle'
 import { useNavigate } from 'react-router-dom'
+import { formatKoreanDateTime } from '@/utils/date'
 
 interface UserInfoProps {
   profileUrl: string
@@ -30,7 +31,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
         <ProfileImage src={profileUrl} alt={`${nickname}의 프로필`} />
         <S.Nickname>{nickname}</S.Nickname>
       </S.UserInfo>
-      <S.Date>{createdAt}</S.Date>
+      <S.Date>{formatKoreanDateTime(createdAt)}</S.Date>
     </S.UserInfoWrapper>
   )
 }

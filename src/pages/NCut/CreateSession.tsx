@@ -207,8 +207,8 @@ const CreateSession: React.FC = () => {
       isImageUploaded={formData.isImageUploaded}
       onFormDataChange={handleFormDataChange}
     />,
-    <Third onFormDataChange={handleFormDataChange} />,
     <Fourth onFormDataChange={handleFormDataChange} />,
+    <Third onFormDataChange={handleFormDataChange} />,
     <Fifth onFormDataChange={handleFormDataChange} />,
     <Last sessionId={roomCode} onJoinSession={handleJoinSession} />,
   ]
@@ -239,7 +239,10 @@ const CreateSession: React.FC = () => {
 
             {currentIndex < pages.length - 2 && (
               <G.NCutButtonWrapper>
-                <G.NCutNextButton onClick={handleNext}>
+                <G.NCutNextButton
+                  disabled={!formData.isImageUploaded}
+                  onClick={handleNext}
+                >
                   <MdNavigateNext
                     style={{
                       width: '30px',
