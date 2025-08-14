@@ -2,75 +2,75 @@ import styled from 'styled-components'
 
 export const HeaderContainer = styled.header`
   width: 100%;
-  max-height: 150px;
-  border-bottom: 1px solid #e0e0e0;
-  align-items: center;
-  box-shadow: 0 4px 4px -2px rgba(0, 0, 0, 0.1);
-
-  @media (max-width: 768px) {
-    max-height: none;
-    flex-direction: column;
-  }
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
 `
 
 export const NavigationContainer = styled.nav`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 60px;
-  gap: 20px;
-  background-color: #f8f8f8;
-  padding: 0 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-4) var(--spacing-6);
+  gap: var(--spacing-6);
 
   @media (max-width: 768px) {
     flex-direction: column;
-    height: auto;
-    gap: 10px;
-    padding: 10px;
+    gap: var(--spacing-4);
+    padding: var(--spacing-3) var(--spacing-4);
   }
 `
 
 export const NavigationLeftSection = styled.div`
   display: flex;
-  gap: 110px;
-  margin-left: 60px;
+  gap: var(--spacing-8);
+  align-items: center;
 
   a {
     text-decoration: none;
-    color: #333;
+    color: var(--color-text);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-base);
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius-md);
+    transition: all var(--transition);
+    
+    &:hover {
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+    
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--color-primary-focus);
+    }
   }
 
   @media (max-width: 1024px) {
-    gap: 40px;
-    margin-left: 20px;
+    gap: var(--spacing-6);
   }
 
   @media (max-width: 768px) {
-    gap: 20px;
-    margin-left: 0;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
+    gap: var(--spacing-4);
+    flex-wrap: wrap;
+    justify-content: center;
   }
 `
 
 export const NavigationRightSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-right: 60px;
-
-  input {
-    width: 180px;
-    @media (max-width: 768px) {
-      width: 100%;
-      min-width: 0;
-    }
-  }
+  gap: var(--spacing-4);
 
   @media (max-width: 768px) {
     width: 100%;
-    justify-content: flex-end;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 `
 
@@ -82,30 +82,36 @@ export const SearchBox = styled.div`
 
 export const SearchIcon = styled.span`
   position: absolute;
-  left: 10px;
+  left: var(--spacing-3);
   pointer-events: none;
   display: flex;
   align-items: center;
   height: 100%;
-  color: #aaa;
+  color: var(--color-text-muted);
 `
 
 export const SearchInput = styled.input`
-  width: 260px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font-size: 14px;
+  width: 240px;
+  padding: var(--spacing-3) var(--spacing-3) var(--spacing-3) var(--spacing-10);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  background: var(--color-surface-2);
   outline: none;
-  transition: border-color 0.3s;
+  transition: all var(--transition);
+
+  &::placeholder {
+    color: var(--color-text-light);
+  }
 
   &:focus {
-    border-color: #007bff;
+    border-color: var(--color-primary);
+    background: var(--color-surface);
+    box-shadow: 0 0 0 3px var(--color-primary-focus);
   }
 
   @media (max-width: 768px) {
-    width: 100%;
-    min-width: 0;
+    width: 200px;
   }
 `
 
@@ -116,70 +122,63 @@ export const ProfileContainer = styled.div`
 
 export const ProfileDropdown = styled.div`
   position: absolute;
-  top: calc(100% + 16px);
+  top: calc(100% + var(--spacing-3));
   right: 0;
-  background: #fcf5f5;
-  border-radius: 12px;
-  min-width: 128px;
-  text-align: center;
-  z-index: 99;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
-  padding: 15px 0 12px 0;
-  font-size: 18px;
-  color: #191919;
-  border: none;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  min-width: 160px;
+  z-index: var(--z-dropdown);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
 `
 
 export const ProfileDropdownTail = styled.div`
   position: absolute;
-  top: -13px;
-  right: 34px;
-  width: 28px;
-  height: 18px;
-  overflow: hidden;
-  z-index: 100;
-  pointer-events: none;
-
-  &::after {
-    content: '';
-    display: block;
-    margin: 0 auto;
-    width: 20px;
-    height: 20px;
-    background: #fcf5f5;
-    border-radius: 2px 2px 0 0;
-    transform: rotate(45deg);
-    position: absolute;
-    left: 4px;
-    top: 8px;
-    box-shadow: -2px -2px 6px rgba(0, 0, 0, 0.01);
-  }
+  top: -8px;
+  right: 20px;
+  width: 16px;
+  height: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  border-right: none;
+  transform: rotate(45deg);
+  z-index: var(--z-dropdown);
 `
 
 export const DropdownMenu = styled.ul`
   list-style: none;
-  font-size: 16px;
-  padding: 0;
+  padding: var(--spacing-2);
   margin: 0;
 `
 
 export const DropdownMenuItem = styled.li`
-  margin-bottom: 22px;
+  margin-bottom: var(--spacing-1);
+  
   &:last-child {
     margin-bottom: 0;
   }
 `
 
 export const MenuLink = styled.div`
-  color: #191919;
+  color: var(--color-text);
   text-decoration: none;
   display: block;
-  margin-top: 8px;
-  padding-bottom: 8px;
-  border-radius: 4px;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background 0.12s;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition);
+  
   &:hover {
-    background: #f7ebeb;
+    background: var(--color-surface-2);
+    color: var(--color-primary);
+  }
+  
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-primary-focus);
   }
 `

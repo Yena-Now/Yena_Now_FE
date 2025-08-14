@@ -190,8 +190,8 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
       <S.TitleText>회원 정보 수정</S.TitleText>
       <S.ProfileSection>
         <ProfileImage
-          width="150"
-          height="150"
+          width="100px"
+          height="100px"
           src={imagePreview ?? myInfo.profileUrl ?? defaultProfileImage}
           onClick={handleProfileImageClick}
         />

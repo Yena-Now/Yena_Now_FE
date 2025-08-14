@@ -11,21 +11,24 @@ export const LoaderWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #fafafa;
+  min-height: 60vh;
+  padding: var(--spacing-16);
+  background: var(--color-surface-2);
 `
 
 export const Spinner = styled.div`
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(0, 0, 0, 0.1);
-  border-top-color: #555;
-  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--color-surface-3);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-full);
   animation: ${spin} 1s linear infinite;
+  box-shadow: var(--shadow-sm);
 `
 
 export const LoadingText = styled.p`
-  margin-top: 16px;
-  font-size: 1.2rem;
-  color: #555;
+  margin-top: var(--spacing-4);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
 `

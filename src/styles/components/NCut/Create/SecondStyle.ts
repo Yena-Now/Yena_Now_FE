@@ -3,17 +3,42 @@ import styled from 'styled-components'
 export const MainImagePreview = styled.div`
   width: 300px;
   height: 200px;
-  margin: 20px 0;
-  border-radius: 10px;
+  margin: var(--spacing-6) 0;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+
+  @media (max-width: 768px) {
+    width: 280px;
+    height: 180px;
+    margin: var(--spacing-4) 0;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 260px;
+    height: 160px;
+    margin: var(--spacing-3) 0;
+  }
 `
 
 export const FilterOptionsContainer = styled.div`
   display: flex;
-  gap: 15px;
-  margin-top: 20px;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-6);
   justify-content: center;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-4);
+  }
+
+  @media (max-width: 480px) {
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-3);
+  }
 `
 
 export const FilterOption = styled.div<{ $isSelected: boolean }>`
@@ -21,42 +46,64 @@ export const FilterOption = styled.div<{ $isSelected: boolean }>`
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 10px;
+  padding: var(--spacing-3);
+  border-radius: var(--radius-md);
   border: 2px solid
-    ${(props) => (props.$isSelected ? '#007bff' : 'transparent')};
-  background-color: ${(props) =>
-    props.$isSelected ? '#f0f8ff' : 'transparent'};
-  transition: all 0.2s ease;
+    ${(props) => (props.$isSelected ? 'var(--color-primary)' : 'transparent')};
+  background: ${(props) =>
+    props.$isSelected ? 'var(--color-primary-light)' : 'transparent'};
+  transition: all var(--transition);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-primary-focus);
+  }
 `
 
 export const FilterThumbnail = styled.div`
   width: 80px;
   height: 60px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  margin-bottom: 5px;
+  margin-bottom: var(--spacing-2);
+  box-shadow: var(--shadow-sm);
+
+  @media (max-width: 768px) {
+    width: 70px;
+    height: 50px;
+  }
+
+  @media (max-width: 480px) {
+    width: 60px;
+    height: 45px;
+  }
 `
 
 export const FilterName = styled.span`
-  font-size: 12px;
-  font-weight: 500;
-  color: #333;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  text-align: center;
 `
 
 export const PreviewImage = styled.img<{ selectedFilter: string }>`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   filter: ${(props) => props.selectedFilter || 'none'};
-  transition: filter 0.3s ease;
+  transition: filter var(--transition);
 `
 
 export const ThumbnailImage = styled.img<{ filterStyle: string }>`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   filter: ${(props) => props.filterStyle || 'none'};
 `
