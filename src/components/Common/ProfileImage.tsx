@@ -4,7 +4,7 @@ import defaultProfileImage from '/user_default_profile.png'
 import * as S from '@styles/components/Common/ProfileImageStyle'
 
 interface ProfileImageProps {
-  src?: string
+  src?: string | null
   alt?: string
   height?: string
   width?: string
