@@ -39,12 +39,12 @@ export const NavigationLeftSection = styled.div`
     padding: var(--spacing-2) var(--spacing-3);
     border-radius: var(--radius-md);
     transition: all var(--transition);
-    
+
     &:hover {
       color: var(--color-primary);
       background: var(--color-primary-light);
     }
-    
+
     &:focus-visible {
       outline: none;
       box-shadow: 0 0 0 3px var(--color-primary-focus);
@@ -155,7 +155,7 @@ export const DropdownMenu = styled.ul`
 
 export const DropdownMenuItem = styled.li`
   margin-bottom: var(--spacing-1);
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -165,18 +165,19 @@ export const MenuLink = styled.div`
   color: var(--color-text);
   text-decoration: none;
   display: block;
-  padding: var(--spacing-3) var(--spacing-4);
-  border-radius: var(--radius-md);
+  margin-top: 8px;
+  padding: 0.3rem 0;
+  border-radius: 4px;
   cursor: pointer;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   transition: all var(--transition);
-  
+
   &:hover {
     background: var(--color-surface-2);
     color: var(--color-primary);
   }
-  
+
   &:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px var(--color-primary-focus);
