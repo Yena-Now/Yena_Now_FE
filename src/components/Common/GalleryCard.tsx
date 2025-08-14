@@ -31,7 +31,6 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
   }
 
   const isVideo = /\.(mp4|webm|ogg|m4v)$/i.test(ncutUrl)
-  // console.log({ ncutUrl, thumbnailUrl, profileUrl })
 
   return (
     <>

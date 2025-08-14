@@ -91,11 +91,9 @@ const GalleryDetailPage: React.FC = () => {
     if (!detailData || deletingRef.current) return
     deletingRef.current = true
     try {
-      console.log('[NCUT_DELETE] call', detailData.ncutUuid)
       await nCutDetail.deleteNCut(detailData.ncutUuid)
       navigate('/gallery', { replace: true })
-    } catch (e) {
-      console.error('[NCUT_DELETE_ERR]', e)
+    } catch {
       error('N컷 삭제 실패')
     } finally {
       deletingRef.current = false
@@ -156,25 +154,15 @@ const GalleryDetailPage: React.FC = () => {
 
   const handleDeleteComment = async (commentUuid: string) => {
     const targetNcutUuid = detailData?.ncutUuid || ncutUuid
-    console.log('[HANDLE_DELETE] start', {
-      commentUuid,
-      ncutUuid: targetNcutUuid,
-    })
-    if (!commentUuid || !targetNcutUuid) {
-      console.warn('[HANDLE_DELETE] early-return', {
-        commentUuid,
-        ncutUuid: targetNcutUuid,
-      })
-      return
-    }
+    if (!commentUuid || !targetNcutUuid) return
+
     try {
       await commentAPI.deleteComment(targetNcutUuid, commentUuid)
       setComments((prev) => prev.filter((c) => c.commentUuid !== commentUuid))
       const latest = await commentAPI.getComments(targetNcutUuid)
       setComments(sortByCreatedAtAsc(latest.comments))
       success('댓글이 삭제되었습니다.')
-    } catch (e) {
-      console.error('[DELETE_ERR]', e)
+    } catch {
       error('댓글 삭제 실패')
     }
   }

@@ -10,6 +10,8 @@ export const ShareModalContainer = styled.div`
 export const ShareLink = styled.input`
   width: 100%;
   height: 30px;
+  padding: 0 10px;
+  border-radius: 5px;
 `
 
 export const CopyButton = styled.button`
