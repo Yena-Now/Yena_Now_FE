@@ -24,6 +24,7 @@ import GalleryDetailPage from '@pages/Gallery/GalleryDetail'
 import Moment from '@pages/Moment'
 import EditNCut from '@pages/NCut/EditNCut'
 import * as S from '@/styles/components/Common/LoadingStyle'
+import UserProfilePage from '@/pages/UserProfile/UserProfile'
 
 function App() {
   const location = useLocation()
@@ -187,6 +188,16 @@ function App() {
               path="/daily-moment"
               element={
                 isLoggedIn ? <Moment /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/profile/:userUuid"
+              element={
+                isLoggedIn ? (
+                  <UserProfilePage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
           </Routes>

@@ -21,4 +21,22 @@ export const galleryAPI = {
       throw error
     }
   },
+  getMyGalleryList: async (): Promise<NCutList> => {
+    try {
+      const { data } = await apiClient.get<NCutList>('/gallery/me')
+      return data
+    } catch (error) {
+      console.error('[MyGalleryList] Error:', error)
+      throw error
+    }
+  },
+  getUserGalleryList: async (userUuid: string): Promise<NCutList> => {
+    try {
+      const { data } = await apiClient.get<NCutList>(`/gallery/${userUuid}`)
+      return data
+    } catch (error) {
+      console.error('[UserGalleryList] Error:', error)
+      throw error
+    }
+  },
 }
