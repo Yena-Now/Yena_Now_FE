@@ -29,6 +29,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
   const [isNickNameChanged, setIsNickNameChanged] = useState<boolean>(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null) // 프로필 사진을 눌렀을 때도 변경 로직 동작하도록
+  const setUser = useAuthStore((state) => state.setUser)
   const logout = useAuthStore((state) => state.logout)
 
   // 1. 입력/수정
@@ -38,7 +39,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
     phoneNumber: myInfo.phoneNumber,
     birthdate: myInfo.birthdate,
     gender: myInfo.gender,
-    profileUrl: myInfo.profileUrl,
+    profileUrl: myInfo.profileUrl || null,
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,16 +54,22 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
     setIsModalOpen(false)
   }
 
-  // 값이 변경 필드만 patch 요청 전송
+  // 값이 변경된 필드만 patch 요청 전송
   const getPatchPayload = () => {
-    const payload = (
-      Object.keys(userData) as (keyof UserMeInfoPatchRequest)[]
-    ).reduce((acc, key) => {
-      if (userData[key] !== myInfo[key]) {
-        acc[key] = userData[key]
-      }
-      return acc
-    }, {} as Partial<UserMeInfoPatchRequest>)
+    const payload: Partial<UserMeInfoPatchRequest> = {}
+
+    ;(Object.keys(userData) as (keyof UserMeInfoPatchRequest)[]).forEach(
+      (key) => {
+        if (userData[key] !== myInfo[key]) {
+          if (key === 'profileUrl') {
+            payload.profileUrl = userData.profileUrl
+          } else {
+            payload[key] = userData[key] as string
+          }
+        }
+      },
+    )
+
     return payload
   }
 
@@ -83,7 +90,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
     const patchData = getPatchPayload()
     try {
       await userAPI.patchUserMeInfo(patchData)
-      console.log('patchData', patchData)
       if (patchData.nickname) {
         localStorage.setItem('nickname', patchData.nickname)
       }
@@ -150,8 +156,8 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
       const fileUrl = response as unknown as string
       try {
         await userAPI.patchUserImage({ imageUrl: fileUrl })
+        setUser({ profileUrl: fileUrl })
         success('프로필 사진이 등록되었습니다.')
-        localStorage.setItem('profileUrl', fileUrl)
         await fetchMyInfo()
       } catch {
         error('다시 시도해 주세요.')
@@ -163,7 +169,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
     try {
       await userAPI.deleteUserImage()
       setImagePreview(null)
-      localStorage.setItem('profileUrl', 'null')
+      setUser({ profileUrl: null })
       await fetchMyInfo()
       success('프로필 사진이 삭제되었습니다.')
     } catch {
@@ -186,13 +192,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
         <ProfileImage
           width="150"
           height="150"
-          src={
-            imagePreview
-              ? imagePreview
-              : myInfo.profileUrl
-                ? myInfo.profileUrl
-                : defaultProfileImage
-          }
+          src={imagePreview ?? myInfo.profileUrl ?? defaultProfileImage}
           onClick={handleProfileImageClick}
         />
       </S.ProfileSection>

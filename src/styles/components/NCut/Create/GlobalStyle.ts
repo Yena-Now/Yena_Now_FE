@@ -167,7 +167,9 @@ export const NCutButtonWrapper = styled.div`
   }
 `
 
-export const NCutNextButton = styled.button`
+export const NCutNextButton = styled.button<{
+  disabled: boolean
+}>`
   width: 65px;
   height: 65px;
   border-radius: 50%;

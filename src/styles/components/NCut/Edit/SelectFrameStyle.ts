@@ -71,7 +71,7 @@ export const FrameWrapper = styled.div<{
       case 1:
         return '1/1'
       case 2:
-        return '1/1.8'
+        return '1/1.3'
       case 4:
         return '1/1'
       case 6:
@@ -291,7 +291,7 @@ export const FrameImage = styled.img`
 export const ImageStrip = styled.img`
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 2px;
 
   @media (max-width: ${breakpoints.tablet}) {
@@ -302,7 +302,7 @@ export const ImageStrip = styled.img`
 export const VideoStrip = styled.video`
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 2px;
 
   @media (max-width: ${breakpoints.tablet}) {

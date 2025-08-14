@@ -51,6 +51,7 @@ const EditNCut: React.FC = () => {
     broadcastPageChange,
     broadcastDecorateUpdate,
     broadcastHostSelection,
+    broadcastMergeResult,
     selectedUrls,
     selectedFrame,
     setSelectedUrls,
@@ -82,7 +83,6 @@ const EditNCut: React.FC = () => {
   }, [room])
 
   useEffect(() => {
-    // 이미 연결되었거나 연결 시도 중이면 return
     if (
       !sessionData?.token ||
       isRoomConnected() ||
@@ -103,7 +103,6 @@ const EditNCut: React.FC = () => {
       setIsConnectionEstablished(false)
 
       try {
-        // 기존 연결이 있다면 먼저 정리
         if (room && room.state !== 'disconnected') {
           await room.disconnect()
           // 잠시 대기하여 완전히 정리되도록 함
@@ -166,7 +165,6 @@ const EditNCut: React.FC = () => {
     room,
   ])
 
-  // 연결 상태 모니터링 개선
   useEffect(() => {
     if (!room) return
 
@@ -237,7 +235,6 @@ const EditNCut: React.FC = () => {
     }
   }, [isHost, setCurrentEditPage])
 
-  // 세션 데이터 초기화
   useEffect(() => {
     if (location.state) {
       const state = location.state as LocationState
@@ -277,7 +274,6 @@ const EditNCut: React.FC = () => {
     }
   }, [room])
 
-  // Host 상태 설정
   useEffect(() => {
     if (sessionData) {
       setIsHost(sessionData.isHostUser)
@@ -286,7 +282,6 @@ const EditNCut: React.FC = () => {
 
   const [currentPage, setCurrentPage] = useState(0)
 
-  // 페이지 상태 동기화
   useEffect(() => {
     setCurrentPage(currentEditPage)
   }, [currentEditPage])
@@ -337,7 +332,6 @@ const EditNCut: React.FC = () => {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // formData 초기화
   useEffect(() => {
     if (sessionData) {
       setFormData({
@@ -373,7 +367,26 @@ const EditNCut: React.FC = () => {
     }
   }, [room, sessionData])
 
-  // 핸들러 함수들
+  useEffect(() => {
+    const handleHostMergeResult = (event: CustomEvent) => {
+      const { mergedUrl: hostMergedUrl, saveData: hostSaveData } = event.detail
+      if (!isHost) {
+        setMergedUrl(hostMergedUrl)
+        setSaveData(hostSaveData)
+      }
+    }
+    window.addEventListener(
+      'hostMergeResult',
+      handleHostMergeResult as EventListener,
+    )
+    return () => {
+      window.removeEventListener(
+        'hostMergeResult',
+        handleHostMergeResult as EventListener,
+      )
+    }
+  }, [isHost, setMergedUrl])
+
   const handleSelectCut = useCallback(
     (url: string) => {
       if (!sessionData) return
@@ -539,23 +552,19 @@ const EditNCut: React.FC = () => {
     }
 
     try {
-      // DecorateNCut에서 장식된 이미지들을 S3에 업로드
       const uploadedUrls =
         await decorateNCutRef.current?.uploadDecoratedImages()
 
-      let contentUrls
-      let thumbnailUrl = '' // 썸네일 URL 초기화
+      let contentUrls: { contentUrl: string | null; order: number }[] = []
+      let thumbnail = ''
 
       if (Array.isArray(uploadedUrls)) {
-        // 기존 방식 (모든 것이 이미지인 경우)
         contentUrls = uploadedUrls.map((url, index) => ({
           contentUrl: url,
           order: index + 1,
         }))
-        // 첫 번째 이미지를 썸네일로 사용
-        thumbnailUrl = uploadedUrls[0] || ''
+        thumbnail = uploadedUrls[0] || ''
       } else if (uploadedUrls && typeof uploadedUrls === 'object') {
-        // 이미지와 영상이 모두 있는 경우
         const allUrls = [
           ...(uploadedUrls.imageUrls || []),
           ...(uploadedUrls.videoUrls || []),
@@ -565,21 +574,19 @@ const EditNCut: React.FC = () => {
           order: index + 1,
         }))
 
-        // 썸네일 우선순위: 첫 번째 이미지 > 첫 번째 영상 > 병합 결과
         if (uploadedUrls.imageUrls && uploadedUrls.imageUrls.length > 0) {
-          thumbnailUrl = uploadedUrls.imageUrls[0]
+          thumbnail = uploadedUrls.imageUrls[0]
         } else if (
           uploadedUrls.videoUrls &&
           uploadedUrls.videoUrls.length > 0
         ) {
-          // 영상의 경우 첫 번째 프레임을 캡처하거나 영상 URL 그대로 사용
-          thumbnailUrl = uploadedUrls.videoUrls[0]
+          thumbnail = uploadedUrls.videoUrls[0]
         }
       }
 
       const formDataToMerge: FormData = {
         roomCode: formData.roomCode,
-        contentUrls: contentUrls ?? [],
+        contentUrls: contentUrls,
         frameUuid: selectedFrame,
       }
 
@@ -587,15 +594,23 @@ const EditNCut: React.FC = () => {
       setMergedUrl(response.resultUrl)
 
       // 썸네일 URL이 없으면 병합 결과를 사용
-      if (!thumbnailUrl) {
-        thumbnailUrl = response.resultUrl
+      const finalThumbnail = thumbnail || response.resultUrl
+
+      const updatedSaveData = {
+        ncutUrl: response.resultUrl,
+        thumbnailUrl: finalThumbnail,
+        content: '',
+        visibility: 'PUBLIC' as const,
+        isRelay: false,
       }
 
-      // saveData에 썸네일 URL 미리 설정
-      setSaveData((prev) => ({
-        ...prev,
-        thumbnailUrl: thumbnailUrl,
-      }))
+      setSaveData(updatedSaveData)
+
+      broadcastMergeResult({
+        mergedUrl: response.resultUrl,
+        thumbnailUrl: finalThumbnail,
+        saveData: updatedSaveData,
+      })
 
       const nextPage = currentPage + 1
       setCurrentPage(nextPage)
@@ -612,6 +627,7 @@ const EditNCut: React.FC = () => {
     currentPage,
     error,
     broadcastPageChange,
+    broadcastMergeResult,
     setMergedUrl,
   ])
 
@@ -628,6 +644,7 @@ const EditNCut: React.FC = () => {
       if (response) {
         setIsSubmitting(false)
         leaveRoom()
+        success('NCut이 성공적으로 저장되었습니다.')
         navigate('/gallery')
       } else {
         setIsSubmitting(false)
@@ -637,9 +654,8 @@ const EditNCut: React.FC = () => {
       setIsSubmitting(false)
       error('NCut 저장 중 오류가 발생했습니다.')
     }
-  }, [mergedUrl, saveData, error, leaveRoom, navigate])
+  }, [mergedUrl, saveData, error, success, leaveRoom, navigate])
 
-  // 세션 데이터가 로드되지 않았으면 로딩 표시
   if (!sessionData) {
     return (
       <S.EditNCutContainer>

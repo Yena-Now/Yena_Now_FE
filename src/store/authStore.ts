@@ -1,6 +1,5 @@
 import { create } from 'zustand'
-import type { UserMeResponse, UserMeInfoPatchRequest } from '@/types/User'
-import { userAPI } from '@/api/user'
+import type { UserMeResponse } from '@/types/User'
 
 interface AuthState {
   user: UserMeResponse | null
@@ -8,9 +7,7 @@ interface AuthState {
   isLoggedIn: boolean
   isAuthChecking: boolean // flag 변수
   setAuth: (token: string, userData: UserMeResponse | null) => void
-  setUser: (
-    partialUser: Partial<UserMeInfoPatchRequest>,
-  ) => Promise<UserMeResponse> // 유저 상태 일부 업데이트
+  setUser: (partialUser: Partial<UserMeResponse>) => void
   logout: () => void
   setAuthChecked: (checked: boolean) => void
 }
@@ -28,11 +25,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       user: userData ?? null, // 로그인 할때 유저 정보 불러오기
     }),
 
-  setUser: async (payload) => {
-    const updated = await userAPI.patchUserMeInfo(payload)
-    set({ user: updated })
-    return updated
-  },
+  setUser: (partial) =>
+    set((state) => ({
+      user: state.user
+        ? { ...state.user, ...partial }
+        : (partial as UserMeResponse),
+    })),
 
   logout: () =>
     set({

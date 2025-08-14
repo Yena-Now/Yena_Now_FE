@@ -1,9 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '@/api/auth'
-import { userAPI } from '@/api/user'
 import { useToast } from '@/hooks/useToast'
-import type { UserMeResponse } from '@/types/User'
 import { useAuthStore } from '@/store/authStore'
 import Logo from '@components/Common/Logo'
 import ProfileImage from '@components/Common/ProfileImage'
@@ -14,11 +12,11 @@ const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const [myInfo, setMyInfo] = useState<UserMeResponse | null>()
   const { error } = useToast()
   const navigate = useNavigate()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [modalKeyword, setModalKeyword] = useState('')
+  const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,19 +52,6 @@ const Header: React.FC = () => {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen)
 
-  const fetchMyInfo = useCallback(async () => {
-    try {
-      const myData = await userAPI.getUserMeInfo()
-      setMyInfo(myData)
-    } catch {
-      error('내 정보를 불러오는 데 실패했습니다.')
-    }
-  }, [error, setMyInfo])
-
-  useEffect(() => {
-    fetchMyInfo()
-  }, [fetchMyInfo])
-
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -81,6 +66,7 @@ const Header: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+  const uuid = localStorage.getItem('userUuid')
 
   return (
     <S.HeaderContainer>
@@ -125,13 +111,17 @@ const Header: React.FC = () => {
             />
           </S.SearchBox>
           <S.ProfileContainer ref={dropdownRef}>
-            <ProfileImage onClick={toggleDropdown} src={myInfo?.profileUrl} />
+            <ProfileImage onClick={toggleDropdown} src={user?.profileUrl} />
             {isDropdownOpen && (
               <S.ProfileDropdown>
                 <S.ProfileDropdownTail />
                 <S.DropdownMenu>
                   <S.DropdownMenuItem>
-                    <S.MenuLink as={Link} to="/profile">
+                    <S.MenuLink
+                      as={Link}
+                      to={uuid ? `/profile/${uuid}` : '/login'}
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
                       내 프로필
                     </S.MenuLink>
                   </S.DropdownMenuItem>
@@ -155,7 +145,7 @@ const Header: React.FC = () => {
         type="search"
         initialKeyword={modalKeyword}
         onSelect={(user) => {
-          navigate(`/users/profile/${user.userUuid}`)
+          navigate(`/profile/${user.userUuid}`)
           setIsSearchOpen(false)
         }}
       />
