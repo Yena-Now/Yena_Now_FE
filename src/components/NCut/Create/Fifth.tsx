@@ -7,7 +7,7 @@ interface FifthCreateStepProps {
 }
 
 function FifthCreateStep({ onFormDataChange }: FifthCreateStepProps) {
-  const [timeLimit, setTimeLimit] = React.useState(10)
+  const [timeLimit, setTimeLimit] = React.useState(5)
   const handleTimeChange = (newTime: number) => {
     const validTime = Math.max(10, Math.min(30, newTime))
     setTimeLimit(validTime)
@@ -21,7 +21,7 @@ function FifthCreateStep({ onFormDataChange }: FifthCreateStepProps) {
         영상 촬영 시간을 설정해주세요.
       </G.NcutCreateDescription>
       <G.NcutCreateSubDescription>
-        최소 10초 ~ 최대 30초
+        최소 5초 ~ 최대 30초
       </G.NcutCreateSubDescription>
       <S.TimeDisplayContainer>
         <S.TimeInputContainer>
@@ -29,7 +29,7 @@ function FifthCreateStep({ onFormDataChange }: FifthCreateStepProps) {
             type="number"
             value={timeLimit}
             onChange={(e) => handleTimeChange(Number(e.target.value))}
-            min="10"
+            min="5"
             max="30"
           />
           <S.TimeUnit>초</S.TimeUnit>

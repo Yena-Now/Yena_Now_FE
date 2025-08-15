@@ -24,9 +24,9 @@ const CreateSession: React.FC = () => {
     backgroundImageUrl: null as string | null,
     selectedFilter: 'basic',
     isImageUploaded: false,
-    takeCount: 6,
+    takeCount: 4,
     cutCount: 2,
-    timeLimit: 10,
+    timeLimit: 5,
   })
   const [originalImage, setOriginalImage] = useState<{
     file: File | null
