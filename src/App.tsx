@@ -51,6 +51,9 @@ function App() {
     handleInitialRefresh()
   }, [setAuth, logout, setAuthChecked])
 
+  // Landing 페이지 여부 확인
+  const isLandingPage = location.pathname === '/'
+
   if (isAuthChecking) {
     return (
       <S.LoaderWrapper>
@@ -65,7 +68,7 @@ function App() {
   return (
     <>
       <GlobalStyle />
-      <div>
+      <div data-page={isLandingPage ? 'landing' : 'app'}>
         <StyledToastContainer
           position="top-center"
           autoClose={3000}

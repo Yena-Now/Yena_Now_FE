@@ -116,6 +116,7 @@ export const UserName = styled.div`
 export const UserItemButton = styled.button.withConfig({
   shouldForwardProp: (prop) => prop !== 'isFollowing',
 })<{
+  isMe?: boolean
   isFollowing?: boolean
   onClick?: () => void
 }>`
@@ -124,7 +125,7 @@ export const UserItemButton = styled.button.withConfig({
   color: ${({ isFollowing }) => (isFollowing ? '#000' : '#fff')};
   width: 100px;
   height: 40px;
-  display: flex;
+  display: ${({ isMe }) => (isMe ? 'none' : 'flex')};
   align-items: center;
   justify-content: center;
   border: none;

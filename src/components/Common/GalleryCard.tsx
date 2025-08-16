@@ -6,6 +6,7 @@ import * as S from '@styles/components/Common/GalleryCardStyle'
 import { useNavigate } from 'react-router-dom'
 import HoverVideoPlayer from 'react-hover-video-player'
 import LoadingSpinner from './LoadingSpinner'
+import { useEffect, useState } from 'react'
 
 interface NcutForGalleryProps extends NCut {
   onClick: () => void
@@ -24,6 +25,9 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
   showOwnerAvatar = true,
 }) => {
   const navigate = useNavigate()
+  const [convertedThumbnailUrl, setConvertedThumbnailUrl] = useState<
+    string | null
+  >(null)
 
   const handleProfileClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -31,6 +35,30 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
   }
 
   const isVideo = /\.(mp4|webm|ogg|m4v)$/i.test(ncutUrl)
+
+  useEffect(() => {
+    if (isVideo) {
+      const video = document.createElement('video')
+      video.crossOrigin = 'anonymous'
+      video.src = ncutUrl + '#t=0.001'
+      video.load()
+      video.play()
+      video.currentTime = 1
+      video.onseeked = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        const context = canvas.getContext('2d')
+        if (context) {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height)
+          setConvertedThumbnailUrl(canvas.toDataURL('image/png'))
+        }
+      }
+      video.onerror = () => {
+        setConvertedThumbnailUrl(thumbnailUrl)
+      }
+    }
+  }, [isVideo, ncutUrl, thumbnailUrl])
 
   return (
     <>
@@ -48,7 +76,12 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
                 objectFit: 'cover',
                 objectPosition: 'center',
               }}
-              pausedOverlay={<S.Thumbnail src={thumbnailUrl} alt="썸네일" />}
+              pausedOverlay={
+                <S.Thumbnail
+                  src={convertedThumbnailUrl || thumbnailUrl}
+                  alt="썸네일"
+                />
+              }
               loadingOverlay={<LoadingSpinner />}
               muted
               loop

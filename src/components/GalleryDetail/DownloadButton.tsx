@@ -50,7 +50,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   }
 
   const handleGifSave = () => {
-    if (!isVideo) return info('GIF는 영상에서만 추출 가능해요')
+    if (!isVideo) return info('현재 준비중인 기능이에요')
     navigate(`/gif-extract?video=${encodeURIComponent(fileUrl)}`)
     setOpen(false)
   }

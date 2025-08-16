@@ -3,63 +3,97 @@ import styled from 'styled-components'
 export const Overlay = styled.div`
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.6)
+  );
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: flex-start;
   color: #fff;
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   opacity: 0;
-  transition: opacity 0.25s ease-in-out;
+  transition: opacity var(--transition);
   pointer-events: none;
+  padding: var(--spacing-4);
 `
 
 export const Container = styled.div`
-  --thumb-h: 240px;
   position: relative;
-  display: inline-block;
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  border-radius: 16px;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  margin: 0 1rem 1rem 0;
-  box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.15),
-    0 8px 20px rgba(0, 0, 0, 0.06);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+  }
 
   &:hover ${Overlay} {
     opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 3px var(--color-primary-focus),
+      var(--shadow-xl);
   }
 `
 
 export const Image = styled.img`
   display: block;
-  height: var(--thumb-h);
-  width: auto;
-  max-width: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  object-position: center;
+  transition: transform var(--transition);
+
+  ${Container}:hover & {
+    transform: scale(1.05);
+  }
 `
 
 export const Video = styled.video`
   display: block;
-  height: var(--thumb-h);
-  width: auto;
-  max-width: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  object-position: center;
+  transition: transform var(--transition);
+
+  ${Container}:hover & {
+    transform: scale(1.05);
+  }
 `
 
-export const LikeCount = styled.span`
-  display: inline-flex;
+export const LikeCount = styled.div`
+  display: flex;
   align-items: center;
+  gap: var(--spacing-1);
+  background: rgba(0, 0, 0, 0.7);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(4px);
 `
+
 export const LikeIcon = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
-  transform: translateY(1px);
 `
+
 export const LikeNumber = styled.span`
-  margin-left: 0.3rem;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   line-height: 1;
 `
