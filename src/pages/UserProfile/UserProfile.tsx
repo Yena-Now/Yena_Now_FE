@@ -52,6 +52,8 @@ const UserProfilePage: React.FC = () => {
   )
   const targetUuid = userUuid ?? myUuid ?? undefined
 
+  const [isMine] = useState(() => targetUuid === myUuid)
+
   const [data, setData] = useState<Profile | null>(null)
   const [, setLoading] = useState(true)
   const [, setError] = useState<string | null>(null)
@@ -115,14 +117,15 @@ const UserProfilePage: React.FC = () => {
       try {
         setGLoading(true)
         setGError(null)
-        const res: NCutList = userUuid
-          ? await galleryAPI.getUserGalleryList(userUuid, 0)
-          : await galleryAPI.getMyGalleryList(0)
+        const res: NCutList =
+          !isMine && userUuid
+            ? await galleryAPI.getUserGalleryList(userUuid, 0)
+            : await galleryAPI.getMyGalleryList(0)
         if (!cancelled) {
           setGallery(res.ncuts)
         }
         setPageNumber(1)
-        setHasMore(res.ncuts.length > 0)
+        setHasMore(res.totalPages > 0)
       } catch {
         if (!cancelled) setGError('갤러리를 불러오지 못했어요.')
       } finally {
@@ -132,15 +135,16 @@ const UserProfilePage: React.FC = () => {
     return () => {
       cancelled = true
     }
-  }, [userUuid])
+  }, [isMine, userUuid])
 
   const loadMore = useCallback(async () => {
     if (gLoading || !hasMore) return
     setGLoading(true)
     try {
-      const res: NCutList = userUuid
-        ? await galleryAPI.getUserGalleryList(userUuid, pageNumber)
-        : await galleryAPI.getMyGalleryList(pageNumber)
+      const res: NCutList =
+        !isMine && userUuid
+          ? await galleryAPI.getUserGalleryList(userUuid, pageNumber)
+          : await galleryAPI.getMyGalleryList(pageNumber)
       setGallery((prev) => [...prev, ...res.ncuts])
       setPageNumber((prev) => prev + 1)
       setHasMore(res.ncuts.length > 0)
@@ -149,7 +153,7 @@ const UserProfilePage: React.FC = () => {
     } finally {
       setGLoading(false)
     }
-  }, [gLoading, hasMore, userUuid, pageNumber])
+  }, [gLoading, hasMore, isMine, userUuid, pageNumber])
 
   useEffect(() => {
     if (!observerRef.current) return
