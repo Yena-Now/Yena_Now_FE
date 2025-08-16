@@ -37,13 +37,20 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
   const isVideo = /\.(mp4|webm|ogg|m4v)$/i.test(ncutUrl)
 
   useEffect(() => {
+    setConvertedThumbnailUrl(null) // 초기화
+    if (!isVideo) {
+      setConvertedThumbnailUrl(thumbnailUrl)
+      return
+    }
+
+    // 비디오의 첫 프레임을 캡처하여 썸네일로 사용
     if (isVideo) {
       const video = document.createElement('video')
       video.crossOrigin = 'anonymous'
-      video.src = ncutUrl + '#t=0.001'
+      video.src = `${ncutUrl}#t=0.001`
       video.load()
       video.play()
-      video.currentTime = 1
+      video.currentTime = 0
       video.onseeked = () => {
         const canvas = document.createElement('canvas')
         canvas.width = video.videoWidth
@@ -68,27 +75,33 @@ const GalleryCard: React.FC<NcutForGalleryProps> = ({
         </S.RelayIcon>
         <S.PhotoWrapper>
           {isVideo ? (
-            <HoverVideoPlayer
-              videoSrc={ncutUrl}
-              videoStyle={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center',
-              }}
-              pausedOverlay={
-                <S.Thumbnail
-                  src={convertedThumbnailUrl || thumbnailUrl}
-                  alt="썸네일"
+            <>
+              {!convertedThumbnailUrl ? (
+                <LoadingSpinner />
+              ) : (
+                <HoverVideoPlayer
+                  videoSrc={ncutUrl}
+                  videoStyle={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                  }}
+                  pausedOverlay={
+                    <S.Thumbnail
+                      src={convertedThumbnailUrl || thumbnailUrl}
+                      alt=""
+                    />
+                  }
+                  loadingOverlay={<LoadingSpinner />}
+                  muted
+                  loop
+                  sizingMode="container"
+                  style={{ width: '100%', height: '100%' }}
+                  // restartOnPaused // 일시정지 재시작
                 />
-              }
-              loadingOverlay={<LoadingSpinner />}
-              muted
-              loop
-              sizingMode="container"
-              style={{ width: '100%', height: '100%' }}
-              // restartOnPaused // 일시정지 재시작
-            />
+              )}
+            </>
           ) : (
             <S.Photo src={ncutUrl} alt="사진" />
           )}

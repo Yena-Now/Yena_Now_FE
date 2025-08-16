@@ -44,10 +44,31 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ myInfo, fetchMyInfo }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setUserData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    if (name === 'phoneNumber') {
+      const numbers = value.replace(/[^0-9]/g, '')
+
+      const limitedNumbers = numbers.slice(0, 11)
+
+      let formattedValue = ''
+      if (limitedNumbers.length <= 3) {
+        formattedValue = limitedNumbers
+      } else if (limitedNumbers.length <= 7) {
+        formattedValue = `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3)}`
+      } else {
+        formattedValue = `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3, 7)}-${limitedNumbers.slice(7)}`
+      }
+
+      setUserData((prev) => ({
+        ...prev,
+        phoneNumber: formattedValue,
+      }))
+      return
+    } else {
+      setUserData((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
+    }
   }
 
   const handleModalClose = () => {
