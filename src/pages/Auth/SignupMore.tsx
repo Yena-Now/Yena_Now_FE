@@ -64,7 +64,23 @@ const SignupMore: React.FC = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    if (e.target.name === 'phoneNumber') {
+      const numbers = e.target.value.replace(/[^0-9]/g, '')
+
+      const limitedNumbers = numbers.slice(0, 11)
+
+      let formattedValue = ''
+      if (limitedNumbers.length <= 3) {
+        formattedValue = limitedNumbers
+      } else if (limitedNumbers.length <= 7) {
+        formattedValue = `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3)}`
+      } else {
+        formattedValue = `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3, 7)}-${limitedNumbers.slice(7)}`
+      }
+      setFormData({ ...formData, phoneNumber: formattedValue })
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value })
+    }
   }
 
   const handleBirthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -171,8 +187,8 @@ const SignupMore: React.FC = () => {
         <S2.ProfileImageWrapper>
           <ProfileImage
             src={previewUrl}
-            width="140px"
-            height="140px"
+            width="100px"
+            height="100px"
             alt="프로필 이미지"
             onClick={() => fileInputRef.current?.click()}
           />
@@ -302,7 +318,7 @@ const SignupMore: React.FC = () => {
                 type="tel"
                 id="phoneNumber"
                 name="phoneNumber"
-                placeholder="01012345678"
+                placeholder="010-1234-5678"
                 value={formData.phoneNumber || ''}
                 onChange={handleChange}
               />
