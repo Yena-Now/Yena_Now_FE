@@ -19,8 +19,8 @@ const UserListItem: React.FC<
     <ProfileImage
       src={user.profileUrl || undefined}
       alt={user.nickname}
-      height="80px"
       width="80px"
+      height=""
       onClick={onClickUser}
     />
     <S.UserItem>
