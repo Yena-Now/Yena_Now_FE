@@ -104,6 +104,7 @@ const Header: React.FC = () => {
             <S.SearchInput
               type="text"
               value={searchQuery}
+              onClick={() => setIsSearchOpen(true)}
               onChange={handleSearchChange}
               onKeyPress={handleKeyPress}
               placeholder="사용자 검색"
