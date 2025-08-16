@@ -99,6 +99,8 @@ const SignupMore: React.FC = () => {
       formBirth.birthMonth || '',
       formBirth.birthDay || '',
     )
+    const convertedPhoneNumber = formData.phoneNumber?.replace(/-/g, '') || ''
+
     if (!isNicknameValid) {
       error('닉네임 중복 확인을 해주세요.')
       return
@@ -106,7 +108,7 @@ const SignupMore: React.FC = () => {
 
     if (
       formData.phoneNumber &&
-      !validator.isValidateSignUpPhoneNumber(formData.phoneNumber)
+      !validator.isValidateSignUpPhoneNumber(convertedPhoneNumber)
     ) {
       warning('전화번호 형식이 맞지 않습니다.')
       return
@@ -129,6 +131,7 @@ const SignupMore: React.FC = () => {
       ...formData,
       birthdate: birthDate,
       profileUrl: uploadedUrl,
+      phoneNumber: convertedPhoneNumber,
     }
 
     // 회원가입 요청 보내는 부분
@@ -318,7 +321,7 @@ const SignupMore: React.FC = () => {
                 type="tel"
                 id="phoneNumber"
                 name="phoneNumber"
-                placeholder="010-1234-5678"
+                placeholder="01012345678"
                 value={formData.phoneNumber || ''}
                 onChange={handleChange}
               />
