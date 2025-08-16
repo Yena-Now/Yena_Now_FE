@@ -9,3 +9,9 @@ export const formatKoreanDateTime = (iso: string) => {
 
   return `${y}년 ${m}월 ${day}일 ${hh}:${mm}`
 }
+
+export const formatTime = (seconds: number): string => {
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+}
