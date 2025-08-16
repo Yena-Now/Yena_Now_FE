@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import GalleryTabMenu from '@components/Gallery/GalleryTabMenu'
 import GalleryList from '@components/Gallery/GalleryList'
@@ -47,11 +47,22 @@ const GalleryPage: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<TabType>('PUBLIC')
   const [items, setItems] = useState<NCut[]>([])
   const [loading, setLoading] = useState(false)
+  const [pageNumber, setPageNumber] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const observerRef = useRef<HTMLDivElement | null>(null)
+
   const { error } = useToast()
   const navigate = useNavigate()
 
   const handleClick = (item: NCut) => {
     navigate(`/gallery/${item.ncutUuid}`)
+  }
+
+  const handleTabChange = (tab: TabType) => {
+    setCurrentTab(tab)
+    setItems([])
+    setPageNumber(0)
+    setHasMore(true)
   }
 
   useEffect(() => {
@@ -61,9 +72,11 @@ const GalleryPage: React.FC = () => {
         setLoading(true)
         const data =
           currentTab === 'PUBLIC'
-            ? await galleryAPI.getPublicGalleryList()
-            : await galleryAPI.getFollowGalleryList()
+            ? await galleryAPI.getPublicGalleryList(0)
+            : await galleryAPI.getFollowGalleryList(0)
         if (!cancelled) setItems(data.ncuts)
+        setPageNumber(1)
+        setHasMore(data.ncuts.length > 0)
       } catch {
         if (!cancelled) {
           setItems([])
@@ -79,10 +92,42 @@ const GalleryPage: React.FC = () => {
     }
   }, [currentTab, error])
 
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) return
+    setLoading(true)
+    try {
+      const data =
+        currentTab === 'PUBLIC'
+          ? await galleryAPI.getPublicGalleryList(pageNumber)
+          : await galleryAPI.getFollowGalleryList(pageNumber)
+      setItems((prev) => [...prev, ...data.ncuts])
+      setPageNumber((prev) => prev + 1)
+      setHasMore(data.ncuts.length > 0)
+    } catch {
+      error('더 불러오기에 실패했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }, [loading, hasMore, currentTab, pageNumber, error])
+
+  useEffect(() => {
+    if (!observerRef.current) return
+    const observer = new window.IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          loadMore()
+        }
+      },
+      { threshold: 1 },
+    )
+    observer.observe(observerRef.current)
+    return () => observer.disconnect()
+  }, [observerRef, hasMore, loading, loadMore])
+
   return (
     <PageContainer>
       <main>
-        <GalleryTabMenu currentTab={currentTab} onClickTab={setCurrentTab} />
+        <GalleryTabMenu currentTab={currentTab} onClickTab={handleTabChange} />
 
         {loading ? (
           <S.LoaderWrapper>
@@ -98,7 +143,16 @@ const GalleryPage: React.FC = () => {
             <span>새로운 콘텐츠를 확인해보세요</span>
           </EmptyState>
         ) : (
-          <GalleryList data={items} onItemClick={handleClick} />
+          <>
+            <GalleryList data={items} onItemClick={handleClick} />
+            <div ref={observerRef} style={{ height: 32 }} />
+            {loading && (
+              <S.LoaderWrapper>
+                <S.Spinner />
+                <S.LoadingText>더 불러오는 중...</S.LoadingText>
+              </S.LoaderWrapper>
+            )}
+          </>
         )}
       </main>
     </PageContainer>
