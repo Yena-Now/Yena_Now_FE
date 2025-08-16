@@ -28,6 +28,12 @@ export type CountdownInfo = {
   initiator: string
 }
 
+type RecordingInfo = {
+  isRecording: boolean
+  startTime: number | null
+  duration: number
+}
+
 export const useRoom = () => {
   const navigate = useNavigate()
   const [room, setRoom] = useState<Room | undefined>(undefined)
@@ -50,9 +56,12 @@ export const useRoom = () => {
   const [selectedUrls, setSelectedUrls] = useState<string[]>([])
   const [selectedFrame, setSelectedFrame] = useState<string>('')
   const [mergedUrl, setMergedUrl] = useState<string>('')
+  const [recordingInfo, setRecordingInfo] = useState<RecordingInfo | null>(null)
+  const [recordingElapsedTime, setRecordingElapsedTime] = useState<number>(0)
+
   const connectionAttemptRef = useRef<boolean>(false)
   const roomRef = useRef<Room | undefined>(undefined)
-  const { error } = useToast()
+  const { error, success } = useToast()
 
   const broadcastPageChange = useCallback(
     (page: number) => {
@@ -237,6 +246,118 @@ export const useRoom = () => {
     [room, isHost],
   )
 
+  const broadcastToast = useCallback(
+    (message: string, type: 'success' | 'error' | 'info' | 'warning') => {
+      const currentRoom = roomRef.current || room
+      if (!currentRoom) return
+
+      const encoder = new TextEncoder()
+      const data = encoder.encode(
+        JSON.stringify({
+          type: 'toastMessage',
+          message,
+          toastType: type,
+        }),
+      )
+
+      currentRoom.localParticipant
+        .publishData(
+          data,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {})
+        .catch(() => {})
+    },
+    [room],
+  )
+
+  const broadcastRecordingStart = useCallback(
+    (duration: number) => {
+      const currentRoom = roomRef.current || room
+      if (!currentRoom) return
+
+      const recordingData = {
+        isRecording: true,
+        startTime: Date.now(),
+        duration: duration,
+      }
+
+      setRecordingInfo(recordingData)
+
+      const encoder = new TextEncoder()
+      const message = encoder.encode(
+        JSON.stringify({
+          type: 'recordingStart',
+          ...recordingData,
+        }),
+      )
+
+      currentRoom.localParticipant
+        .publishData(
+          message,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {})
+        .catch(() => {})
+    },
+    [room],
+  )
+
+  const broadcastRecordingStop = useCallback(() => {
+    const currentRoom = roomRef.current || room
+    if (!currentRoom) return
+
+    setRecordingInfo(null)
+    setRecordingElapsedTime(0)
+
+    const encoder = new TextEncoder()
+    const message = encoder.encode(
+      JSON.stringify({
+        type: 'recordingStop',
+      }),
+    )
+
+    currentRoom.localParticipant
+      .publishData(
+        message,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        DataPacket_Kind.RELIABLE,
+      )
+      .then(() => {})
+      .catch(() => {})
+  }, [room])
+
+  const broadcastRecordingTime = useCallback(
+    (elapsedTime: number) => {
+      const currentRoom = roomRef.current || room
+      if (!currentRoom) return
+
+      const encoder = new TextEncoder()
+      const message = encoder.encode(
+        JSON.stringify({
+          type: 'recordingTime',
+          elapsedTime: elapsedTime,
+        }),
+      )
+
+      currentRoom.localParticipant
+        .publishData(
+          message,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          DataPacket_Kind.RELIABLE,
+        )
+        .then(() => {})
+        .catch(() => {})
+    },
+    [room],
+  )
+
   const user = useAuthStore((state) => state.user)
 
   const handleDataReceived = useCallback(
@@ -366,10 +487,33 @@ export const useRoom = () => {
         )
       } else if (data.type === 'processingStatus') {
         setIsProcessingGlobal(data.status)
+      } else if (data.type === 'toastMessage') {
+        switch (data.toastType) {
+          case 'success':
+            success(data.message)
+            break
+          case 'error':
+            error(data.message)
+            break
+          default:
+            break
+        }
+      } else if (data.type === 'recordingStart') {
+        setRecordingInfo({
+          isRecording: data.isRecording,
+          startTime: data.startTime,
+          duration: data.duration,
+        })
+        setRecordingElapsedTime(0)
+      } else if (data.type === 'recordingStop') {
+        setRecordingInfo(null)
+        setRecordingElapsedTime(0)
+      } else if (data.type === 'recordingTime') {
+        setRecordingElapsedTime(data.elapsedTime)
       }
     },
 
-    [navigate],
+    [error, navigate, success],
   )
 
   const handleTrackSubscribed = useCallback(
@@ -754,6 +898,7 @@ export const useRoom = () => {
     broadcastDecorateUpdate,
     broadcastHostSelection,
     broadcastMergeResult,
+    broadcastToast,
     sendNavigateToNextPage,
     selectedUrls,
     selectedFrame,
@@ -761,5 +906,10 @@ export const useRoom = () => {
     setSelectedFrame,
     mergedUrl,
     setMergedUrl,
+    recordingInfo,
+    recordingElapsedTime,
+    broadcastRecordingStart,
+    broadcastRecordingStop,
+    broadcastRecordingTime,
   }
 }
