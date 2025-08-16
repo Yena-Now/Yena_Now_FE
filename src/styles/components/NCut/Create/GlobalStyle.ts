@@ -2,26 +2,27 @@ import styled from 'styled-components'
 
 export const NCutLayout = styled.div`
   display: flex;
-  min-height: calc(100vh - 150px);
+  background: var(--color-surface-2);
+  padding: var(--spacing-6);
 
   @media (max-width: 768px) {
     flex-direction: column;
+    padding: var(--spacing-4);
   }
 `
 
 export const NCutCreateLayout = styled.div`
   position: relative;
   width: 100%;
-  height: calc(100vh - 150px);
+  min-height: 75vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
   @media (max-width: 768px) {
-    height: auto;
-    padding: 10px;
     min-height: calc(100vh - 120px);
+    padding: var(--spacing-4);
   }
 `
 
@@ -29,29 +30,29 @@ export const NcutCreateContainer = styled.div`
   position: relative;
   width: 100%;
   max-width: 1000px;
-  height: 70%;
+  min-height: 600px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  box-shadow: 2px 2px 4px #ccc;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
   flex-direction: column;
-  padding: 40px 20px;
+  padding: var(--spacing-12) var(--spacing-8);
+  border: 1px solid var(--color-border);
 
   @media (max-width: 768px) {
     max-width: 100%;
-    height: auto;
-    padding: 20px 10px;
-    border-radius: 10px;
-    margin: 10px;
-    box-shadow: 1px 1px 2px #ccc;
+    min-height: auto;
+    padding: var(--spacing-8) var(--spacing-4);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
   }
 
   @media (max-width: 480px) {
-    border: none;
-    box-shadow: none;
-    padding: 10px 5px;
+    padding: var(--spacing-6) var(--spacing-3);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
   }
 `
 
@@ -63,22 +64,24 @@ export const NavigationButtonsContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 -40px; /* 컨테이너 밖으로 버튼이 나오도록 */
-  pointer-events: none; /* 컨테이너는 클릭 방지, 버튼만 클릭 가능하도록 */
+  padding: 0 var(--spacing-8);
+  pointer-events: none;
+  z-index: 10;
 
   @media (max-width: 768px) {
     position: relative;
     top: auto;
     transform: none;
     justify-content: center;
-    gap: 40px;
-    margin-top: 30px;
+    gap: var(--spacing-8);
+    margin-top: var(--spacing-6);
     padding: 0;
+    pointer-events: all;
   }
 
   @media (max-width: 480px) {
-    gap: 30px;
-    margin-top: 20px;
+    gap: var(--spacing-6);
+    margin-top: var(--spacing-4);
   }
 `
 
@@ -90,63 +93,66 @@ export const NCutCreateContentContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 5;
 
   @media (max-width: 768px) {
     max-width: 100%;
-    padding: 0 20px;
+    padding: 0 var(--spacing-4);
   }
 
   @media (max-width: 480px) {
-    padding: 0 10px;
+    padding: 0 var(--spacing-2);
   }
 `
 
 export const NcutCreateHeader = styled.h1`
-  font-size: 46px;
-  font-weight: bold;
-  margin-bottom: 30px;
+  font-size: clamp(2rem, 5vw, 2.875rem);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-6);
   text-align: center;
+  color: var(--color-text-strong);
+  line-height: 1.2;
 
   @media (max-width: 768px) {
-    font-size: 32px;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-4);
   }
 
   @media (max-width: 480px) {
-    font-size: 24px;
-    margin-bottom: 15px;
+    margin-bottom: var(--spacing-3);
   }
 `
 
 export const NcutCreateDescription = styled.p`
-  font-size: 20px;
-  margin-bottom: 10px;
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-2);
   text-align: center;
+  color: var(--color-text);
+  line-height: 1.6;
 
   @media (max-width: 768px) {
-    font-size: 18px;
-    margin-bottom: 8px;
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-2);
   }
 
   @media (max-width: 480px) {
-    font-size: 16px;
-    margin-bottom: 6px;
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-1);
   }
 `
 
 export const NcutCreateSubDescription = styled.p`
-  font-size: 0.9rem;
-  margin-bottom: 30px;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-6);
   text-align: center;
+  color: var(--color-text-muted);
+  line-height: 1.5;
 
   @media (max-width: 768px) {
-    font-size: 0.85rem;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-4);
   }
 
   @media (max-width: 480px) {
-    font-size: 0.8rem;
-    margin-bottom: 15px;
+    margin-bottom: var(--spacing-3);
   }
 `
 
@@ -154,11 +160,12 @@ export const NCutButtonWrapper = styled.div`
   width: 65px;
   height: 65px;
   pointer-events: all;
-  margin: 0 30px;
+  margin: 0 var(--spacing-6);
 
   @media (max-width: 768px) {
     width: 55px;
     height: 55px;
+    margin: 0;
   }
 
   @media (max-width: 480px) {
@@ -172,109 +179,125 @@ export const NCutNextButton = styled.button<{
 }>`
   width: 65px;
   height: 65px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   border: none;
-  background-color: #f9be08;
-  color: white;
+  background: ${({ disabled }) =>
+    disabled ? 'var(--color-text-light)' : 'var(--color-primary)'};
+  color: var(--color-text-strong);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  font-size: 20px;
-  transition: background-color 0.3s ease;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  font-size: var(--font-size-xl);
+  transition: all var(--transition);
+  box-shadow: var(--shadow-md);
 
-  &:hover {
-    background-color: #e0a607;
+  &:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
   }
 
-  &:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 3px var(--color-primary-focus),
+      var(--shadow-lg);
   }
 
   @media (max-width: 768px) {
     width: 55px;
     height: 55px;
-    font-size: 18px;
+    font-size: var(--font-size-lg);
   }
 
   @media (max-width: 480px) {
     width: 45px;
     height: 45px;
-    font-size: 16px;
+    font-size: var(--font-size-base);
   }
 `
 
 export const NCutPrvButton = styled.button`
   width: 65px;
   height: 65px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   border: none;
-  background-color: #f9be08;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-text-strong);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 20px;
-  transition: background-color 0.3s ease;
+  font-size: var(--font-size-xl);
+  transition: all var(--transition);
+  box-shadow: var(--shadow-md);
 
   &:hover {
-    background-color: #e0a607;
+    background: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
   }
 
-  &:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 3px var(--color-primary-focus),
+      var(--shadow-lg);
   }
 
   @media (max-width: 768px) {
     width: 55px;
     height: 55px;
-    font-size: 18px;
+    font-size: var(--font-size-lg);
   }
 
   @media (max-width: 480px) {
     width: 45px;
     height: 45px;
-    font-size: 16px;
+    font-size: var(--font-size-base);
   }
 `
+
 export const ProgressBar = styled.div`
   position: absolute;
-  bottom: 20px;
+  bottom: var(--spacing-6);
   width: 100%;
   display: flex;
   justify-content: center;
+  gap: var(--spacing-2);
 
   @media (max-width: 768px) {
     position: relative;
     bottom: auto;
-    margin-top: 30px;
+    margin-top: var(--spacing-6);
   }
 
   @media (max-width: 480px) {
-    margin-top: 20px;
+    margin-top: var(--spacing-4);
   }
 `
 
 export const ProgressBarItem = styled.div<{ isActive: boolean }>`
   width: 20px;
   height: 20px;
-  border-radius: 50%;
-  background-color: ${(props) => (props.isActive ? '#f9be08' : '#ccc')};
-  margin: 0 10px;
-  transition: background-color 0.3s ease;
+  border-radius: var(--radius-full);
+  background: ${(props) =>
+    props.isActive ? 'var(--color-primary)' : 'var(--color-border)'};
+  transition: all var(--transition);
+  box-shadow: ${(props) => (props.isActive ? 'var(--shadow-sm)' : 'none')};
+
+  &:hover {
+    transform: ${(props) => (props.isActive ? 'scale(1.1)' : 'scale(1)')};
+  }
 
   @media (max-width: 768px) {
     width: 16px;
     height: 16px;
-    margin: 0 8px;
   }
 
   @media (max-width: 480px) {
     width: 12px;
     height: 12px;
-    margin: 0 6px;
   }
 `

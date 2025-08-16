@@ -11,7 +11,7 @@ function ThirdCreateStep({ onFormDataChange }: ThirdCreateStepProps) {
   const [takeCount, setTakeCount] = React.useState(6)
 
   const handleIncrease = () => {
-    if (takeCount < 10) {
+    if (takeCount < 12) {
       const newCount = takeCount + 1
       setTakeCount(newCount)
       onFormDataChange({ takeCount: newCount })
@@ -19,7 +19,7 @@ function ThirdCreateStep({ onFormDataChange }: ThirdCreateStepProps) {
   }
 
   const handleDecrease = () => {
-    if (takeCount > 6) {
+    if (takeCount > 4) {
       const newCount = takeCount - 1
       setTakeCount(newCount)
       onFormDataChange({ takeCount: newCount })
@@ -33,17 +33,17 @@ function ThirdCreateStep({ onFormDataChange }: ThirdCreateStepProps) {
         촬영 횟수를 지정해주세요.
       </G.NcutCreateDescription>
       <G.NcutCreateSubDescription>
-        최소 6회 ~ 최대 10회까지 가능합니다.
+        최소 4회 ~ 최대 12회까지 가능합니다.
       </G.NcutCreateSubDescription>
       <S.CounterContainer>
-        <S.CounterButton onClick={handleDecrease} disabled={takeCount === 6}>
+        <S.CounterButton onClick={handleDecrease} disabled={takeCount === 4}>
           <IoTriangleOutline
             size={24}
             style={{ transform: 'rotate(180deg)' }}
           />
         </S.CounterButton>
         <S.CounterDisplay>{takeCount}</S.CounterDisplay>
-        <S.CounterButton onClick={handleIncrease} disabled={takeCount === 10}>
+        <S.CounterButton onClick={handleIncrease} disabled={takeCount === 12}>
           <IoTriangleOutline size={24} />
         </S.CounterButton>
       </S.CounterContainer>

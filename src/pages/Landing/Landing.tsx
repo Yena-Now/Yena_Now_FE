@@ -9,23 +9,31 @@ import Logo from '@components/Common/Logo'
 const Landing: React.FC = () => {
   return (
     <S.LandingContainer>
-      <Logo marginTop="20px" />
-      <S.ContentContainer>
-        <S.PhotoCardsContainer>
-          <S.PhotoCard1>
-            <img src={landingImage} alt="" />
-          </S.PhotoCard1>
-          <S.PhotoCard2>
-            <img src={landingImage} alt="" />
-          </S.PhotoCard2>
-        </S.PhotoCardsContainer>
-      </S.ContentContainer>
-      <Link to="/login">
-        <S.StartButton>
-          시작하기
-          <img src={photo} alt="" />
-        </S.StartButton>
-      </Link>
+      <header>
+        <Logo marginTop="20px" />
+      </header>
+
+      <main>
+        <S.ContentContainer>
+          <S.PhotoCardsContainer>
+            <S.PhotoCard1>
+              <img src={landingImage} alt="N컷 사진 예시 1" />
+            </S.PhotoCard1>
+            <S.PhotoCard2>
+              <img src={landingImage} alt="N컷 사진 예시 2" />
+            </S.PhotoCard2>
+          </S.PhotoCardsContainer>
+        </S.ContentContainer>
+      </main>
+
+      <footer>
+        <Link to="/login" style={{ textDecoration: 'none' }}>
+          <S.StartButton>
+            시작하기
+            <img src={photo} alt="" aria-hidden="true" />
+          </S.StartButton>
+        </Link>
+      </footer>
     </S.LandingContainer>
   )
 }

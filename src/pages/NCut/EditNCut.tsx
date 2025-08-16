@@ -643,7 +643,7 @@ const EditNCut: React.FC = () => {
       const response = await nCutAPI.saveNCut(saveData)
       if (response) {
         setIsSubmitting(false)
-        leaveRoom()
+        await leaveRoom()
         success('NCut이 성공적으로 저장되었습니다.')
         navigate('/gallery')
       } else {

@@ -9,8 +9,12 @@ import { useNavigate } from 'react-router-dom'
 type ListType = 'followings' | 'followers'
 
 const UserListItem: React.FC<
-  UserListItemProps & { toggleFollow: () => void; onClickUser: () => void }
-> = ({ user, toggleFollow, onClickUser }) => (
+  UserListItemProps & {
+    toggleFollow: () => void
+    onClickUser: () => void
+    isMe?: boolean
+  }
+> = ({ user, toggleFollow, onClickUser, isMe }) => (
   <S.UserListItem>
     <ProfileImage
       src={user.profileUrl || undefined}
@@ -24,7 +28,11 @@ const UserListItem: React.FC<
         <S.UserNickName>{user.nickname}</S.UserNickName>
         {user.name && <S.UserName>{user.name}</S.UserName>}
       </S.UserItemBox>
-      <S.UserItemButton onClick={toggleFollow} isFollowing={user.isFollowing}>
+      <S.UserItemButton
+        isMe={isMe}
+        onClick={toggleFollow}
+        isFollowing={user.isFollowing}
+      >
         {user.isFollowing ? '팔로잉' : '팔로우'}
       </S.UserItemButton>
     </S.UserItem>
@@ -104,6 +112,7 @@ const UserFollowListModal: React.FC<UserListProps & ExtraProps> = ({
               <UserListItem
                 key={user.userUuid}
                 user={user}
+                isMe={user.userUuid === localStorage.getItem('userUuid')}
                 toggleFollow={() => toggleFollow(user.userUuid)}
                 onClickUser={() => goProfile(user.userUuid)}
               />
