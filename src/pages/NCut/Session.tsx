@@ -491,6 +491,14 @@ export const Session: React.FC = () => {
           mediaRecorderRef.current.stop()
           setIsRecording(false)
           mediaRecorderRef.current = null
+          broadcastRecordingStop()
+          setLocalRecordingStartTime(null)
+          setLocalElapsedTime(0)
+
+          if (localRecordingTimer) {
+            clearTimeout(localRecordingTimer)
+            setLocalRecordingTimer(null)
+          }
           success('녹화가 자동으로 중지되었습니다.\n 영상이 저장되었습니다.')
         }
       }, timeLimit * 1000)
