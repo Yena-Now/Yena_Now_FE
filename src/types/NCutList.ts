@@ -1,5 +1,5 @@
 export interface NCutList {
-  totalPage: number
+  totalPages: number
   ncuts: NCut[]
 }
 
