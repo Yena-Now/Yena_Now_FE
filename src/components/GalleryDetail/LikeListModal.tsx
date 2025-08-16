@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as S from '@styles/components/GalleryDetail/LikeListModalStyle'
@@ -46,7 +45,6 @@ const LikeListModal: React.FC<Props> = ({
     async (opts?: { force?: boolean; page?: number }) => {
       const force = opts?.force ?? false
       const nextPage = typeof opts?.page === 'number' ? opts.page : page
-
       if (!force && (!isOpen || loading || !hasMore)) return
 
       const myReqId = ++reqSeqRef.current
@@ -56,7 +54,6 @@ const LikeListModal: React.FC<Props> = ({
       setError(null)
       try {
         let res = await likeAPI.getLikes(ncutUuid, nextPage, pageSize)
-
         if (myReqId !== reqSeqRef.current || myOpenKey !== openedKeyRef.current)
           return
 
@@ -85,12 +82,27 @@ const LikeListModal: React.FC<Props> = ({
             ? pageLikes
             : (() => {
                 const map = new Map<string, LikeUser>(
-                  prev.map((u) => [u.userUuid, u]),
+                  prev
+                    .filter(
+                      (p): p is LikeUser =>
+                        typeof (p as LikeUser).userUuid === 'string' &&
+                        !!(p as LikeUser).userUuid,
+                    )
+                    .map((p) => [(p as LikeUser).userUuid as string, p]),
                 )
-                for (const u of pageLikes) map.set(u.userUuid, u)
-                return Array.from(map.values())
+                const appendedDeleted: LikeUser[] = []
+                for (const u of pageLikes) {
+                  const uid =
+                    typeof u === 'object' && u !== null && 'userUuid' in u
+                      ? ((u as LikeUser).userUuid as string | undefined)
+                      : undefined
+                  if (uid) map.set(uid, u)
+                  else appendedDeleted.push(u)
+                }
+                return [...Array.from(map.values()), ...appendedDeleted]
               })(),
         )
+
         setHasMore(!last)
         setPage(() => nextPage + 1)
       } catch {
@@ -106,6 +118,7 @@ const LikeListModal: React.FC<Props> = ({
     },
     [isOpen, loading, hasMore, ncutUuid, page, pageSize],
   )
+
   useEffect(() => {
     if (!isOpen) return
     setItems([])
@@ -119,7 +132,6 @@ const LikeListModal: React.FC<Props> = ({
     fetchPage({ force: true, page: 0 })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, ncutUuid, initialLikeCount, initialIsLiked])
-  // fetchPage 넣으면 무한 루프 발생, 한 번만 실행 의도
 
   useEffect(() => {
     if (!isOpen || !sentinelRef.current || page === 0) return
@@ -172,30 +184,52 @@ const LikeListModal: React.FC<Props> = ({
         </S.Header>
 
         <S.List id="likeModalScroll" ref={scrollRootRef}>
-          {items.map((u) => (
-            <S.Row
-              key={u.userUuid}
-              onClick={() =>
-                onUserClick
-                  ? onUserClick(u.userUuid)
-                  : navigate(`/profile/${u.userUuid}`)
-              }
-            >
-              <S.Avatar>
-                <ProfileImage
-                  src={u.profileUrl}
-                  alt={u.nickname}
-                  width="50px"
-                  height="50px"
-                />
-              </S.Avatar>
-              <S.Info>
-                <S.Nick>{u.nickname}</S.Nick>
-                <S.Sub>{u.name}</S.Sub>
-              </S.Info>
-              <S.Chevron>›</S.Chevron>
-            </S.Row>
-          ))}
+          {items.map((u, idx) => {
+            const uid =
+              typeof u === 'object' && u !== null && 'userUuid' in u
+                ? ((u as LikeUser).userUuid as string | undefined)
+                : undefined
+            const isDeleted = !uid
+            const nick = u?.nickname || '탈퇴한 사용자'
+            const name = u?.name || ''
+            const profileSrc = isDeleted
+              ? undefined
+              : (u as LikeUser).profileUrl
+
+            return (
+              <S.Row
+                key={uid ?? `deleted-${idx}`}
+                onClick={() => {
+                  if (!uid) return
+                  if (onUserClick) {
+                    onUserClick(uid)
+                  } else {
+                    navigate(`/profile/${uid}`)
+                  }
+                }}
+                tabIndex={isDeleted ? -1 : 0}
+                aria-disabled={isDeleted}
+                style={{
+                  cursor: isDeleted ? 'default' : 'pointer',
+                  opacity: isDeleted ? 0.6 : 1,
+                }}
+              >
+                <S.Avatar>
+                  <ProfileImage
+                    src={profileSrc}
+                    alt={nick}
+                    width="50px"
+                    height="50px"
+                  />
+                </S.Avatar>
+                <S.Info>
+                  <S.Nick className={isDeleted ? 'deleted' : ''}>{nick}</S.Nick>
+                  <S.Sub>{name}</S.Sub>
+                </S.Info>
+                <S.Chevron aria-hidden>›</S.Chevron>
+              </S.Row>
+            )
+          })}
 
           {loading && (
             <>
