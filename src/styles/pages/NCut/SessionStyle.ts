@@ -51,6 +51,16 @@ export const RemainingTakesCnt = styled.span`
   display: flex;
 `
 
+export const RecordingTimeDisplay = styled.div`
+  color: #ff4444;
+  font-weight: bold;
+  font-size: 14px;
+  background-color: rgba(255, 68, 68, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #ff4444;
+`
+
 export const LeaveSessionButton = styled.button`
   background-color: #f44336;
   color: white;

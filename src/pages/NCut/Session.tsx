@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useRoom } from '@hooks/useRoom'
 import { useBackgroundRemoval } from '@hooks/useBackgroundRemoval'
@@ -19,6 +19,7 @@ import { FaRegCopy } from 'react-icons/fa6'
 import { s3API } from '@/api/s3'
 import { useAuthStore } from '@/store/authStore'
 import { nCutAPI } from '@/api/ncut'
+import { formatTime } from '@/utils/date'
 
 export const Session: React.FC = () => {
   const location = useLocation()
@@ -46,6 +47,12 @@ export const Session: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [backgroundImageUrls, setBackgroundImageUrls] = useState<string[]>([])
+  const [localRecordingStartTime, setLocalRecordingStartTime] = useState<
+    number | null
+  >(null)
+  const [localRecordingTimer, setLocalRecordingTimer] =
+    useState<NodeJS.Timeout | null>(null)
+  const [localElapsedTime, setLocalElapsedTime] = useState<number>(0)
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordedChunksRef = useRef<Blob[]>([])
@@ -76,6 +83,12 @@ export const Session: React.FC = () => {
     countdownInfo,
     startSharedCountdown,
     sendNavigateToEdit,
+    broadcastToast,
+    recordingInfo,
+    broadcastRecordingStart,
+    broadcastRecordingStop,
+    broadcastRecordingTime,
+    recordingElapsedTime,
   } = useRoom()
 
   const {
@@ -393,16 +406,16 @@ export const Session: React.FC = () => {
       })
 
       success('캡처된 이미지를 저장했습니다.')
+      broadcastToast('촬영 완료', 'success')
 
       sendUrls([...sharedUrls, fileUrl as unknown as string])
-
-      sendChatMessage('촬영 완료!')
     } catch (err) {
       error(`캔버스 캡처 실패: ${err}`)
+      broadcastToast('촬영 실패', 'error')
     } finally {
       setIsProcessing(false)
     }
-  }, [error, success, sendUrls, sendChatMessage, sharedUrls, roomCode])
+  }, [error, success, sendUrls, sharedUrls, roomCode, broadcastToast])
 
   const startRecording = useCallback(() => {
     const mainCanvas = mainCanvasRef.current
@@ -439,14 +452,36 @@ export const Session: React.FC = () => {
         })
 
         success('녹화된 영상을 저장했습니다.')
+        broadcastToast('녹화 완료', 'success')
         sendUrls([...sharedUrls, fileUrl as unknown as string])
-        sendChatMessage('영상 촬영 완료!')
         recordedChunksRef.current = [] // 녹화가 끝나면 청소
+
+        broadcastRecordingStop()
+        setLocalRecordingStartTime(null)
+        setLocalElapsedTime(0)
+
+        if (localRecordingTimer) {
+          clearTimeout(localRecordingTimer)
+          setLocalRecordingTimer(null)
+        }
       }
 
       mediaRecorderRef.current = mediaRecorder
       mediaRecorder.start()
       setIsRecording(true)
+
+      const startTime = Date.now()
+
+      setLocalRecordingStartTime(startTime)
+      broadcastRecordingStart(timeLimit)
+
+      const timer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000)
+        setLocalElapsedTime(elapsed)
+        broadcastRecordingTime(elapsed)
+      }, 1000)
+
+      setLocalRecordingTimer(timer)
 
       setTimeout(() => {
         if (
@@ -461,6 +496,7 @@ export const Session: React.FC = () => {
       }, timeLimit * 1000)
     } catch (err) {
       error(`녹화 시작 실패: ${err}`)
+      broadcastToast('녹화 실패', 'error')
     } finally {
       setIsProcessing(false)
     }
@@ -468,10 +504,14 @@ export const Session: React.FC = () => {
     error,
     success,
     sendUrls,
-    sendChatMessage,
     sharedUrls,
     timeLimit,
     roomCode,
+    broadcastToast,
+    broadcastRecordingStart,
+    broadcastRecordingStop,
+    broadcastRecordingTime,
+    localRecordingTimer,
   ])
 
   const startCountDown = useCallback(
@@ -529,8 +569,40 @@ export const Session: React.FC = () => {
       mediaRecorderRef.current.stop()
       setIsRecording(false)
       mediaRecorderRef.current = null
+
+      broadcastRecordingStop()
+      setLocalRecordingStartTime(null)
+      setLocalElapsedTime(0)
+
+      if (localRecordingTimer) {
+        clearTimeout(localRecordingTimer)
+        setLocalRecordingTimer(null)
+      }
     }
-  }, [isRecording])
+  }, [isRecording, localRecordingTimer, broadcastRecordingStop])
+
+  useEffect(() => {
+    return () => {
+      if (localRecordingTimer) {
+        clearTimeout(localRecordingTimer)
+        setLocalRecordingTimer(null)
+      }
+    }
+  }, [localRecordingTimer])
+
+  const currentRecordingTime = useMemo(() => {
+    if (localRecordingStartTime) {
+      return localElapsedTime
+    } else if (recordingInfo?.isRecording) {
+      return recordingElapsedTime
+    }
+    return 0
+  }, [
+    localRecordingStartTime,
+    localElapsedTime,
+    recordingInfo,
+    recordingElapsedTime,
+  ])
 
   // 초기 설정 및 언마운트 정리
   useEffect(() => {
@@ -616,6 +688,12 @@ export const Session: React.FC = () => {
         <S.RemainingTakesCnt>
           {sharedUrls.length} / {takeCount}
         </S.RemainingTakesCnt>
+        {(recordingInfo?.isRecording || localRecordingStartTime) && (
+          <S.RecordingTimeDisplay>
+            녹화 중: {formatTime(currentRecordingTime)} /{' '}
+            {formatTime(timeLimit)}
+          </S.RecordingTimeDisplay>
+        )}
         <S.LeaveSessionButton onClick={handleLeaveRoom}>
           나가기
         </S.LeaveSessionButton>
