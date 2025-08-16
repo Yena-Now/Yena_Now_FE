@@ -6,6 +6,7 @@ export const ModalBackdrop = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 1000;
   background-color: rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;
@@ -68,7 +69,7 @@ export const ModalButton = styled.button`
     background-color: #f9be08;
     color: #333;
   }
-  
+
   &.cancel {
     background-color: red;
     color: #333;

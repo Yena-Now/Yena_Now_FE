@@ -216,9 +216,11 @@ export const Session: React.FC = () => {
               const g = data[i + 1]
               const b = data[i + 2]
 
-              // 검은색 또는 거의 검은색인 픽셀을 투명하게 만들기
-              if (r < 10 && g < 10 && b < 10) {
-                data[i + 3] = 0 // 알파값을 0으로 설정 (투명)
+              // 완전히 검정색만 투명하게
+              if (r < 2 && g < 2 && b < 2) {
+                data[i + 3] = 0
+              } else if (g > 100 && r < 80 && b < 80) {
+                data[i + 3] = 0
               } else {
                 data[i] = Math.min(255, data[i] * remoteTrack.brightness)
                 data[i + 1] = Math.min(
