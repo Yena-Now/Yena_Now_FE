@@ -219,7 +219,7 @@ const LikeListModal: React.FC<Props> = ({
                     src={profileSrc}
                     alt={nick}
                     width="50px"
-                    height="50px"
+                    height=""
                   />
                 </S.Avatar>
                 <S.Info>
